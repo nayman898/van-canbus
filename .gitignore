@@ -1,0 +1,12 @@
+/build/
+/.cache/
+/.vscode/*.log
+*.launch
+*.su
+*.map
+*.hex
+*.bin
+*.elf
+__pycache__/
+*.pyc
+.venv/

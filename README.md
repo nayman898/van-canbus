@@ -1,0 +1,80 @@
+# Van CAN bus
+
+Prototype CAN network for a 1982 Ford E-350. The first node is a read-only
+engine-monitoring controller built on an ST NUCLEO-G0B1RE and an Adafruit CAN
+Pal transceiver. A BTT U2C V2.1 provides the laptop/Pi CAN interface.
+
+The current bench firmware transmits a Classical CAN heartbeat at 500 kbit/s.
+It does not control the engine, fuel system, cooling fans, or any other output.
+
+## Bench wiring
+
+| Nucleo / CAN Pal | Connection |
+| --- | --- |
+| Nucleo 3V3 | CAN Pal Vcc |
+| Nucleo GND | CAN Pal GND |
+| Nucleo PA12 / FDCAN1_TX | CAN Pal TX |
+| Nucleo PA11 / FDCAN1_RX | CAN Pal RX |
+| CAN Pal SLNT | GND |
+| CAN Pal H | U2C H |
+| CAN Pal L | U2C L |
+| CAN Pal terminal GND | U2C GND |
+
+Leave the U2C V+ terminal disconnected. Enable one 120-ohm terminator at each
+end. With all USB cables unplugged, CAN-H to CAN-L should measure about 60 ohms.
+
+## Firmware behavior
+
+- Bus: Classical CAN, 500 kbit/s
+- Heartbeat identifier: standard 11-bit ID `0x100`
+- Period: 500 ms
+- Payload: protocol, node, status, sequence, and 32-bit little-endian uptime
+- Nucleo LED PA5 toggles whenever a heartbeat is successfully queued
+
+| Byte | Meaning |
+| ---: | --- |
+| 0 | Protocol version (`1`) |
+| 1 | Node type (`1` = engine node) |
+| 2 | Status (`0x01` = bench-test firmware) |
+| 3 | Rolling sequence counter |
+| 4-7 | Uptime in milliseconds, little-endian |
+
+## Clone and build
+
+Clone the repository, then initialize the pinned STM32CubeG0 dependency and
+only the two nested ST driver modules this firmware uses:
+
+```powershell
+git clone <repository-url>
+cd van-canbus
+git submodule update --init --depth 1 third_party/STM32CubeG0
+git -C third_party/STM32CubeG0 submodule update --init --depth 1 Drivers/STM32G0xx_HAL_Driver Drivers/CMSIS/Device/ST/STM32G0xx
+```
+
+From STM32CubeIDE for VS Code, select the `Debug` CMake preset and build. The
+build creates `.elf`, `.hex`, and `.bin` images under `build/Debug`.
+
+## Laptop monitor
+
+Install Python 3, create a virtual environment, and install the monitor's
+dependencies:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\python -m pip install -r requirements.txt
+.\.venv\Scripts\python tools\monitor_can.py
+```
+
+The U2C must use its normal `CAN OUT` H/L/GND connection and its `120R` jumper.
+
+Run the host-side protocol decoder tests with:
+
+```powershell
+.\.venv\Scripts\python -m unittest discover -s tests -v
+```
+
+## Safety boundary
+
+This is bench-test firmware. Do not connect the RECOM regulator directly to
+vehicle power until fused input, reverse-polarity protection, and automotive
+transient/load-dump protection have been added and verified.

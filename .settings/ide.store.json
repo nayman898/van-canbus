@@ -1,0 +1,10 @@
+{
+  "board": "NUCLEO-G0B1RE",
+  "device": "STM32G0B1RET6",
+  "core": "Cortex-M0+",
+  "order": 0,
+  "toolchain": "GCC",
+  "source": {
+    "sourceType": "Empty"
+  }
+}
