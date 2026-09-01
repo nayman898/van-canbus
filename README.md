@@ -91,6 +91,18 @@ py -m venv .venv
 
 The U2C must use its normal `CAN OUT` H/L/GND connection and its `120R` jumper.
 
+For a graphical dashboard, run:
+
+```powershell
+.\.venv\Scripts\python tools\can_dashboard.py
+```
+
+The dashboard opens at `http://127.0.0.1:8765` and displays live coolant
+temperature, ADC voltage, sensor faults, node uptime, and CAN connection state.
+It automatically retries if the USB CAN adapter is temporarily disconnected.
+On Windows, `start_dashboard.bat` provides a one-click launcher after the Python
+environment has been installed.
+
 Run the host-side protocol decoder tests with:
 
 ```powershell

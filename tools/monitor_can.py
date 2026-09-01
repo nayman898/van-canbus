@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from typing import Any
 
 import libusb_package
 from usb.backend import libusb1
@@ -32,38 +33,71 @@ SENSOR_STATUS = {
 }
 
 
-def decode_heartbeat(data: bytearray) -> str:
+def parse_heartbeat(data: bytearray) -> dict[str, Any]:
+    """Return structured heartbeat data for CLI and UI consumers."""
     if len(data) != 8:
-        return f"invalid heartbeat length={len(data)} data={data.hex(' ')}"
+        raise ValueError(f"invalid heartbeat length={len(data)}")
 
-    uptime_ms = int.from_bytes(data[4:8], byteorder="little", signed=False)
+    return {
+        "protocol": data[0],
+        "node": data[1],
+        "status": data[2],
+        "sequence": data[3],
+        "uptime_ms": int.from_bytes(data[4:8], byteorder="little", signed=False),
+    }
+
+
+def decode_heartbeat(data: bytearray) -> str:
+    try:
+        reading = parse_heartbeat(data)
+    except ValueError as exc:
+        return f"{exc} data={data.hex(' ')}"
+
     return (
-        f"engine heartbeat: protocol={data[0]} node={data[1]} "
-        f"status=0x{data[2]:02X} sequence={data[3]} uptime={uptime_ms} ms"
+        f"engine heartbeat: protocol={reading['protocol']} node={reading['node']} "
+        f"status=0x{reading['status']:02X} sequence={reading['sequence']} "
+        f"uptime={reading['uptime_ms']} ms"
     )
 
 
-def decode_coolant_temperature(data: bytearray) -> str:
+def parse_coolant_temperature(data: bytearray) -> dict[str, Any]:
+    """Return structured coolant data for CLI and UI consumers."""
     if len(data) != 8:
-        return f"invalid coolant length={len(data)} data={data.hex(' ')}"
+        raise ValueError(f"invalid coolant length={len(data)}")
 
     status = data[2]
     adc_raw = int.from_bytes(data[4:6], byteorder="little", signed=False)
     temperature_deci_c = int.from_bytes(data[6:8], byteorder="little", signed=True)
-    voltage = adc_raw * 3.3 / 4095.0
-    status_text = SENSOR_STATUS.get(status, f"unknown 0x{status:02X}")
+    temperature_c = temperature_deci_c / 10.0 if status == 0 else None
 
-    if status != 0:
+    return {
+        "protocol": data[0],
+        "sensor": data[1],
+        "status": status,
+        "status_text": SENSOR_STATUS.get(status, f"unknown 0x{status:02X}"),
+        "sequence": data[3],
+        "adc_raw": adc_raw,
+        "voltage": adc_raw * 3.3 / 4095.0,
+        "temperature_c": temperature_c,
+        "temperature_f": (temperature_c * 9.0 / 5.0) + 32.0 if temperature_c is not None else None,
+    }
+
+
+def decode_coolant_temperature(data: bytearray) -> str:
+    try:
+        reading = parse_coolant_temperature(data)
+    except ValueError as exc:
+        return f"{exc} data={data.hex(' ')}"
+
+    if reading["status"] != 0:
         return (
-            f"coolant outlet: FAULT={status_text} sequence={data[3]} "
-            f"adc={adc_raw} ({voltage:.3f} V)"
+            f"coolant outlet: FAULT={reading['status_text']} sequence={reading['sequence']} "
+            f"adc={reading['adc_raw']} ({reading['voltage']:.3f} V)"
         )
 
-    temperature_c = temperature_deci_c / 10.0
-    temperature_f = (temperature_c * 9.0 / 5.0) + 32.0
     return (
-        f"coolant outlet: {temperature_f:.1f} F / {temperature_c:.1f} C "
-        f"sequence={data[3]} adc={adc_raw} ({voltage:.3f} V)"
+        f"coolant outlet: {reading['temperature_f']:.1f} F / {reading['temperature_c']:.1f} C "
+        f"sequence={reading['sequence']} adc={reading['adc_raw']} ({reading['voltage']:.3f} V)"
     )
 
 

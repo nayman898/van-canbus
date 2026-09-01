@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Van CAN Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">1982 FORD E-350</p>
+        <h1>Engine telemetry</h1>
+      </div>
+      <div id="connection" class="status status-waiting">
+        <span class="status-dot"></span>
+        <span id="connection-text">Connecting</span>
+      </div>
+    </header>
+
+    <section class="hero card" id="coolant-card">
+      <div class="card-heading">
+        <div>
+          <p class="label">COOLANT OUTLET</p>
+          <p id="sensor-state" class="sensor-state">Waiting for data</p>
+        </div>
+        <span class="can-id">CAN 0x110</span>
+      </div>
+      <div class="temperature-row">
+        <div class="temperature-main"><span id="temp-f">--.-</span><small>°F</small></div>
+        <div class="temperature-secondary"><span id="temp-c">--.-</span> °C</div>
+      </div>
+      <div class="temperature-track" aria-hidden="true">
+        <div id="temperature-fill" class="temperature-fill"></div>
+        <span class="tick tick-cold">32</span>
+        <span class="tick tick-normal">190</span>
+        <span class="tick tick-hot">250°F</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card detail-card">
+        <p class="label">SENSOR VOLTAGE</p>
+        <p class="detail-value"><span id="voltage">--.---</span><small> V</small></p>
+        <p class="detail-note"><span id="adc">----</span> / 4095 ADC counts</p>
+      </article>
+      <article class="card detail-card">
+        <p class="label">ENGINE NODE</p>
+        <p class="detail-value"><span id="node-uptime">--:--</span></p>
+        <p class="detail-note">Node uptime · sequence <span id="heartbeat-sequence">--</span></p>
+      </article>
+      <article class="card detail-card">
+        <p class="label">CAN TRAFFIC</p>
+        <p class="detail-value"><span id="frame-count">0</span></p>
+        <p class="detail-note">CAN frames this session</p>
+      </article>
+    </section>
+
+    <footer>
+      <span>U2C · <span id="bitrate">500</span> kbit/s</span>
+      <span id="last-update">No frames received</span>
+    </footer>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
