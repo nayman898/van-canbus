@@ -10,6 +10,7 @@
 #define STATUS_LED_GPIO_Port GPIOA
 
 extern FDCAN_HandleTypeDef hfdcan1;
+extern ADC_HandleTypeDef hadc1;
 
 void Error_Handler(void);
 

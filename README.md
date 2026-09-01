@@ -4,7 +4,8 @@ Prototype CAN network for a 1982 Ford E-350. The first node is a read-only
 engine-monitoring controller built on an ST NUCLEO-G0B1RE and an Adafruit CAN
 Pal transceiver. A BTT U2C V2.1 provides the laptop/Pi CAN interface.
 
-The current bench firmware transmits a Classical CAN heartbeat at 500 kbit/s.
+The current bench firmware transmits a Classical CAN heartbeat and the first
+TX3 coolant-temperature input at 500 kbit/s.
 
 The provisional vehicle wiring and connector allocation are documented in
 [the engine-node harness plan](docs/engine-node-harness.md).
@@ -33,6 +34,10 @@ end. With all USB cables unplugged, CAN-H to CAN-L should measure about 60 ohms.
 - Period: 500 ms
 - Payload: protocol, node, status, sequence, and 32-bit little-endian uptime
 - Nucleo LED PA5 toggles whenever a heartbeat is successfully queued
+- Coolant identifier: standard 11-bit ID `0x110`
+- Coolant period: 250 ms
+- Coolant input: Arduino A0 / PA0 / ADC1_IN0
+- TX3 pull-up: nominal 2.47 kohm to 3.3 V
 
 | Byte | Meaning |
 | ---: | --- |
@@ -41,6 +46,22 @@ end. With all USB cables unplugged, CAN-H to CAN-L should measure about 60 ohms.
 | 2 | Status (`0x01` = bench-test firmware) |
 | 3 | Rolling sequence counter |
 | 4-7 | Uptime in milliseconds, little-endian |
+
+Coolant frame `0x110`:
+
+| Byte | Meaning |
+| ---: | --- |
+| 0 | Protocol version (`1`) |
+| 1 | Sensor (`1` = thermostat-outlet coolant) |
+| 2 | Status (`0` valid, bit 0 open, bit 1 short, bit 2 ADC, bit 3 calculation) |
+| 3 | Rolling sequence counter |
+| 4-5 | Averaged 12-bit ADC count, little-endian |
+| 6-7 | Signed temperature in 0.1 degrees C, little-endian; `-32768` if invalid |
+
+The temperature conversion uses a three-point Steinhart-Hart fit for the TX3:
+9335 ohms at 0 C, 3500 ohms at 20 C, and 336 ohms at 80 C. Update
+`TX3_PULLUP_OHMS` in `Inc/tx3_sensor.h` if the measured pull-up differs from
+2470 ohms.
 
 ## Clone and build
 

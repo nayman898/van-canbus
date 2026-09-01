@@ -62,8 +62,9 @@ high-impedance protected input so it does not alter the gauge readings.
 
 - Do not solder Deutsch/AT-series crimp contacts. Crimp them only; solder can
   wick up the conductor and create a vibration failure point.
-- Do not populate the TX3 divider or ADC protection components until both TX3
-  sensors have been resistance-tested.
+- The first TX3 bench channel uses a nominal 2.47-kohm pull-up to 3.3 V, a
+  1-kohm series resistor into A0/PA0, and firmware open/short detection. Add
+  automotive transient clamps before vehicle installation.
 - Do not drill the enclosure until the connector housing part numbers,
   orientation, mounting tray, and cable-exit direction are confirmed.
 - Do not connect the R-78K5.0 regulator or Nucleo directly to van power.
@@ -78,7 +79,7 @@ high-impedance protected input so it does not alter the gauge readings.
 | PA12 / FDCAN1_TX | TX |
 | PA11 / FDCAN1_RX | RX |
 
-Continue powering the Nucleo by USB for bench testing. The next electrical step
-is measuring both TX3 sensors at room temperature, then selecting the pull-up
-and input-protection network from those results.
-
+Continue powering the Nucleo by USB for bench testing. The first TX3 channel has
+been verified at 1.69 V with a room-temperature sensor near 2.60 kohm. The
+vehicle installation still requires the protected power-input stage and
+automotive transient protection on the sensor input.

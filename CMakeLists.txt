@@ -31,13 +31,17 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/files.cmake)
 # Add sources to executable/library
 target_sources(${PROJECT_NAME} PRIVATE
   Src/can_protocol.c
+  Src/tx3_sensor.c
   Src/stm32g0xx_hal_msp.c
   Src/stm32g0xx_it.c
 
   third_party/STM32CubeG0/Drivers/CMSIS/Device/ST/STM32G0xx/Source/Templates/system_stm32g0xx.c
 
   third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal.c
+  third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_adc.c
+  third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_adc_ex.c
   third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_cortex.c
+  third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_dma.c
   third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_fdcan.c
   third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_flash.c
   third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_flash_ex.c
@@ -80,7 +84,7 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 
 # Add additional linker libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE
-  # Add additional linker libraries here
+  m
 )
 
 get_filename_component(ARM_TOOLCHAIN_BIN_DIR "${CMAKE_C_COMPILER}" DIRECTORY)

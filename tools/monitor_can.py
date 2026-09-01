@@ -21,6 +21,15 @@ import can
 
 
 HEARTBEAT_ID = 0x100
+COOLANT_1_ID = 0x110
+
+SENSOR_STATUS = {
+    0x00: "ok",
+    0x01: "open circuit",
+    0x02: "short circuit",
+    0x04: "ADC error",
+    0x08: "calculation error",
+}
 
 
 def decode_heartbeat(data: bytearray) -> str:
@@ -31,6 +40,30 @@ def decode_heartbeat(data: bytearray) -> str:
     return (
         f"engine heartbeat: protocol={data[0]} node={data[1]} "
         f"status=0x{data[2]:02X} sequence={data[3]} uptime={uptime_ms} ms"
+    )
+
+
+def decode_coolant_temperature(data: bytearray) -> str:
+    if len(data) != 8:
+        return f"invalid coolant length={len(data)} data={data.hex(' ')}"
+
+    status = data[2]
+    adc_raw = int.from_bytes(data[4:6], byteorder="little", signed=False)
+    temperature_deci_c = int.from_bytes(data[6:8], byteorder="little", signed=True)
+    voltage = adc_raw * 3.3 / 4095.0
+    status_text = SENSOR_STATUS.get(status, f"unknown 0x{status:02X}")
+
+    if status != 0:
+        return (
+            f"coolant outlet: FAULT={status_text} sequence={data[3]} "
+            f"adc={adc_raw} ({voltage:.3f} V)"
+        )
+
+    temperature_c = temperature_deci_c / 10.0
+    temperature_f = (temperature_c * 9.0 / 5.0) + 32.0
+    return (
+        f"coolant outlet: {temperature_f:.1f} F / {temperature_c:.1f} C "
+        f"sequence={data[3]} adc={adc_raw} ({voltage:.3f} V)"
     )
 
 
@@ -55,6 +88,8 @@ def main() -> int:
                     continue
                 if not message.is_extended_id and message.arbitration_id == HEARTBEAT_ID:
                     print(f"{message.timestamp:.6f}  {decode_heartbeat(message.data)}")
+                elif not message.is_extended_id and message.arbitration_id == COOLANT_1_ID:
+                    print(f"{message.timestamp:.6f}  {decode_coolant_temperature(message.data)}")
                 else:
                     print(message)
     except KeyboardInterrupt:

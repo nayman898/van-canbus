@@ -26,5 +26,30 @@ class HeartbeatDecoderTests(unittest.TestCase):
         self.assertIn("invalid heartbeat length=3", decoded)
 
 
+class CoolantDecoderTests(unittest.TestCase):
+    def test_decodes_valid_temperature(self) -> None:
+        # 26.6 C, approximately 79.9 F, with ADC count 2098.
+        payload = bytearray([1, 1, 0, 7, 0x32, 0x08, 0x0A, 0x01])
+
+        decoded = MONITOR.decode_coolant_temperature(payload)
+
+        self.assertIn("79.9 F / 26.6 C", decoded)
+        self.assertIn("sequence=7", decoded)
+        self.assertIn("adc=2098", decoded)
+
+    def test_decodes_open_circuit_fault(self) -> None:
+        payload = bytearray([1, 1, 1, 8, 0xFF, 0x0F, 0x00, 0x80])
+
+        decoded = MONITOR.decode_coolant_temperature(payload)
+
+        self.assertIn("FAULT=open circuit", decoded)
+        self.assertIn("adc=4095", decoded)
+
+    def test_rejects_wrong_length(self) -> None:
+        decoded = MONITOR.decode_coolant_temperature(bytearray([1, 2, 3]))
+
+        self.assertIn("invalid coolant length=3", decoded)
+
+
 if __name__ == "__main__":
     unittest.main()
