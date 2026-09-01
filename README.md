@@ -5,6 +5,9 @@ engine-monitoring controller built on an ST NUCLEO-G0B1RE and an Adafruit CAN
 Pal transceiver. A BTT U2C V2.1 provides the laptop/Pi CAN interface.
 
 The current bench firmware transmits a Classical CAN heartbeat at 500 kbit/s.
+
+The provisional vehicle wiring and connector allocation are documented in
+[the engine-node harness plan](docs/engine-node-harness.md).
 It does not control the engine, fuel system, cooling fans, or any other output.
 
 ## Bench wiring
