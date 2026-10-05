@@ -1,8 +1,12 @@
 # Van CAN bus
 
-Prototype CAN network for a 1982 Ford E-350. The first node is a read-only
-engine-monitoring controller built on an ST NUCLEO-G0B1RE and an Adafruit CAN
-Pal transceiver. A BTT U2C V2.1 provides the laptop/Pi CAN interface.
+A build-in-progress engine monitoring system for a **1982 Ford E-350**.
+This repository contains the STM32 firmware, a laptop dashboard, and wiring
+notes so others can follow along with the build.
+
+The first node uses an ST NUCLEO-G0B1RE and an Adafruit CAN Pal transceiver.
+A BTT U2C V2.1 connects the bus to the laptop. This is a custom telemetry
+network, not an OBD-II scanner or decoder for a factory vehicle network.
 
 The current bench firmware transmits a Classical CAN heartbeat and the first
 TX3 coolant-temperature input at 500 kbit/s.
@@ -10,6 +14,46 @@ TX3 coolant-temperature input at 500 kbit/s.
 The provisional vehicle wiring and connector allocation are documented in
 [the engine-node harness plan](docs/engine-node-harness.md).
 It does not control the engine, fuel system, cooling fans, or any other output.
+The node actively transmits its own CAN messages; “read-only engine monitoring”
+does not mean CAN listen-only mode.
+
+## How it fits together
+
+```mermaid
+flowchart LR
+    TX3[TX3 coolant sensor] -->|Analog voltage| MCU[NUCLEO-G0B1RE]
+    MCU -->|CAN TX / RX| PAL[Adafruit CAN Pal]
+    PAL <-->|CAN-H / CAN-L + ground| U2C[BTT U2C V2.1]
+    U2C <-->|USB| PC[Python monitor / browser dashboard]
+```
+
+The Nucleo samples the sensor and encodes the messages. The CAN Pal provides
+the physical CAN interface; the U2C bridges the bus to the laptop. The working
+bench setup uses USB power for the Nucleo and U2C.
+
+## Current status
+
+| Area | What exists today |
+| --- | --- |
+| CAN and coolant channel 1 | Working on the bench at 500 kbit/s |
+| Laptop tools | Terminal monitor and live browser dashboard |
+| Vehicle harness | Provisional 6-pin power/CAN and 12-pin sensor allocations |
+| Vehicle power | Protection parts selected; assembly/vehicle validation still pending in the build notes |
+| Additional sensors | Second coolant channel and pressure inputs planned |
+| Recording | No built-in file recording or playback yet |
+
+## Follow the build
+
+| Guide | What it covers |
+| --- | --- |
+| [Documentation index](docs/README.md) | Suggested reading and build order |
+| [Build progress](docs/build-progress.md) | Completed milestones, design choices, and next steps |
+| [Hardware](docs/hardware.md) | Bench parts, sensor circuit, and hardware references |
+| [Bench setup](docs/bench-setup.md) | Wiring, first power-up, expected readings, and troubleshooting |
+| [Harness and vehicle power](docs/engine-node-harness.md) | Connector assignments and staged power-input work |
+| [Firmware](docs/firmware.md) | Build, programming, and source walkthrough |
+| [CAN protocol](docs/can-protocol.md) | Message layouts, units, fault flags, and examples |
+| [Laptop tools](tools/README.md) | Dashboard, terminal monitor, setup, and limitations |
 
 ## Bench wiring
 
@@ -69,7 +113,7 @@ Clone the repository, then initialize the pinned STM32CubeG0 dependency and
 only the two nested ST driver modules this firmware uses:
 
 ```powershell
-git clone <repository-url>
+git clone https://github.com/nayman898/van-canbus.git
 cd van-canbus
 git submodule update --init --depth 1 third_party/STM32CubeG0
 git -C third_party/STM32CubeG0 submodule update --init --depth 1 Drivers/STM32G0xx_HAL_Driver Drivers/CMSIS/Device/ST/STM32G0xx
@@ -80,11 +124,11 @@ build creates `.elf`, `.hex`, and `.bin` images under `build/Debug`.
 
 ## Laptop monitor
 
-Install Python 3, create a virtual environment, and install the monitor's
+Install Python 3.10 or newer, create a virtual environment, and install the monitor's
 dependencies:
 
 ```powershell
-py -m venv .venv
+py -3 -m venv .venv
 .\.venv\Scripts\python -m pip install -r requirements.txt
 .\.venv\Scripts\python tools\monitor_can.py
 ```
@@ -103,6 +147,10 @@ It automatically retries if the USB CAN adapter is temporarily disconnected.
 On Windows, `start_dashboard.bat` provides a one-click launcher after the Python
 environment has been installed.
 
+The dashboard displays live readings and retains the latest values in memory;
+it does not save recordings. See the [tools guide](tools/README.md) for options,
+troubleshooting, and a way to capture a basic terminal transcript.
+
 Run the host-side protocol decoder tests with:
 
 ```powershell
@@ -114,3 +162,12 @@ Run the host-side protocol decoder tests with:
 This is bench-test firmware. Do not connect the RECOM regulator directly to
 vehicle power until fused input, reverse-polarity protection, and automotive
 transient/load-dump protection have been added and verified.
+Sensor-input transient protection and a secured harness/enclosure are also
+still needed before vehicle installation.
+
+## Questions and build feedback
+
+Questions and observations are welcome in
+[GitHub Issues](https://github.com/nayman898/van-canbus/issues). Include the board
+and adapter versions, firmware commit, wiring, and observed behavior so your
+setup can be compared with this one.

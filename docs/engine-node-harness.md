@@ -1,5 +1,7 @@
 # Engine node harness plan
 
+[Documentation index](README.md) · [Bench setup](bench-setup.md) · [Hardware](hardware.md)
+
 This is the preparation plan for the first read-only engine node. The bench
 network already works at 500 kbit/s. Vehicle power and sensor inputs are not
 ready to connect yet.
@@ -10,9 +12,19 @@ Keep vehicle power/CAN separate from the sensor harness. This leaves enough
 sensor cavities for later oil and fuel-pressure inputs and makes either side of
 the installation serviceable without disturbing the other.
 
+Both the 6-pin and 12-pin plugs are now available for this build. The intended
+allocation is [C1 for power/CAN](#c1-final-power-and-can-provisional-6-way) and
+[C2 for sensors](#c2-final-sensors-provisional-12-way). Those cavity assignments
+remain provisional until the housing part numbers and orientation are recorded.
+The older C0 combined allocation below is retained as a temporary reference;
+it is **not pin-compatible** with the sensor-only C2 allocation.
+
+Connector names C1/C2 and capacitor references C1/C2 in the power schematic
+belong to separate naming contexts in these prototype notes.
+
 ## C0: temporary combined 12-way
 
-Use this allocation while the separate power/CAN connector is unavailable.
+This was the interim allocation while the separate power/CAN connector was unavailable.
 The molded cavity numbers on the connector are authoritative; do not assign
 pins by apparent left/right position because the mating face and wire-entry
 views are mirrored.
@@ -178,9 +190,11 @@ Important assembly details:
 | 5 | Ignition/wake input, reserved | Orange |
 | 6 | Spare | Violet |
 
-The R-78K5.0 regulator must not be connected directly to vehicle power. The
-reverse-polarity, fuse, surge, and load-dump protection stage must be designed
-and installed first.
+The R-78K5.0 regulator must not be connected directly to vehicle power. Parts
+for the protection stage are selected above; assembly and validation must
+precede vehicle-power use. The table's “protected” power label does not settle
+which side of C1 houses the protection stage. Record that physical placement
+in the final wiring drawing before wiring cavity 1.
 
 ### C2: final sensors (provisional 12-way)
 
