@@ -100,6 +100,73 @@ it is not an automotive input-protection device. Do not proceed from this clean
 bench test to van power until the fused reverse-polarity and transient/load-dump
 stage has been selected, assembled, and tested.
 
+## Selected protected vehicle-input stage
+
+The following parts were purchased for the engine-node power input:
+
+| Ref. | Part | Function |
+| --- | --- | --- |
+| D1 | STMicroelectronics `STPS5H100BY-TR` | 100 V, 5 A automotive Schottky series diode for reverse-battery protection |
+| R1 | Vishay `PR02000201009JR500` | 10 ohm, 2 W axial surge-current limiting resistor |
+| D2 | Vishay `SM8S18CAHM3/I` | 18 V standoff, 29.2 V maximum-clamp, bidirectional automotive TVS |
+| C1 | Panasonic `EEH-AZC1H470B` | 47 uF, 50 V polarized hybrid input capacitor |
+| C2 | TDK `FA18X7R1H104KNU00` | 0.1 uF, 50 V X7R ceramic input bypass capacitor |
+| U1 | RECOM `R-78K5.0-1.0` | 6.5--36 V input to regulated 5 V converter |
+| C3 | TDK `FA18X7R1H104KNU00` | 0.1 uF, 50 V ceramic output bypass capacitor |
+
+Wire the stage in this order:
+
+```text
+switched vehicle +12 V
+        |
+   external 0.5 A fuse, close to source
+        |
+        +---- D1 anode
+              D1 cathode/tab ---- R1 10 ohm ---- PROTECTED_12V ---- U1 pin 1 (+VIN)
+                                                   |               U1 pin 2 (GND) ---- GND
+                                                   |               U1 pin 3 (+VOUT) -- +5V
+                                                   |
+                                                   +---- D2 TVS ---- GND
+                                                   +---- C1 47 uF -- GND
+                                                   +---- C2 0.1 uF - GND
+
+                                                     +5V ---- C3 0.1 uF ---- GND
+
+vehicle ground -------------------------------------------------------------- GND
+```
+
+Important assembly details:
+
+- D1's anode faces the fused vehicle input. Its cathode and metal DPAK tab face
+  R1 and the converter. Confirm the physical leads with diode mode before
+  soldering; the unused DPAK lead is not connected.
+- D2 has a `CA` bidirectional suffix and can be installed either direction. Keep
+  both of its connections short and heavy, directly between `PROTECTED_12V` and
+  the power ground bus.
+- C1 is polarized: positive goes to `PROTECTED_12V`, negative goes to ground.
+  C2 and C3 are not polarized.
+- The 10-ohm resistor intentionally limits surge current into the TVS. It also
+  prevents using the converter's full nominal 1 A output at low input voltage;
+  this stage is sized for the low-current engine-monitor node, not cabin loads.
+- Keep CAN/sensor returns connected to the same module reference ground, but do
+  not route their normal current through the TVS or capacitor lead lengths.
+
+### Protected-input staged test
+
+1. Disconnect the Nucleo, U2C, CAN wiring, sensors, and all USB cables.
+2. With power off, verify no hard short from `PROTECTED_12V` or +5 V to ground.
+3. Feed 12 V through the fuse with a 0.10 A bench current limit. Measure voltage
+   before D1, after D1, at `PROTECTED_12V`, and at U1 pin 3. Expect a small drop
+   across D1, almost no drop across R1 with no load, and about 5.0 V output.
+4. Switch off, connect the Nucleo at E5V/GND, raise the limit to 0.25 A, and
+   verify the 5 V and 3.3 V rails before reconnecting CAN.
+5. For a reverse-polarity check, disconnect every USB/CAN connection, set the
+   bench limit to 0.01 A, reverse the 12 V input, and verify zero converter
+   output and no heating. Correct polarity before reconnecting anything.
+6. Do not attempt to force the TVS into avalanche with the bench supply. Final
+   installation still requires the fuse at the vehicle-power takeoff and secure,
+   vibration-resistant support for the two surface-mount power parts.
+
 ### C1: final power and CAN (provisional 6-way)
 
 | Cavity | Circuit | Suggested color |
