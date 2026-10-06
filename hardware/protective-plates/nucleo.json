@@ -1,0 +1,11 @@
+{
+  "width": 70.0,
+  "length": 82.5,
+  "pins_below_pcb": 8.0,
+  "pin_margin": 2.0,
+  "pcb_thickness": 1.6,
+  "thickness_tolerance": 0.4,
+  "side_clearance": 0.5,
+  "edge_overlap": 0.8,
+  "note": "Outline from user's MB1360 drawing; 8 mm pins measured by user. PCB thickness and 0.8 mm clear edge strips still need physical fit verification. No PCB mounting holes assumed."
+}

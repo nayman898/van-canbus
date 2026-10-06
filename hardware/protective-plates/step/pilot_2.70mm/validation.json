@@ -1,0 +1,95 @@
+{
+  "units": "mm",
+  "pilot_diameter_mm": 2.7,
+  "parts": {
+    "eplzon_38x51_tray": {
+      "size_mm": [
+        43.3,
+        56.0,
+        8.4
+      ],
+      "volume_mm3": 7525.266,
+      "solids": 1,
+      "analytic_cylinder_faces": 4,
+      "step_round_trip": "passed"
+    },
+    "eplzon_38x51_fit_test": {
+      "size_mm": [
+        8.0,
+        56.0,
+        1.2
+      ],
+      "volume_mm3": 523.859,
+      "solids": 1,
+      "analytic_cylinder_faces": 2,
+      "step_round_trip": "passed"
+    },
+    "permaproto_half_1609_tray": {
+      "size_mm": [
+        56.0,
+        86.48,
+        8.4
+      ],
+      "volume_mm3": 14192.258,
+      "solids": 1,
+      "analytic_cylinder_faces": 4,
+      "step_round_trip": "passed"
+    },
+    "permaproto_half_1609_fit_test": {
+      "size_mm": [
+        8.0,
+        86.48,
+        1.2
+      ],
+      "volume_mm3": 816.467,
+      "solids": 1,
+      "analytic_cylinder_faces": 2,
+      "step_round_trip": "passed"
+    },
+    "nucleo_edge_tray_8mm_pins": {
+      "size_mm": [
+        88.0,
+        89.5,
+        15.6
+      ],
+      "volume_mm3": 30465.334,
+      "solids": 1,
+      "analytic_cylinder_faces": 2,
+      "step_round_trip": "passed"
+    },
+    "nucleo_rail_fit_test": {
+      "size_mm": [
+        88.0,
+        12.0,
+        15.6
+      ],
+      "volume_mm3": 3834.24,
+      "solids": 1,
+      "analytic_cylinder_faces": 0,
+      "step_round_trip": "passed"
+    },
+    "nucleo_stop_left": {
+      "size_mm": [
+        10.0,
+        8.0,
+        6.0
+      ],
+      "volume_mm3": 180.948,
+      "solids": 1,
+      "analytic_cylinder_faces": 1,
+      "step_round_trip": "passed"
+    },
+    "nucleo_stop_right": {
+      "size_mm": [
+        10.0,
+        8.0,
+        6.0
+      ],
+      "volume_mm3": 180.948,
+      "solids": 1,
+      "analytic_cylinder_faces": 1,
+      "step_round_trip": "passed"
+    }
+  },
+  "assembly_round_trip": "passed: three separate solids"
+}

@@ -97,6 +97,187 @@ Both TX3 channels are implemented and bench reception is confirmed. GlowShift
 pressure inputs remain planned; reserved pins do not imply working pressure
 input circuits or firmware support.
 
+## Printable bottom guards — first fit prototypes
+
+These are **open-top bench guards**, not sealed, automotive-qualified boxes.
+They protect the underside from a flat work surface; open sides/top do not
+exclude loose wire strands, tools, moisture, or metal debris. Remove the board
+before soldering, drilling, or tapping plastic. Do not pot the electronics or
+lay solder joints directly on the floor.
+
+![Top-view preview of the printable guards](../hardware/protective-plates/preview.svg)
+
+| Board | Printable file | Dimensions / mounting |
+| --- | --- | --- |
+| EPLZON pictured 1.5 × 2 inch board | [Bottom tray STL](../hardware/protective-plates/stl/eplzon_38x51_tray.stl) | 43.3 × 56 × 8.4 mm; two central M3 locations, 40.6 mm apart |
+| Adafruit Perma-Proto half, product 1609 | [Bottom tray STL](../hardware/protective-plates/stl/permaproto_half_1609_tray.stl) | 56 × 86.48 × 8.4 mm; two M3 locations, 73.66 mm apart |
+| Nucleo MB1360, intact ST-Link, measured 8 mm pins | [Edge-retaining tray STL](../hardware/protective-plates/stl/nucleo_edge_tray_8mm_pins.stl) | 88 × 89.5 × 15.6 mm; 70 × 82.5 mm PCB, no board screws |
+| Nucleo removable front stops | [Left STL](../hardware/protective-plates/stl/nucleo_stop_left.stl), [right STL](../hardware/protective-plates/stl/nucleo_stop_right.stl) | Print one each; two M3 × 6 mm screws into the tray, not the PCB |
+
+All dimensions are millimetres. Import at **100% scale**, flat bottom on the
+bed, with posts/spacers upright. The proto trays provide 6 mm from floor top
+to PCB underside, a 2.4 mm floor, 2 mm low guards, and 12 mm wire notches on
+all sides. Wires can also leave over the low rim. These notches are not strain
+relief: secure cables separately without pulling on solder joints.
+
+### Print and fit the proto trays
+
+1. Print the small [EPLZON hole-spacing test](../hardware/protective-plates/stl/eplzon_38x51_fit_test.stl)
+   and [Perma-Proto hole-spacing test](../hardware/protective-plates/stl/permaproto_half_1609_fit_test.stl)
+   first. They are 1.2 mm-thick rails for checking hole alignment and pilot-hole
+   print quality, **not electrical bottom protectors**. Check against the
+   unpowered board's component side or use a paper template so the rail does
+   not press on solder joints.
+2. Print the full tray in ordinary, non-conductive **PETG for the bench**.
+   Start with a 0.4 mm nozzle, 0.20 mm layers, four walls, five top/bottom
+   layers, 20–30% infill, no supports. Use your filament maker's temperature
+   profile and your CC2's calibrated flow settings; no printer-specific G-code
+   is supplied. Use a brim if needed for adhesion.
+3. Posts have **2.7 mm blind pilots**, intended for gently tapping M3 threads
+   or carefully forming them with a machine screw. Test on scrap first.
+   Start with M3 × 6 mm screws for a nominal 1.6 mm PCB; verify actual engagement
+   and do not bottom out. Prefer nylon screws; if using metal, ensure the head
+   and any washer stay within the mechanical-hole keepout. Do not overtighten.
+4. The EPLZON tray uses the two **central 3.2 mm holes**, NOT the four M2 corner
+   holes. The mounting posts touch a 6 mm-diameter area around each hole: check
+   that this area has no soldered lead or component on your actual board.
+5. Measure the longest underside solder/wire projection. With 6 mm supports,
+   keep it below 4 mm to retain at least 2 mm of clearance. If it is longer,
+   increase `clearance` in the model rather than forcing the board down.
+6. Confirm the board is supported only at its mounting points, is not bowed,
+   and does not rock. The two-post arrangement is a bench prototype, not
+   validated support for heavy components or vehicle vibration.
+
+### Nucleo: edge-retaining tray for 8 mm bottom pins
+
+The user supplied the MB1360 mechanical drawing (70 × 82.5 mm) and measured
+8 mm pin projection. The PCB underside is therefore **10 mm above the floor**,
+leaving **2 mm nominal pin clearance**. Keep the ST-Link section attached.
+There are no assumed PCB mounting holes: the rails support/capture its long
+edges and two removable front corner stops prevent sliding out.
+
+1. Print the [full-width rail-fit coupon](../hardware/protective-plates/stl/nucleo_rail_fit_test.stl)
+   first. It has the same rail spacing, clearance, and 2.0 mm slot as the full
+   tray, but is only 12 mm long. The slot assumes 1.6 mm PCB thickness plus
+   0.4 mm vertical allowance; width clearance is 0.5 mm per side.
+2. With **all power/cables removed**, inspect the outer 0.8 mm strip along both
+   long edges, on both faces. It must be free of components, solder, wiring,
+   and protruding header plastic where the lips/supports contact. Sideways
+   board play can increase contact overlap to about 1.3 mm on one side; check
+   that wider strip too. The supplied top drawing does not establish underside
+   keepouts. Do not force the coupon or tray past a connector or solder joint.
+3. Print the tray and one of each front stop, using the PETG settings above.
+   Flat bases go on the bed; lips are only 1.3 mm overhangs and are intended to
+   print without supports. Inspect the slicer's layers and remove any droop
+   before test-fitting. Do not scale the entire model to correct a tight slot.
+4. Before inserting the board, tap/check the tray's two 2.7 mm blind pilots.
+   The rail opening is the end with the two low screw pads. Slide the **non-USB
+   end first** toward the far stop, keeping the USB/ST-Link end at the opening.
+   Headers, pins and solder joints must stay clear during the entire slide.
+5. Install the left/right corner stops on their screw pads with **M3 × 6 mm**
+   screws. Their raised tabs face inward and the open/USB end. They attach to
+   plastic only and leave the central USB area open. Do not tighten them onto
+   the board; leave its small designed clearance. Check the actual USB plug's
+   moulded body clears the tray before plugging in.
+6. Verify the lowest pin still clears the floor by at least 2 mm, the board
+   cannot slide out or lift free, and no plastic contacts solder or components.
+   Only then reconnect power. Remove both stops before sliding the PCB out.
+
+Edit [nucleo.json](../hardware/protective-plates/nucleo.json) if the board
+thickness, edge keepouts, or pin length differs. This is a **first-fit bench
+prototype**, not physically verified or approved for vibration/underhood use.
+The older drill-to-fit blank and separate spacers remain as legacy files; they
+are not needed for this tray, and electrical header holes must never be used
+as screw mounts. No drilling or cutting of the Nucleo is required.
+
+### Material and enclosure limits
+
+PETG is a practical first fit/bench material; ASA offers better heat/UV
+resistance but needs suitable ventilation and a tuned enclosed-printer profile.
+See the [manufacturer material guide](https://help.prusa3d.com/filament-material-guide).
+Neither material name alone establishes suitability underhood: check the exact
+filament datasheet, measured location temperature, hot components, fluid
+exposure, and vibration. Avoid conductive/ESD filament. Keep hot diodes and
+the surge resistor clear of plastic and maintain their thermal clearance.
+
+Full lids and sealed cable entries are deferred until we measure the populated
+component heights, wire bundle sizes, USB access, and mounting location. These
+prints are not waterproof, flame-rated electrical enclosures, or a replacement
+for the planned protected vehicle power stage.
+
+### Editable source and verification
+
+#### Fusion / Onshape solid CAD files
+
+- [Download CAD bundle — original 2.7 mm pilots](../hardware/protective-plates/van-can-guards-pilot_2.70mm-CAD.zip)
+- [Download CAD bundle — 2.5 mm M3-tap pilots](../hardware/protective-plates/van-can-guards-pilot_2.50mm-CAD.zip)
+
+Each ZIP includes individual **STEP solids** for both proto trays, the Nucleo
+tray and left/right stops, and the fit-test pieces. `nucleo_assembled.step`
+contains the tray and stops in their assembled positions as three separate
+solids; use individual part files when preparing prints. Editable generator
+source/JSON, dependency lists, and a validation report are included too.
+
+These are analytic CAD bodies, not STL-to-solid conversions. STEP does **not**
+preserve the original Fusion timeline, Onshape sketches/constraints, or named
+parameters. Native `.f3d` / Onshape documents are not generated here. After
+import, use direct face edits or add sketches and features, then save in your
+application's native format. For linked dimensional changes, edit the supplied
+JSON/source and regenerate instead of expecting imported feature history.
+
+- **Fusion:** extract the ZIP, open/upload the desired `.step` as a CAD design
+  (not Insert Mesh), edit the solid bodies, and save your own Fusion document.
+- **Onshape:** import the extracted `.step` into a document; edit its solid
+  parts with direct-edit features or new sketches. See
+  [Onshape's import/edit guide](https://www.onshape.com/en/resource-center/tech-tips/import-edit-step-iges-parasolid-stl).
+- Units are **mm**. Check the Nucleo tray is 88 × 89.5 × 15.6 mm after import.
+
+The 2.5 mm variant changes only the blind pilots and matching pilot test holes;
+the stops' 3.3 mm clearance holes remain unchanged. It has no modelled threads:
+finish the printed pilots to the tap manufacturer's drill size, then tap M3 ×
+0.5 without breaking through the floor. Test blind-hole thread depth on scrap
+and account for the tap's lead. STEP exports do not overwrite existing STLs;
+export new STLs from CAD if printing the tap-size version.
+
+To regenerate STEP (Python 3.12+, preferably in a separate virtual environment):
+
+```sh
+python -m pip install -r hardware/protective-plates/requirements-step.txt
+python hardware/protective-plates/export_step.py
+python hardware/protective-plates/export_step.py --pilot-diameter 2.5
+```
+
+[STEP exporter](../hardware/protective-plates/export_step.py) reuses the original
+geometry recipe with an OpenCascade solid backend. Each exported part is
+re-imported and checked for validity, solid count, volume, dimensions, and
+analytic cylindrical holes. Assembly import is checked for three valid solids.
+Fusion/Onshape UI import and physical print fit have not been tested here.
+
+#### Parametric dimensions and STL regeneration
+
+Board dimensions and hole coordinates are in [boards.json](../hardware/protective-plates/boards.json).
+The image supplied for the EPLZON gives 38.1 × 50.8 mm and a central hole span
+of 40.6 mm. The Perma-Proto uses the exact 81.28 × 50.8 mm outline and
+73.66 mm span from [Adafruit's PCB layout](https://github.com/adafruit/Adafruit-Perma-Proto-PCB),
+rather than rounded shop dimensions. Its long axis is Y in this model.
+Physical board revision, solder clearance, and printer shrinkage still need
+checking. Do not scale the whole part to change screw-hole size.
+
+With Python 3.12+:
+
+```sh
+python -m pip install -r hardware/protective-plates/requirements.txt
+python hardware/protective-plates/generate.py
+```
+
+[The generator](../hardware/protective-plates/generate.py) produces the STLs,
+preview, and [validation report](../hardware/protective-plates/validation.json).
+It checks each mesh for watertightness, consistent winding, positive volume,
+a single connected solid, and placement on Z=0. The Nucleo tray and assembled
+stops also pass collision checks against the nominal PCB and an 8 mm-deep
+central pin envelope (excluding the edge-contact strips). **These are digital geometry
+checks, not physical fit tests.**
+
 ## Manufacturer references
 
 - [ST MB1360 / Nucleo-64 user manual](https://www.st.com/resource/en/user_manual/dm00452640.pdf): board power selection, connectors, and onboard ST-Link.

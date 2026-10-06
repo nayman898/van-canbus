@@ -1,0 +1,114 @@
+{
+  "eplzon_38x51": {
+    "size_mm": [
+      43.3,
+      56.0,
+      8.4
+    ],
+    "volume_mm3": 7524.47,
+    "watertight": true,
+    "connected_parts": 1,
+    "triangles": 868
+  },
+  "eplzon_38x51_fit_test": {
+    "size_mm": [
+      8.0,
+      56.0,
+      1.2
+    ],
+    "volume_mm3": 523.9,
+    "watertight": true,
+    "connected_parts": 1,
+    "triangles": 404
+  },
+  "permaproto_half_1609": {
+    "size_mm": [
+      56.0,
+      86.48,
+      8.4
+    ],
+    "volume_mm3": 14191.46,
+    "watertight": true,
+    "connected_parts": 1,
+    "triangles": 868
+  },
+  "permaproto_half_1609_fit_test": {
+    "size_mm": [
+      8.0,
+      86.48,
+      1.2
+    ],
+    "volume_mm3": 816.51,
+    "watertight": true,
+    "connected_parts": 1,
+    "triangles": 404
+  },
+  "nucleo_blank": {
+    "size_mm": [
+      90.0,
+      100.0,
+      2.4
+    ],
+    "volume_mm3": 21600.0,
+    "watertight": true,
+    "connected_parts": 1,
+    "triangles": 12
+  },
+  "spacer": {
+    "size_mm": [
+      6.0,
+      6.0,
+      12.0
+    ],
+    "volume_mm3": 235.98,
+    "watertight": true,
+    "connected_parts": 1,
+    "triangles": 384
+  },
+  "nucleo_edge_tray": {
+    "size_mm": [
+      88.0,
+      89.5,
+      15.6
+    ],
+    "volume_mm3": 30465.51,
+    "watertight": true,
+    "connected_parts": 1,
+    "triangles": 550,
+    "nominal_pcb_and_pin_envelope_collision_checks": "passed",
+    "pin_to_floor_clearance_mm": 2.0
+  },
+  "nucleo_rail_fit_test": {
+    "size_mm": [
+      88.0,
+      12.0,
+      15.6
+    ],
+    "volume_mm3": 3834.24,
+    "watertight": true,
+    "connected_parts": 1,
+    "triangles": 100
+  },
+  "nucleo_stop_left": {
+    "size_mm": [
+      10.0,
+      8.0,
+      6.0
+    ],
+    "volume_mm3": 181.01,
+    "watertight": true,
+    "connected_parts": 1,
+    "triangles": 230
+  },
+  "nucleo_stop_right": {
+    "size_mm": [
+      10.0,
+      8.0,
+      6.0
+    ],
+    "volume_mm3": 181.01,
+    "watertight": true,
+    "connected_parts": 1,
+    "triangles": 230
+  }
+}

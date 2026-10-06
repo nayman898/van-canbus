@@ -1,0 +1,10 @@
+Van CAN bottom guards - millimetres
+Pilot diameter: 2.50 mm; clearance holes stay 3.3 mm.
+STEP contains analytic solids, not meshes; it does not contain Fusion/Onshape feature history.
+Import an individual STEP to edit one part, or nucleo_assembled.step for the three-part assembly.
+Use direct face edits or add new sketches/features. Source scripts and JSON are included for regeneration.
+Install requirements-step.txt in Python 3.12+, then run export_step.py.
+For 2.5 mm pilots: python export_step.py --pilot-diameter 2.5
+Existing STL files are not changed by STEP export. Export revised STLs from your CAD application.
+First-fit bench prototypes, not physically verified or sealed automotive enclosures.
+Read docs/hardware.md in the repository for printing, clearances and assembly precautions.

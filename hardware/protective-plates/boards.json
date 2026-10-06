@@ -1,0 +1,16 @@
+{
+  "eplzon_38x51": {
+    "width": 38.1,
+    "length": 50.8,
+    "holes": [[19.05, 5.1], [19.05, 45.7]],
+    "clearance": 6.0,
+    "note": "User dimensioned photo: use the TWO central M3 holes, 40.6 mm apart. Corner M2 holes are unused. Verify physical board."
+  },
+  "permaproto_half_1609": {
+    "width": 50.8,
+    "length": 81.28,
+    "holes": [[25.4, 3.81], [25.4, 77.47]],
+    "clearance": 6.0,
+    "note": "Adafruit halfbreadboard Eagle outline 81.28 x 50.8 mm, holes 73.66 mm apart; rotated long axis along Y. Assumes product 1609."
+  }
+}
