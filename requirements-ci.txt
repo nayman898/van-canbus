@@ -1,2 +1,2 @@
 # CI-only checks; not required on the laptop used to monitor CAN.
-ruff==0.11.13
+ruff==0.16.10
