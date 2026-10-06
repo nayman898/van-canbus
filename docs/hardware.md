@@ -12,9 +12,10 @@ There is no custom PCB or finalized enclosure design in this repository yet.
 | 1 | ST NUCLEO-G0B1RE | Runs the firmware and samples the sensor |
 | 1 | Adafruit CAN Pal | Connects the MCU's CAN peripheral to the CAN wires |
 | 1 | BTT U2C V2.1 with candleLight/gs_usb-compatible firmware | Laptop USB-to-CAN interface |
-| 1 | TX3 coolant thermistor | First temperature input |
-| 1 each | 2.00 kohm and 470 ohm resistors | Series combination makes the nominal 2.47 kohm pull-up |
-| 1 | 1 kohm resistor | Series resistor between the sensor signal and A0 |
+| 2 | TX3 coolant thermistors | Pre-radiator and post-radiator inputs |
+| 2 each | 2.00 kohm and 470 ohm resistors | Separate nominal 2.47 kohm pull-up for each sensor |
+| 2 | 1 kohm resistors | Separate series resistor into A0 and A1 |
+| 2 | 100 nF ceramic capacitors | ADC input filtering to ground, one per channel |
 | 2 total | 120-ohm CAN terminators | One at each bus end; use the boards' termination facilities |
 | As needed | USB data cables, hookup wire, prototyping board | Power, programming, and assembly |
 | 1 | Multimeter | Continuity, resistance, and voltage checks |
@@ -66,6 +67,14 @@ every replacement sensor. Compare your sensor with an independent temperature
 measurement before relying on its readings. The firmware averages 32 ADC
 samples and reports both the raw count and calculated temperature.
 
+## Second coolant input
+
+Duplicate the first divider on **A1/PA1/ADC1_IN1** for post-radiator coolant.
+Do not share its signal junction or pull-up with A0. Both sensors use the same
+conversion constants and nominal pull-up value. Add the 100 nF filter from
+each ADC pin to ground, after that channel's 1-kohm series resistor.
+See [second-channel wiring and tests](bench-setup.md#second-coolant-channel).
+
 ## Vehicle hardware in preparation
 
 The [harness plan](engine-node-harness.md) contains the purchased power-stage
@@ -84,8 +93,9 @@ numbers, contact selection, face orientation, and mounting details still need
 to be recorded. Follow the provisional cavity tables in the harness plan; do
 not infer physical cavity positions from a generic connector picture.
 
-The second TX3 channel and GlowShift pressure inputs are planned. Reserved
-pins do not imply working input circuits or firmware support.
+Both TX3 channels are implemented and bench reception is confirmed. GlowShift
+pressure inputs remain planned; reserved pins do not imply working pressure
+input circuits or firmware support.
 
 ## Manufacturer references
 

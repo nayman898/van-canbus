@@ -27,6 +27,20 @@ the Nucleo and U2C are the only two active nodes.
 
 ## Open and run it
 
+### Install a built APK
+
+From a successful GitHub Actions run, download `android-debug-<commit>` and
+extract `app-debug.apk` (see [build downloads](../docs/automation.md#download-a-build)).
+Copy the APK to the phone, open it, and allow installation from that source
+when Android prompts. This is a debug/test app, not a Play Store release.
+The supported minimum is Android 8.0 / API 26.
+
+To update an existing installation, the signing key must match. If Android
+reports a signature conflict, export any logs before uninstalling the old app:
+uninstalling removes its private files. See [debug signing](../docs/automation.md#android-signing-for-repeated-phone-updates).
+
+### Build from Android Studio
+
 1. In Android Studio, select **Open** and choose the `android-app` directory.
 2. Allow the initial Gradle sync to finish.
 3. On the Pixel, enable **Developer options → Wireless debugging**.
@@ -52,7 +66,13 @@ app/build/outputs/apk/debug/app-debug.apk
 5. Launch **Van CAN** and grant the Android USB permission prompt.
 6. Power the Nucleo setup. The status should progress from `U2C ONLINE · WAITING
    FOR CAN` to `CAN ONLINE · 500 KBIT/S` and the raw-frame list should show
-   `100` and `110`.
+   `100`, `110`, and `111` with the two-channel firmware.
+
+Both channels were confirmed operating in the October 5–6, 2026 bench session;
+this does not establish ESSGOO compatibility or calibrated temperature accuracy.
+Each card hides stale temperatures after 1.5 seconds without its own message.
+An absent sensor with its pull-up installed should report OPEN without
+interrupting the other channel. See the [bench test](../docs/bench-setup.md#second-coolant-channel).
 
 Do not connect vehicle 12 V to any U2C USB or `V+` pin. The U2C is powered from
 the Android USB host for this arrangement.
@@ -63,6 +83,48 @@ Press **START LOG** to create a CSV in the app's private external-files folder.
 Press **STOP LOG** to finish it. **EXPORT** opens Android's document picker and
 copies the latest log to a location you choose. Export also safely stops an
 active log first.
+
+Both coolant IDs are included automatically in the raw-frame CSV; no separate
+logging channel needs to be enabled for the post-radiator sensor.
+
+## Reading the dashboard
+
+| Display | Meaning |
+| --- | --- |
+| Pre-radiator / `0x110` | Sensor 1, engine outlet, A0/PA0 |
+| Post-radiator / `0x111` | Sensor 2, radiator outlet, A1/PA1 |
+| °F / °C | Firmware-calculated temperature, not independently calibrated by the app |
+| ADC / V | Averaged raw ADC count and voltage estimated using a nominal 3.3 V reference |
+| VALID | Fresh message with valid protocol, identity, ADC range, and no sensor fault |
+| OPEN / SHORT | Firmware input fault; temperature is hidden |
+| ADC ERROR / CALC ERROR | Acquisition or conversion failed; temperature is hidden |
+| STALE / NO DATA | No fresh message for this sensor, or USB is disconnected |
+| Engine node | Heartbeat status, node uptime, frame count/rate, heartbeat sequence |
+| Raw CAN | Recent frames, including `100`, `110`, and `111` |
+
+The header reports overall traffic; one healthy sensor does not establish that
+the other is fresh. On a quiet bus, expect roughly ten received frames/second.
+The controls are **CONNECT/DISCONNECT**, **START/STOP LOG**, and **EXPORT**.
+On shorter screens, scroll to reach the raw frames and controls. No fan or
+engine-control commands are implemented by this app.
+
+## Troubleshooting
+
+| Problem | Check |
+| --- | --- |
+| U2C not detected | USB data cable, host/OTG mode, supported USB identity, and connection to this device rather than the PC |
+| USB permission denied | Reconnect, press CONNECT, and grant Android's USB permission |
+| U2C online but waiting for CAN | Node power, shared reference, 500-kbit/s bus, wiring, and termination |
+| Only pre-radiator appears | Install the two-card app build; flash the two-channel firmware and check for `111` in Raw CAN |
+| Post-radiator shows OPEN | Check sensor 2 wiring/return and its separate divider; an installed pull-up without a sensor produces OPEN |
+| One card becomes stale while the other updates | Check whether that channel's CAN ID continues arriving; freshness is independent |
+| Works on phone but not PC | Move the U2C to the PC and restart the [Python dashboard backend](../tools/README.md#restart-after-updating-the-code) |
+| APK will not update existing app | Check signing-key compatibility; export logs before any uninstall |
+| Head-unit USB works for Android Auto but not Van CAN | The vendor may reserve that port; ordinary app USB Host access is not yet confirmed |
+
+For resistance/continuity checks, remove power first and follow the
+[bench guide](../docs/bench-setup.md). A functioning display does not validate
+automotive power protection or temperature accuracy.
 
 ## ESSGOO head-unit test
 

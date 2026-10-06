@@ -11,7 +11,7 @@ only successful `main` runs in the original repository can publish the wiki.
 
 | Job | Checks and output |
 | --- | --- |
-| Host tools and documentation | Python decoder/wiki tests, Python bug checks, dashboard JavaScript syntax, Actions validation, generated wiki with local-link checks |
+| Host tools and documentation | Python decoder/dashboard/wiki tests, Python bug checks, dashboard JavaScript syntax and dual-temperature UI tests, Actions validation, generated wiki with local-link checks |
 | Firmware (Debug / Release) | C encoder golden vectors; compile/link the STM32 firmware in both configurations; memory use and checksums |
 | Android checks and APK | Gradle wrapper validation, Java decoder golden vectors, Android lint, Gradle unit tests, debug APK and reports |
 | Publish generated wiki | Runs after every required job passes; updates only mapped pages and navigation; skips unchanged docs and stale main commits |
@@ -19,6 +19,20 @@ only successful `main` runs in the original repository can publish the wiki.
 These are software checks, not a hardware certification. USB enumeration,
 actual CAN timing/ACKs, sensor calibration, power protection, and display layout
 still need bench/device tests. CI never flashes the Nucleo or sends CAN frames.
+
+## Android SDK setup and Dependabot PRs
+
+The Android job explicitly runs SHA-pinned `android-actions/setup-android`
+before `sdkmanager`. This installs/configures command-line tools and places
+`sdkmanager` on PATH rather than assuming the hosted runner exposes it.
+The following step installs `platforms;android-36` and `build-tools;35.0.0`.
+SDK setup runs for PRs too and does not require signing or wiki secrets.
+
+If an older run fails with **`sdkmanager: command not found`**, ensure the
+branch includes the SDK setup fix. After merging the fix into `main`, update
+or rebase the Dependabot PR branch and run its checks again. Merely rerunning
+the old failing commit does not add the missing workflow step. The fix was
+validated locally; a hosted success must be checked in Actions.
 
 ## Download a build
 
@@ -89,6 +103,7 @@ python -m pip install -r requirements.txt -r requirements-ci.txt
 python -m ruff check --select E9,F63,F7,F82 tools tests
 python -m unittest discover -s tests -v
 node --check tools/dashboard/app.js
+node tests/test_dashboard.js
 python tools/export_wiki.py --output .cache/wiki-preview
 cmake --preset Debug
 cmake --build --preset Debug

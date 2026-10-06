@@ -21,6 +21,11 @@ work still needed before installation.
 4. Install and start the [laptop tools](../tools/README.md).
 5. Compare the readings with the [CAN protocol](can-protocol.md).
 
+For direct phone viewing without a PC or Pi, use the
+[Android app guide](../android-app/README.md): APK installation, U2C connection,
+two-temperature display, CSV logging/export, and troubleshooting. In the wiki,
+this is the **Android dashboard** sidebar entry (`Android-App`).
+
 Vehicle-power tests are a later stage in the [harness plan](engine-node-harness.md),
 not a prerequisite for reproducing the USB-powered bench network.
 

@@ -45,10 +45,26 @@ of the last received frame. The browser polls the backend every 250 ms.
 | `U2C disconnected` | The backend could not open or continue reading the adapter |
 | `Dashboard backend unavailable` | Browser could not fetch the local server state |
 
-The backend retries adapter errors every two seconds. **Last readings remain
-visible when traffic stops**; use the connection label and frame age to judge
-freshness. The connection indicator follows overall CAN traffic, not the age
-of each sensor independently.
+The backend retries adapter errors every two seconds. Each temperature card
+tracks its own message age and hides its temperature after 1.5 seconds without
+an update, on a sensor fault, or when disconnected. Backend fetch failures
+also clear both displayed temperatures. Traffic from one sensor does not keep
+the other sensor's reading fresh. The header follows overall CAN traffic.
+
+### Restart after updating the code
+
+Stop the existing dashboard with **Ctrl+C in its terminal**, then launch
+`start_dashboard.bat` again and refresh the browser. Refreshing or closing a
+browser tab does not restart Python or load changed backend code. Run only
+one dashboard/monitor against the U2C at a time, and move its USB connection
+from the phone to the PC when switching hosts.
+
+At `http://127.0.0.1:8765/api/state`, the two-channel backend has `coolant`
+(pre-radiator) and `coolant_post` (post-radiator), each with `valid` and
+`age_ms`. A response lacking `coolant_post` indicates old backend code.
+On a quiet healthy bus, expect about ten frames/s: four per sensor plus
+two heartbeats. Check that frame count rises and ages stay low, rather than
+trusting an old `connected: true` value alone.
 
 ## Terminal monitor
 

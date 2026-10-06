@@ -77,12 +77,14 @@ A1 is PA1/ADC1_IN1 per [ST UM2324, Arduino connector table](https://www.st.com/r
 5. Stop the node: both temperatures must become stale, not remain displayed
    as live values. Android raw CSV logs include both IDs without extra setup.
 
-These software changes are built/tested on the host; the two-input acquisition
-still needs this physical bench test before installation.
+Two-channel firmware was flashed and verified during the October 5–6, 2026
+session. Phone operation was confirmed and both valid channels were received
+on the PC after restarting its backend. Complete the individual warming,
+fault-recovery, and calibration checks above before relying on the installation.
 
 The first channel is the thermostat-outlet channel in the protocol. It can
 be tested with the sensor on the bench before mechanical installation.
-Only this first ADC channel is implemented today.
+Both ADC channels are implemented; mechanical installation is a separate step.
 
 If using enclosure connectors, use one complete allocation from the
 [harness plan](engine-node-harness.md). The old temporary combined 12-pin C0
@@ -111,7 +113,7 @@ the terminal monitor against the same adapter.
 | Heartbeat | Node uptime increases; sequence changes about twice per second |
 | Coolant | A plausible bench temperature, updated about four times per second |
 | ADC | Count between the configured short/open thresholds for a connected sensor |
-| Frame count | About six frames per second from this firmware on an otherwise quiet bus |
+| Frame count | About ten frames per second: four per coolant channel plus two heartbeats |
 | Nucleo PA5 LED | Toggles when a heartbeat is queued; this alone does not prove bus reception |
 
 The original bench notes recorded 1.69 V with a sensor near 2.60 kohm.
