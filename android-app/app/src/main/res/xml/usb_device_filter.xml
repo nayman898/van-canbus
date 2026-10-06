@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Geschwister Schneider / candleLight and common candleLight VID/PID. -->
+    <usb-device vendor-id="7504" product-id="24687" />
+    <usb-device vendor-id="4617" product-id="8995" />
+</resources>

@@ -4,9 +4,14 @@ A build-in-progress engine monitoring system for a **1982 Ford E-350**.
 This repository contains the STM32 firmware, a laptop dashboard, and wiring
 notes so others can follow along with the build.
 
+The native [Android dashboard](android-app/README.md) connects a BTT U2C
+directly to a phone or head unit over USB Host, without requiring a laptop or
+Raspberry Pi in the vehicle.
+
 The first node uses an ST NUCLEO-G0B1RE and an Adafruit CAN Pal transceiver.
-A BTT U2C V2.1 connects the bus to the laptop. This is a custom telemetry
-network, not an OBD-II scanner or decoder for a factory vehicle network.
+A BTT U2C V2.1 connects the bus to either the Android app or laptop. This is a
+custom telemetry network, not an OBD-II scanner or decoder for a factory
+vehicle network.
 
 The current bench firmware transmits a Classical CAN heartbeat and the first
 TX3 coolant-temperature input at 500 kbit/s.
@@ -24,23 +29,24 @@ flowchart LR
     TX3[TX3 coolant sensor] -->|Analog voltage| MCU[NUCLEO-G0B1RE]
     MCU -->|CAN TX / RX| PAL[Adafruit CAN Pal]
     PAL <-->|CAN-H / CAN-L + ground| U2C[BTT U2C V2.1]
-    U2C <-->|USB| PC[Python monitor / browser dashboard]
+    U2C <-->|USB| HOST[Android app or laptop dashboard]
 ```
 
 The Nucleo samples the sensor and encodes the messages. The CAN Pal provides
-the physical CAN interface; the U2C bridges the bus to the laptop. The working
-bench setup uses USB power for the Nucleo and U2C.
+the physical CAN interface; the U2C bridges the bus to Android or the laptop.
+The working bench setup uses USB power for the Nucleo and U2C.
 
 ## Current status
 
 | Area | What exists today |
 | --- | --- |
 | CAN and coolant channel 1 | Working on the bench at 500 kbit/s |
+| Android app | Native U2C dashboard, raw-frame view, and CSV logging |
 | Laptop tools | Terminal monitor and live browser dashboard |
 | Vehicle harness | Provisional 6-pin power/CAN and 12-pin sensor allocations |
 | Vehicle power | Protection parts selected; assembly/vehicle validation still pending in the build notes |
 | Additional sensors | Second coolant channel and pressure inputs planned |
-| Recording | No built-in file recording or playback yet |
+| Recording | Raw-frame CSV recording and export in the Android app |
 
 ## Follow the build
 
@@ -54,6 +60,7 @@ bench setup uses USB power for the Nucleo and U2C.
 | [Firmware](docs/firmware.md) | Build, programming, and source walkthrough |
 | [CAN protocol](docs/can-protocol.md) | Message layouts, units, fault flags, and examples |
 | [Laptop tools](tools/README.md) | Dashboard, terminal monitor, setup, and limitations |
+| [Android app](android-app/README.md) | Direct U2C connection, phone setup, and logging |
 
 ## Bench wiring
 
