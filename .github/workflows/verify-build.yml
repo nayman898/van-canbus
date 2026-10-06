@@ -126,6 +126,12 @@ jobs:
         uses: gradle/actions/setup-gradle@0b6dd653ba04f4f93bf581ec31e66cbd7dcb644d # v4
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+      # Hosted runners may have an SDK without sdkmanager on PATH.
+      # Initialize it explicitly for all runs, including Dependabot PRs.
+      - name: Set up Android SDK command-line tools
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
+        with:
+          packages: ''
       - name: Install the project's Android SDK packages
         run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - name: Check Android CAN decoding
