@@ -213,6 +213,12 @@ in the final wiring drawing before wiring cavity 1.
 | 11 | Spare digital/frequency input | Reserved |
 | 12 | Spare | Reserved |
 
+Sensor 1 is **pre-radiator**, feeding the A0/PA0 divider; sensor 2 is
+**post-radiator**, feeding its own identical divider on A1/PA1. Both use
+2.47-kohm pull-ups to 3V3, separate 1-kohm ADC series resistors, and dedicated
+sensor returns. See the [second-channel bench test](bench-setup.md#second-coolant-channel).
+Do not confuse C2 cavities 3/4 with temporary C0 cavities 3/10.
+
 The three GlowShift signals must not be connected until their gauge supply,
 signal range, and grounding have been measured. The engine node will need a
 high-impedance protected input so it does not alter the gauge readings.

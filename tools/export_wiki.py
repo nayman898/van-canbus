@@ -22,6 +22,9 @@ PAGES = {
     "docs/firmware.md": ("Firmware", "Firmware"),
     "docs/can-protocol.md": ("CAN-Protocol", "CAN protocol"),
     "tools/README.md": ("Laptop-Tools", "Dashboard and monitoring"),
+    "android-app/README.md": ("Android-App", "Android dashboard"),
+    "docs/automation.md": ("Automation", "Checks and build downloads"),
+    "docs/wiki-publishing.md": ("Wiki-Publishing", "Wiki publishing"),
 }
 LINK = re.compile(r"(!?\[[^\]\n]*\]\()([^\s)]+)(\))")
 

@@ -18,6 +18,7 @@ public final class DashboardState {
     public int framesPerSecond;
     public VanCanDecoder.Heartbeat heartbeat;
     public VanCanDecoder.CoolantReading coolant;
+    public VanCanDecoder.CoolantReading coolantPost;
     public boolean logging;
     public File latestLog;
     public final Deque<CanFrame> recentFrames = new ArrayDeque<>();

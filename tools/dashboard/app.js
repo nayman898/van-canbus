@@ -37,26 +37,23 @@ function updateDashboard(state) {
     byId("heartbeat-sequence").textContent = state.heartbeat.sequence;
   }
 
-  if (!state.coolant) return;
-  const coolant = state.coolant;
-  byId("voltage").textContent = coolant.voltage.toFixed(3);
-  byId("adc").textContent = coolant.adc_raw;
+  updateCoolant("", state.coolant, state.connected);
+  updateCoolant("post-", state.coolant_post, state.connected);
+}
 
-  if (coolant.status !== 0) {
-    byId("temp-f").textContent = "---";
-    byId("temp-c").textContent = "---";
-    byId("sensor-state").textContent = `FAULT · ${coolant.status_text.toUpperCase()}`;
-    byId("sensor-state").className = "sensor-state sensor-fault";
-    byId("temperature-fill").style.width = "0";
-    return;
-  }
-
-  byId("temp-f").textContent = coolant.temperature_f.toFixed(1);
-  byId("temp-c").textContent = coolant.temperature_c.toFixed(1);
-  byId("sensor-state").textContent = "Sensor online";
-  byId("sensor-state").className = "sensor-state";
-  const percentage = Math.max(0, Math.min(100, (coolant.temperature_f - 32) / (250 - 32) * 100));
-  byId("temperature-fill").style.width = `${percentage}%`;
+function updateCoolant(prefix, coolant, connected) {
+  const element = (id) => byId(prefix + id);
+  const fresh = connected && coolant && coolant.age_ms < 1500;
+  const valid = fresh && coolant.valid;
+  element("voltage").textContent = fresh ? coolant.voltage.toFixed(3) : "--.---";
+  element("adc").textContent = fresh ? coolant.adc_raw : "----";
+  element("temp-f").textContent = valid ? coolant.temperature_f.toFixed(1) : "--.-";
+  element("temp-c").textContent = valid ? coolant.temperature_c.toFixed(1) : "--.-";
+  element("sensor-state").textContent = !fresh ? "Stale / no data" : valid ? "Sensor online"
+    : `FAULT · ${coolant.status ? coolant.status_text.toUpperCase() : "INVALID READING"}`;
+  element("sensor-state").className = valid ? "sensor-state" : "sensor-state sensor-fault";
+  const percentage = valid ? Math.max(0, Math.min(100, (coolant.temperature_f - 32) / 218 * 100)) : 0;
+  element("temperature-fill").style.width = `${percentage}%`;
 }
 
 async function poll() {
@@ -66,6 +63,8 @@ async function poll() {
     updateDashboard(await response.json());
   } catch (error) {
     setConnection("fault", "Dashboard backend unavailable");
+    updateCoolant("", null, false);
+    updateCoolant("post-", null, false);
   }
 }
 

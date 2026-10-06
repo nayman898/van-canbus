@@ -253,7 +253,10 @@ public final class MainActivity extends Activity implements DashboardView.Action
         VanCanDecoder.Heartbeat heartbeat = VanCanDecoder.decodeHeartbeat(frame);
         if (heartbeat != null) state.heartbeat = heartbeat;
         VanCanDecoder.CoolantReading coolant = VanCanDecoder.decodeCoolant(frame);
-        if (coolant != null) state.coolant = coolant;
+        if (coolant != null) {
+            if (frame.canId == VanCanDecoder.COOLANT_OUTLET_ID) state.coolant = coolant;
+            else state.coolantPost = coolant;
+        }
         refresh();
     }
 
@@ -291,6 +294,9 @@ public final class MainActivity extends Activity implements DashboardView.Action
         state.trafficRecent = false;
         state.totalFrames = 0;
         state.recentFrames.clear();
+        state.coolant = null;
+        state.coolantPost = null;
+        state.heartbeat = null;
         frameTimes.clear();
         adapter.start(device);
         refresh();

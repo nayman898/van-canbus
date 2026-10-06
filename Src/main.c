@@ -14,15 +14,15 @@ static void GPIO_Init(void);
 static void ADC1_Init(void);
 static void FDCAN1_Init(void);
 static void FDCAN1_Start(void);
-static bool ADC1_ReadAverage(uint16_t *adc_raw);
+static bool ADC1_ReadAverage(uint32_t adc_channel, uint16_t *adc_raw);
 static bool CAN_TrySend(uint32_t identifier, const uint8_t payload[8]);
 static bool Heartbeat_TrySend(uint8_t sequence);
-static bool CoolantTemperature_TrySend(uint8_t sequence);
+static bool CoolantTemperature_TrySend(uint8_t sensor_id, uint8_t sequence);
 
 int main(void)
 {
     uint8_t sequence = 0U;
-    uint8_t coolant_sequence = 0U;
+    uint8_t coolant_sequence[2] = {0U, 0U};
     uint32_t next_heartbeat_ms;
     uint32_t next_coolant_ms;
 
@@ -51,8 +51,10 @@ int main(void)
         }
 
         if ((int32_t)(now_ms - next_coolant_ms) >= 0) {
-            if (CoolantTemperature_TrySend(coolant_sequence)) {
-                coolant_sequence++;
+            for (uint8_t sensor = 0U; sensor < 2U; ++sensor) {
+                if (CoolantTemperature_TrySend(sensor + 1U, coolant_sequence[sensor])) {
+                    coolant_sequence[sensor]++;
+                }
             }
             next_coolant_ms += CAN_COOLANT_PERIOD_MS;
         }
@@ -187,15 +189,25 @@ static void FDCAN1_Start(void)
     }
 }
 
-static bool ADC1_ReadAverage(uint16_t *adc_raw)
+static bool ADC1_ReadAverage(uint32_t adc_channel, uint16_t *adc_raw)
 {
     uint32_t sample_sum = 0U;
+    ADC_ChannelConfTypeDef channel = {0};
 
     if (adc_raw == NULL) {
         return false;
     }
 
-    for (uint32_t sample = 0U; sample < ADC_AVERAGE_SAMPLE_COUNT; ++sample) {
+    /* ADC_SCAN_DISABLE uses the configurable sequencer: replace rank 1. */
+    channel.Channel = adc_channel;
+    channel.Rank = ADC_REGULAR_RANK_1;
+    channel.SamplingTime = ADC_SAMPLINGTIME_COMMON_1;
+    if (HAL_ADC_ConfigChannel(&hadc1, &channel) != HAL_OK) {
+        return false;
+    }
+
+    /* Discard the first conversion after switching inputs to allow settling. */
+    for (uint32_t sample = 0U; sample <= ADC_AVERAGE_SAMPLE_COUNT; ++sample) {
         if (HAL_ADC_Start(&hadc1) != HAL_OK) {
             return false;
         }
@@ -204,7 +216,8 @@ static bool ADC1_ReadAverage(uint16_t *adc_raw)
             return false;
         }
 
-        sample_sum += HAL_ADC_GetValue(&hadc1);
+        const uint32_t value = HAL_ADC_GetValue(&hadc1);
+        if (sample != 0U) sample_sum += value;
         if (HAL_ADC_Stop(&hadc1) != HAL_OK) {
             return false;
         }
@@ -245,13 +258,14 @@ static bool Heartbeat_TrySend(uint8_t sequence)
     return CAN_TrySend(CAN_ID_ENGINE_HEARTBEAT, payload);
 }
 
-static bool CoolantTemperature_TrySend(uint8_t sequence)
+static bool CoolantTemperature_TrySend(uint8_t sensor_id, uint8_t sequence)
 {
     uint8_t payload[8];
     uint16_t adc_raw = 0U;
     Tx3SensorReading reading;
 
-    if (ADC1_ReadAverage(&adc_raw)) {
+    const bool pre_radiator = sensor_id == CAN_SENSOR_ID_COOLANT_OUTLET;
+    if (ADC1_ReadAverage(pre_radiator ? ADC_CHANNEL_0 : ADC_CHANNEL_1, &adc_raw)) {
         reading = Tx3Sensor_ConvertAdc(adc_raw);
     } else {
         reading.adc_raw = 0U;
@@ -260,12 +274,13 @@ static bool CoolantTemperature_TrySend(uint8_t sequence)
     }
 
     CanProtocol_EncodeCoolantTemperature(payload,
+                                         sensor_id,
                                          sequence,
                                          reading.status,
                                          reading.adc_raw,
                                          reading.temperature_deci_c);
 
-    return CAN_TrySend(CAN_ID_ENGINE_COOLANT_1, payload);
+    return CAN_TrySend(pre_radiator ? CAN_ID_ENGINE_COOLANT_1 : CAN_ID_ENGINE_COOLANT_2, payload);
 }
 
 void Error_Handler(void)

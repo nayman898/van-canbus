@@ -19,10 +19,11 @@
       </div>
     </header>
 
+    <div class="temperatures">
     <section class="hero card" id="coolant-card">
       <div class="card-heading">
         <div>
-          <p class="label">COOLANT OUTLET</p>
+          <p class="label">PRE-RADIATOR COOLANT</p>
           <p id="sensor-state" class="sensor-state">Waiting for data</p>
         </div>
         <span class="can-id">CAN 0x110</span>
@@ -37,14 +38,31 @@
         <span class="tick tick-normal">190</span>
         <span class="tick tick-hot">250°F</span>
       </div>
+      <p class="detail-note"><span id="voltage">--.---</span> V · <span id="adc">----</span> / 4095 ADC</p>
     </section>
+    <section class="hero card" id="coolant-post-card">
+      <div class="card-heading">
+        <div>
+          <p class="label">POST-RADIATOR COOLANT</p>
+          <p id="post-sensor-state" class="sensor-state">Waiting for data</p>
+        </div>
+        <span class="can-id">CAN 0x111</span>
+      </div>
+      <div class="temperature-row">
+        <div class="temperature-main"><span id="post-temp-f">--.-</span><small>°F</small></div>
+        <div class="temperature-secondary"><span id="post-temp-c">--.-</span> °C</div>
+      </div>
+      <div class="temperature-track" aria-hidden="true">
+        <div id="post-temperature-fill" class="temperature-fill"></div>
+        <span class="tick tick-cold">32</span>
+        <span class="tick tick-normal">190</span>
+        <span class="tick tick-hot">250°F</span>
+      </div>
+      <p class="detail-note"><span id="post-voltage">--.---</span> V · <span id="post-adc">----</span> / 4095 ADC</p>
+    </section>
+    </div>
 
     <section class="grid">
-      <article class="card detail-card">
-        <p class="label">SENSOR VOLTAGE</p>
-        <p class="detail-value"><span id="voltage">--.---</span><small> V</small></p>
-        <p class="detail-note"><span id="adc">----</span> / 4095 ADC counts</p>
-      </article>
       <article class="card detail-card">
         <p class="label">ENGINE NODE</p>
         <p class="detail-value"><span id="node-uptime">--:--</span></p>

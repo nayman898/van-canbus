@@ -15,6 +15,7 @@ void CanProtocol_EncodeHeartbeat(uint8_t payload[8],
 }
 
 void CanProtocol_EncodeCoolantTemperature(uint8_t payload[8],
+                                          uint8_t sensor_id,
                                           uint8_t sequence,
                                           uint8_t sensor_status,
                                           uint16_t adc_raw,
@@ -23,7 +24,7 @@ void CanProtocol_EncodeCoolantTemperature(uint8_t payload[8],
     const uint16_t encoded_temperature = (uint16_t)temperature_deci_c;
 
     payload[0] = CAN_PROTOCOL_VERSION;
-    payload[1] = CAN_SENSOR_ID_COOLANT_OUTLET;
+    payload[1] = sensor_id;
     payload[2] = sensor_status;
     payload[3] = sequence;
     payload[4] = (uint8_t)(adc_raw & 0xFFU);

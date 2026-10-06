@@ -33,7 +33,8 @@ It serves the dashboard on `http://127.0.0.1:8765` and opens the default browser
 Keep its terminal open while using it; press **Ctrl+C** there to stop the server
 and release the adapter. Closing the browser tab alone does not stop the app.
 
-The dashboard displays coolant temperature in °F/°C, estimated sensor voltage,
+The dashboard displays both pre-radiator (`0x110`) and post-radiator (`0x111`)
+coolant temperatures in °F/°C, independent fault/stale status, estimated sensor voltage,
 ADC count, sensor faults, heartbeat uptime/sequence, frame count, and the age
 of the last received frame. The browser polls the backend every 250 ms.
 

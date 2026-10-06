@@ -16,7 +16,9 @@ import can
 
 from monitor_can import (
     COOLANT_1_ID,
+    COOLANT_2_ID,
     HEARTBEAT_ID,
+    configure_usb_backend,
     parse_coolant_temperature,
     parse_heartbeat,
 )
@@ -35,6 +37,7 @@ class DashboardState:
         self._lock = threading.Lock()
         self._started = time.monotonic()
         self._last_frame: float | None = None
+        self._received: dict[str, float] = {}
         self._state: dict[str, Any] = {
             "connected": False,
             "error": None,
@@ -43,6 +46,7 @@ class DashboardState:
             "frames_received": 0,
             "heartbeat": None,
             "coolant": None,
+            "coolant_post": None,
         }
 
     def set_connection(self, connected: bool, error: str | None = None) -> None:
@@ -55,9 +59,10 @@ class DashboardState:
             if arbitration_id == HEARTBEAT_ID:
                 key = "heartbeat"
                 reading = parse_heartbeat(data)
-            elif arbitration_id == COOLANT_1_ID:
-                key = "coolant"
-                reading = parse_coolant_temperature(data)
+            elif arbitration_id in (COOLANT_1_ID, COOLANT_2_ID):
+                sensor_id = 1 if arbitration_id == COOLANT_1_ID else 2
+                key = "coolant" if sensor_id == 1 else "coolant_post"
+                reading = parse_coolant_temperature(data, sensor_id)
             else:
                 key = ""
                 reading = None
@@ -71,13 +76,16 @@ class DashboardState:
             if key and reading is not None:
                 reading["received_at_ms"] = int(time.time() * 1000)
                 self._state[key] = reading
+                self._received[key] = now
 
     def snapshot(self) -> dict[str, Any]:
         now = time.monotonic()
         with self._lock:
             result = dict(self._state)
-            result["heartbeat"] = dict(result["heartbeat"]) if result["heartbeat"] else None
-            result["coolant"] = dict(result["coolant"]) if result["coolant"] else None
+            for key in ("heartbeat", "coolant", "coolant_post"):
+                if result[key] is not None:
+                    result[key] = dict(result[key])
+                    result[key]["age_ms"] = int((now - self._received[key]) * 1000)
             result["server_uptime_ms"] = int((now - self._started) * 1000)
             result["last_frame_age_ms"] = (
                 int((now - self._last_frame) * 1000) if self._last_frame is not None else None
@@ -96,6 +104,7 @@ class CanReader(threading.Thread):
     def run(self) -> None:
         while not self.stop_event.is_set():
             try:
+                configure_usb_backend()
                 with can.Bus(
                     interface="gs_usb",
                     channel=self.adapter_index,
@@ -105,7 +114,8 @@ class CanReader(threading.Thread):
                     self.state.set_connection(True)
                     while not self.stop_event.is_set():
                         message = bus.recv(timeout=0.5)
-                        if message is None or message.is_extended_id:
+                        if (message is None or message.is_extended_id
+                                or message.is_remote_frame or message.is_error_frame):
                             continue
                         self.state.receive(message.arbitration_id, message.data)
             except Exception as exc:

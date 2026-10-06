@@ -5,11 +5,12 @@ public final class VanCanDecoder {
     public static final int PROTOCOL_VERSION = 1;
     public static final int HEARTBEAT_ID = 0x100;
     public static final int COOLANT_OUTLET_ID = 0x110;
+    public static final int COOLANT_POST_RADIATOR_ID = 0x111;
 
     private VanCanDecoder() {}
 
     public static Heartbeat decodeHeartbeat(CanFrame frame) {
-        if (frame.canId != HEARTBEAT_ID || frame.extended || frame.data.length != 8) {
+        if (frame.canId != HEARTBEAT_ID || frame.extended || frame.remote || frame.error || frame.data.length != 8) {
             return null;
         }
         byte[] d = frame.data;
@@ -22,7 +23,8 @@ public final class VanCanDecoder {
     }
 
     public static CoolantReading decodeCoolant(CanFrame frame) {
-        if (frame.canId != COOLANT_OUTLET_ID || frame.extended || frame.data.length != 8) {
+        if ((frame.canId != COOLANT_OUTLET_ID && frame.canId != COOLANT_POST_RADIATOR_ID)
+                || frame.extended || frame.remote || frame.error || frame.data.length != 8) {
             return null;
         }
         byte[] d = frame.data;
@@ -30,7 +32,8 @@ public final class VanCanDecoder {
         short deciC = (short) ((d[6] & 0xff) | ((d[7] & 0xff) << 8));
         int status = d[2] & 0xff;
         boolean valid = (d[0] & 0xff) == PROTOCOL_VERSION
-                && (d[1] & 0xff) == 1
+                && (d[1] & 0xff) == (frame.canId == COOLANT_OUTLET_ID ? 1 : 2)
+                && adc <= 4095
                 && status == 0
                 && deciC != Short.MIN_VALUE;
         double celsius = deciC / 10.0;

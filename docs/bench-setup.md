@@ -40,8 +40,45 @@ for a short-circuit check before powering up.
 
 ## 3. Add the coolant input
 
+Sensor 1 is **pre-radiator** (engine outlet). Sensor 2 is **post-radiator**
+(radiator outlet). The following circuit applies independently to each.
+
 Build the [TX3 divider](hardware.md#first-coolant-input), with its output through
 1 kohm to A0/PA0. Return the sensor's other wire to the Nucleo ground.
+
+### Second coolant channel
+
+Power off before changing wiring. Duplicate the first TX3 input; do not share
+the signal junction or pull-up between sensors:
+
+```text
+3V3 ── 2.47 kohm ──┬── TX3 #2 ── sensor return / GND
+                   │
+                   └── 1 kohm ── A1 / PA1
+                                   │
+                                 100 nF
+                                   │
+                                  GND
+```
+
+The pull-up may be 2 kohm + 470 ohm in series. The separate 1-kohm resistor
+is in the ADC signal lead, not the sensor return. Use the same input protection
+as channel 1. Never apply 5 V or 12 V to either ADC input.
+A1 is PA1/ADC1_IN1 per [ST UM2324, Arduino connector table](https://www.st.com/resource/en/user_manual/dm00452640.pdf).
+
+1. Flash the two-channel firmware and install the updated Android APK (or
+   restart the browser dashboard backend and reload the page).
+2. Expect `0x110` sensor ID 1 and `0x111` sensor ID 2, each about four frames
+   per second, plus two heartbeats per second (about ten frames/s total).
+3. Verify both readings against room temperature, then warm only sensor 2:
+   only **post-radiator** should change. Repeat for sensor 1.
+4. Disconnect sensor 2 with its pull-up still connected. Post-radiator should
+   show OPEN; pre-radiator must continue updating. Reconnect and verify recovery.
+5. Stop the node: both temperatures must become stale, not remain displayed
+   as live values. Android raw CSV logs include both IDs without extra setup.
+
+These software changes are built/tested on the host; the two-input acquisition
+still needs this physical bench test before installation.
 
 The first channel is the thermostat-outlet channel in the protocol. It can
 be tested with the sensor on the bench before mechanical installation.

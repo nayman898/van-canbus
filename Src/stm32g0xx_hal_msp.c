@@ -16,8 +16,8 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
     __HAL_RCC_ADC_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
 
-    /* PA0 = Arduino A0 = ADC1_IN0. */
-    gpio.Pin = GPIO_PIN_0;
+    /* Pre-radiator: A0/PA0/IN0. Post-radiator: A1/PA1/IN1. */
+    gpio.Pin = GPIO_PIN_0 | GPIO_PIN_1;
     gpio.Mode = GPIO_MODE_ANALOG;
     gpio.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &gpio);
@@ -30,7 +30,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
     }
 
     __HAL_RCC_ADC_CLK_DISABLE();
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0 | GPIO_PIN_1);
 }
 
 void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)

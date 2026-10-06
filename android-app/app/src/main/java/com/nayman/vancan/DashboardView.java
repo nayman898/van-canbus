@@ -71,7 +71,7 @@ public final class DashboardView extends View {
                 == android.content.res.Configuration.ORIENTATION_LANDSCAPE;
         wideLayout = landscape && width >= dp(600);
         // Scroll on small windows rather than compressing text into other rows.
-        int minimumHeight = Math.round(dp(wideLayout ? 390 : 780));
+        int minimumHeight = Math.round(dp(wideLayout ? 500 : 980));
         setMeasuredDimension(width, resolveSize(minimumHeight, heightMeasureSpec));
     }
 
@@ -90,11 +90,13 @@ public final class DashboardView extends View {
 
         drawHeader(canvas, p, w, header, true);
         float bodyTop = header + gap;
-        float leftWidth = w * 0.53f;
-        RectF coolant = new RectF(p, bodyTop, leftWidth, h - p);
-        RectF system = new RectF(leftWidth + gap, bodyTop, w - p, bodyTop + (h - bodyTop - p) * 0.45f);
-        RectF raw = new RectF(leftWidth + gap, system.bottom + gap, w - p, h - p);
-        drawCoolant(canvas, coolant, true);
+        float middle = w / 2;
+        RectF coolant = new RectF(p, bodyTop, middle - gap / 2, bodyTop + dp(240));
+        RectF post = new RectF(middle + gap / 2, bodyTop, w - p, coolant.bottom);
+        RectF system = new RectF(p, coolant.bottom + gap, coolant.right, h - p);
+        RectF raw = new RectF(post.left, system.top, w - p, h - p);
+        drawPhoneCoolant(canvas, coolant, state.coolant, "PRE-RADIATOR", "0x110");
+        drawPhoneCoolant(canvas, post, state.coolantPost, "POST-RADIATOR", "0x111");
         drawSystem(canvas, system);
         drawRawFrames(canvas, raw);
     }
@@ -109,12 +111,14 @@ public final class DashboardView extends View {
 
         drawHeader(canvas, p, w, header, false);
         float bodyTop = header + gap;
-        float coolantHeight = Math.max(dp(296), Math.min(dp(360), h * 0.34f));
+        float coolantHeight = dp(240);
         RectF coolant = new RectF(p, bodyTop, w - p, bodyTop + coolantHeight);
-        RectF system = new RectF(p, coolant.bottom + gap, w - p,
-                coolant.bottom + gap + dp(128));
+        RectF post = new RectF(p, coolant.bottom + gap, w - p, coolant.bottom + gap + coolantHeight);
+        RectF system = new RectF(p, post.bottom + gap, w - p,
+                post.bottom + gap + dp(128));
         RectF raw = new RectF(p, system.bottom + gap, w - p, h - footer - gap);
-        drawCoolant(canvas, coolant, false);
+        drawPhoneCoolant(canvas, coolant, state.coolant, "PRE-RADIATOR", "0x110");
+        drawPhoneCoolant(canvas, post, state.coolantPost, "POST-RADIATOR", "0x111");
         drawSystem(canvas, system);
         drawRawFrames(canvas, raw);
         drawBottomButtons(canvas, p, w, h, footer);
@@ -180,77 +184,35 @@ public final class DashboardView extends View {
                 size, active ? BACKGROUND : PRIMARY, sansMedium);
     }
 
-    private void drawCoolant(Canvas canvas, RectF bounds, boolean wide) {
-        if (!wide) {
-            drawPhoneCoolant(canvas, bounds);
-            return;
-        }
-        card(canvas, bounds);
-        float p = dp(wide ? 22 : 16);
-        text(canvas, "COOLANT OUTLET", bounds.left + p, bounds.top + p + dp(3), dp(12), MUTED, sansMedium);
-        String id = "CAN 0x110";
-        text(canvas, id, bounds.right - p - measure(id, dp(10), mono), bounds.top + p + dp(2),
-                dp(10), MUTED, mono);
-
-        VanCanDecoder.CoolantReading reading = state.coolant;
-        boolean fresh = reading != null && SystemClock.elapsedRealtime() - reading.receivedAtMillis < 1_500;
-        boolean valid = fresh && reading.valid;
-        String main = valid ? String.format(Locale.US, "%.1f°", reading.fahrenheit) : "--.-°";
-        float mainSize = wide ? dp(58) : Math.min(dp(54), bounds.height() * 0.25f);
-        float baseline = bounds.top + bounds.height() * (wide ? 0.47f : 0.42f);
-        text(canvas, main, bounds.left + p, baseline, mainSize, valid ? PRIMARY : MUTED, sansMedium);
-        text(canvas, "F", bounds.left + p + measure(main, mainSize, sansMedium) + dp(5),
-                baseline - dp(4), dp(20), MUTED, sansMedium);
-
-        String secondary = valid ? String.format(Locale.US, "%.1f °C", reading.celsius) : "NO VALID READING";
-        text(canvas, secondary, bounds.left + p + dp(3), baseline + dp(27), dp(15), MUTED, sans);
-
-        float gaugeLeft = wide ? bounds.left + bounds.width() * 0.62f : bounds.left + p;
-        float gaugeRight = bounds.right - p;
-        float gaugeY = wide ? bounds.centerY() + dp(14) : bounds.bottom - dp(66);
-        drawGauge(canvas, gaugeLeft, gaugeRight, gaugeY, valid ? reading.fahrenheit : Double.NaN);
-
-        String sensor = !fresh ? "STALE / NO DATA"
-                : VanCanDecoder.sensorStatusText(reading.status);
-        int sensorColor = !fresh ? AMBER : (reading.valid ? ACCENT : DANGER);
-        textClipped(canvas, sensor, bounds.left + p, bounds.bottom - dp(46),
-                bounds.right - p, dp(11), sensorColor, sansMedium);
-
-        if (reading != null) {
-            String details = String.format(Locale.US, "ADC %d  ·  %.3f V  ·  SEQ %d",
-                    reading.adcRaw, reading.voltage, reading.sequence);
-            textClipped(canvas, details, bounds.left + p, bounds.bottom - dp(22),
-                    bounds.right - p, dp(10), MUTED, mono);
-        }
-    }
-
-    private void drawPhoneCoolant(Canvas canvas, RectF bounds) {
+    private void drawPhoneCoolant(Canvas canvas, RectF bounds,
+                                  VanCanDecoder.CoolantReading reading, String label, String canId) {
         card(canvas, bounds);
         float left = bounds.left + dp(20);
         float right = bounds.right - dp(20);
-        text(canvas, "COOLANT OUTLET", left, bounds.top + dp(30), dp(14), MUTED, sansMedium);
+        textClipped(canvas, label, left, bounds.top + dp(25), right, dp(14), MUTED, sansMedium);
+        text(canvas, "COOLANT · CAN " + canId, left, bounds.top + dp(43), dp(10), MUTED, mono);
 
-        VanCanDecoder.CoolantReading reading = state.coolant;
-        boolean fresh = reading != null && SystemClock.elapsedRealtime() - reading.receivedAtMillis < 1_500;
+        boolean fresh = state.usbConnected && reading != null
+                && SystemClock.elapsedRealtime() - reading.receivedAtMillis < 1_500;
         boolean valid = fresh && reading.valid;
         String main = valid ? String.format(Locale.US, "%.1f°", reading.fahrenheit) : "--.-°";
-        float size = Math.min(dp(88), dp(88) * (right - left - dp(30))
-                / measure(main, dp(88), sansMedium));
+        float size = Math.min(dp(64), dp(64) * (right - left - dp(30))
+                / measure(main, dp(64), sansMedium));
         float valueWidth = measure(main, size, sansMedium);
         float valueLeft = bounds.centerX() - (valueWidth + dp(27)) / 2;
-        float baseline = bounds.top + dp(132);
+        float baseline = bounds.top + dp(111);
         text(canvas, main, valueLeft, baseline, size, valid ? PRIMARY : MUTED, sansMedium);
         text(canvas, "F", valueLeft + valueWidth + dp(5), baseline - dp(4), dp(23), MUTED, sansMedium);
         String secondary = valid ? String.format(Locale.US, "%.1f °C", reading.celsius) : "NO VALID READING";
         text(canvas, secondary, bounds.centerX() - measure(secondary, dp(18), sans) / 2,
-                baseline + dp(30), dp(18), MUTED, sans);
+                baseline + dp(24), dp(18), MUTED, sans);
 
-        drawGauge(canvas, left, right, bounds.bottom - dp(102), valid ? reading.fahrenheit : Double.NaN);
+        drawGauge(canvas, left, right, bounds.bottom - dp(86), valid ? reading.fahrenheit : Double.NaN);
         String status = !fresh ? "STALE / NO DATA" : !reading.valid && reading.status == 0
                 ? "INVALID READING" : VanCanDecoder.sensorStatusText(reading.status);
-        textClipped(canvas, status, left, bounds.bottom - dp(48), right,
+        textClipped(canvas, status, left, bounds.bottom - dp(40), right,
                 dp(13), !fresh ? AMBER : valid ? ACCENT : DANGER, sansMedium);
-        String details = reading == null ? "Waiting for coolant sensor · 0x110"
+        String details = reading == null ? "Waiting for coolant sensor · " + canId
                 : String.format(Locale.US, "ADC %d  ·  %.3f V  ·  SEQ %d",
                 reading.adcRaw, reading.voltage, reading.sequence);
         textClipped(canvas, details, left, bounds.bottom - dp(21), right, dp(12), MUTED, mono);
@@ -274,7 +236,7 @@ public final class DashboardView extends View {
         card(canvas, bounds);
         float p = dp(14);
         text(canvas, "ENGINE NODE", bounds.left + p, bounds.top + dp(27), dp(13), MUTED, sansMedium);
-        boolean heartbeatFresh = state.heartbeat != null
+        boolean heartbeatFresh = state.usbConnected && state.heartbeat != null
                 && SystemClock.elapsedRealtime() - state.heartbeat.receivedAtMillis < 2_000;
         String online = heartbeatFresh ? "ONLINE" : "OFFLINE";
         text(canvas, online, bounds.right - p - measure(online, dp(12), sansMedium),

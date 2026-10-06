@@ -8,13 +8,18 @@ The native [Android dashboard](android-app/README.md) connects a BTT U2C
 directly to a phone or head unit over USB Host, without requiring a laptop or
 Raspberry Pi in the vehicle.
 
+[GitHub Actions](docs/automation.md) tests the host tools and CAN encoders,
+builds both firmware configurations and the Android APK, and publishes the
+generated wiki after successful pushes to `main`. Build downloads are attached
+to each workflow run.
+
 The first node uses an ST NUCLEO-G0B1RE and an Adafruit CAN Pal transceiver.
 A BTT U2C V2.1 connects the bus to either the Android app or laptop. This is a
 custom telemetry network, not an OBD-II scanner or decoder for a factory
 vehicle network.
 
-The current bench firmware transmits a Classical CAN heartbeat and the first
-TX3 coolant-temperature input at 500 kbit/s.
+The current bench firmware transmits a Classical CAN heartbeat and two TX3
+coolant-temperature inputs (pre- and post-radiator) at 500 kbit/s.
 
 The provisional vehicle wiring and connector allocation are documented in
 [the engine-node harness plan](docs/engine-node-harness.md).
@@ -45,7 +50,8 @@ The working bench setup uses USB power for the Nucleo and U2C.
 | Laptop tools | Terminal monitor and live browser dashboard |
 | Vehicle harness | Provisional 6-pin power/CAN and 12-pin sensor allocations |
 | Vehicle power | Protection parts selected; assembly/vehicle validation still pending in the build notes |
-| Additional sensors | Second coolant channel and pressure inputs planned |
+| Coolant channel 2 | Post-radiator firmware/dashboard/app support; physical bench validation pending |
+| Additional sensors | Pressure inputs planned |
 | Recording | Raw-frame CSV recording and export in the Android app |
 
 ## Follow the build
@@ -85,9 +91,9 @@ end. With all USB cables unplugged, CAN-H to CAN-L should measure about 60 ohms.
 - Period: 500 ms
 - Payload: protocol, node, status, sequence, and 32-bit little-endian uptime
 - Nucleo LED PA5 toggles whenever a heartbeat is successfully queued
-- Coolant identifier: standard 11-bit ID `0x110`
-- Coolant period: 250 ms
-- Coolant input: Arduino A0 / PA0 / ADC1_IN0
+- Coolant identifiers: `0x110` pre-radiator, `0x111` post-radiator (standard 11-bit)
+- Coolant period: 250 ms per sensor
+- Coolant inputs: pre-radiator A0 / PA0 / ADC1_IN0; post-radiator A1 / PA1 / ADC1_IN1
 - TX3 pull-up: nominal 2.47 kohm to 3.3 V
 
 | Byte | Meaning |
@@ -98,12 +104,12 @@ end. With all USB cables unplugged, CAN-H to CAN-L should measure about 60 ohms.
 | 3 | Rolling sequence counter |
 | 4-7 | Uptime in milliseconds, little-endian |
 
-Coolant frame `0x110`:
+Coolant frames `0x110` and `0x111`:
 
 | Byte | Meaning |
 | ---: | --- |
 | 0 | Protocol version (`1`) |
-| 1 | Sensor (`1` = thermostat-outlet coolant) |
+| 1 | Sensor (`1` = pre-radiator, `2` = post-radiator) |
 | 2 | Status (`0` valid, bit 0 open, bit 1 short, bit 2 ADC, bit 3 calculation) |
 | 3 | Rolling sequence counter |
 | 4-5 | Averaged 12-bit ADC count, little-endian |

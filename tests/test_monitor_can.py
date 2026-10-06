@@ -1,6 +1,7 @@
 import importlib.util
 import pathlib
 import unittest
+from unittest.mock import patch
 
 
 MONITOR_PATH = pathlib.Path(__file__).parents[1] / "tools" / "monitor_can.py"
@@ -8,6 +9,22 @@ SPEC = importlib.util.spec_from_file_location("monitor_can", MONITOR_PATH)
 assert SPEC is not None and SPEC.loader is not None
 MONITOR = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MONITOR)
+
+
+class UsbSetupTests(unittest.TestCase):
+    def test_native_backend_is_installed_when_requested(self) -> None:
+        from usb.backend import libusb1
+
+        backend = object()
+        with patch("libusb_package.get_libusb1_backend", return_value=backend), \
+                patch.object(libusb1, "get_backend"):
+            MONITOR.configure_usb_backend()
+            self.assertIs(libusb1.get_backend(), backend)
+
+    def test_missing_native_backend_gives_clear_error(self) -> None:
+        with patch("libusb_package.get_libusb1_backend", return_value=None):
+            with self.assertRaisesRegex(RuntimeError, "libusb backend"):
+                MONITOR.configure_usb_backend()
 
 
 class HeartbeatDecoderTests(unittest.TestCase):

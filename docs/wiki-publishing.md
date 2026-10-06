@@ -5,6 +5,12 @@ the build documentation in this repository. Make content changes here first,
 then export and publish the wiki. Direct edits to generated wiki pages will
 be replaced by the next export.
 
+Successful pushes to `main` now publish automatically through the
+[verification and build workflow](automation.md). It uses the built-in token
+with write permission limited to the publishing job, or an optional `WIKI_TOKEN`
+secret. Pull requests only generate a downloadable preview. The manual steps
+below remain available.
+
 ## Preview locally
 
 From the repository root, using Python 3.10 or newer:
@@ -13,7 +19,7 @@ From the repository root, using Python 3.10 or newer:
 py -3 tools/export_wiki.py --output .cache/wiki-preview
 ```
 
-This generates nine pages, `_Sidebar.md`, and `_Footer.md`. Links between guides
+This generates twelve pages, `_Sidebar.md`, and `_Footer.md`. Links between guides
 become wiki links; source-code links point back to the main repository.
 Fenced code examples remain unchanged. The script does not commit or push.
 
@@ -41,7 +47,7 @@ git -C ../van-canbus.wiki diff
 Review new files as well as the diff. Stage only the generated files:
 
 ```powershell
-git -C ../van-canbus.wiki add Home.md Build-Guide.md Build-Progress.md Hardware.md Bench-Setup.md Harness-and-Power.md Firmware.md CAN-Protocol.md Laptop-Tools.md _Sidebar.md _Footer.md
+git -C ../van-canbus.wiki add Home.md Build-Guide.md Build-Progress.md Hardware.md Bench-Setup.md Harness-and-Power.md Firmware.md CAN-Protocol.md Laptop-Tools.md Android-App.md Automation.md Wiki-Publishing.md _Sidebar.md _Footer.md
 git -C ../van-canbus.wiki commit -m "Update build documentation"
 git -C ../van-canbus.wiki push origin HEAD
 ```

@@ -40,14 +40,22 @@ Protocol 1, engine node 1, bench status 1, sequence 42
 Uptime = 0x12345678 = 305419896 ms
 ```
 
-## Coolant outlet — `0x110`
+## Coolant temperatures — `0x110` and `0x111`
 
-Nominal period: **250 ms**. This is the first TX3 channel on A0/PA0.
+Nominal period: **250 ms per sensor**, each with an independent sequence counter.
+
+| Location | Sensor ID | CAN ID | ADC input |
+| --- | --- | --- | --- |
+| Pre-radiator (engine outlet) | 1 | `0x110` | A0 / PA0 / ADC1_IN0 |
+| Post-radiator (radiator outlet) | 2 | `0x111` | A1 / PA1 / ADC1_IN1 |
+
+Both are TX3 thermistors with separate 2.47-kohm pull-ups. Sensor 1 retains
+its existing wire format; adding sensor 2 does not change protocol version.
 
 | Byte | Field | Encoding |
 | --- | --- | --- |
 | 0 | Protocol version | `1` |
-| 1 | Sensor ID | `1` = thermostat-outlet coolant |
+| 1 | Sensor ID | `1` = pre-radiator; `2` = post-radiator |
 | 2 | Sensor status | Flags below; zero means valid |
 | 3 | Sequence | Unsigned eight-bit counter |
 | 4–5 | ADC reading | Unsigned 16-bit field containing the averaged 12-bit count |
@@ -55,8 +63,10 @@ Nominal period: **250 ms**. This is the first TX3 channel on A0/PA0.
 
 On a fault, the firmware sends `-32768` (`00 80` in wire byte order) as the
 invalid temperature value. Consumers should check status before displaying
-temperature. The current Python decoder hides temperature whenever status is
-nonzero; it does not independently validate protocol version or sensor ID.
+temperature. Both host decoders validate status, protocol version, matching
+CAN/sensor identity, ADC range, and the invalid-temperature sentinel. Each UI
+tracks freshness per sensor and hides temperatures after 1.5 seconds without
+that sensor's message, or when disconnected.
 
 | Status | Meaning | Current firmware condition |
 | --- | --- | --- |
@@ -83,9 +93,13 @@ The host's displayed voltage is `adc_raw * 3.3 / 4095`, using a nominal 3.3 V
 reference. It is an estimate derived from the count, not a separate voltage
 measurement. Temperature comes from the firmware's transmitted value.
 
+For the same test reading on sensor 2, use `0x111` with payload
+`01 02 00 07 32 08 0A 01`. An absent second sensor with its pull-up installed
+reports an open-circuit fault; it does not suppress sensor 1.
+
 ## Planned expansion
 
-The second coolant channel and pressure inputs have no implemented message
-definitions yet. Allocate their IDs and payloads alongside the firmware and
+Pressure inputs have no implemented message definitions yet.
+Allocate their IDs and payloads alongside the firmware and
 host changes, then update this reference. There is currently no DBC file,
 configuration protocol, or vehicle-control message set.

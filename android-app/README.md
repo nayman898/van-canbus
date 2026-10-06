@@ -7,7 +7,10 @@ does not require a laptop or Raspberry Pi in the vehicle.
 ## Current capabilities
 
 - Direct GS_USB/candleLight connection to the U2C at **500 kbit/s**.
-- Decodes engine heartbeat `0x100` and coolant outlet `0x110`.
+- Decodes engine heartbeat `0x100`, pre-radiator coolant `0x110`, and
+  post-radiator coolant `0x111` (both TX3 sensors).
+- Shows two independent temperature cards, stacked on phones and side-by-side
+  in wide landscape layouts; fault and stale status are per sensor.
 - Shows coolant in °F/°C, ADC count, estimated signal voltage, node uptime,
   frame rate, heartbeat sequence, and recent raw CAN frames.
 - Records every received frame to CSV and exports it with Android's document

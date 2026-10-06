@@ -7,22 +7,12 @@ import argparse
 import sys
 from typing import Any
 
-import libusb_package
-from usb.backend import libusb1
-
-# The upstream gs_usb package asks PyUSB for its default libusb backend.
-# Windows does not ship that DLL, so point PyUSB at the project dependency
-# before python-can loads the gs_usb interface.
-_libusb_backend = libusb_package.get_libusb1_backend()
-if _libusb_backend is None:
-    raise RuntimeError("The bundled libusb backend could not be loaded")
-libusb1.get_backend = lambda *args, **kwargs: _libusb_backend
-
 import can
 
 
 HEARTBEAT_ID = 0x100
 COOLANT_1_ID = 0x110
+COOLANT_2_ID = 0x111
 
 SENSOR_STATUS = {
     0x00: "ok",
@@ -31,6 +21,19 @@ SENSOR_STATUS = {
     0x04: "ADC error",
     0x08: "calculation error",
 }
+
+
+def configure_usb_backend() -> None:
+    """Load the native USB driver only when starting a real CAN connection."""
+    import libusb_package
+    from usb.backend import libusb1
+
+    # Windows does not ship libusb. Configure PyUSB before opening gs_usb, but
+    # keep pure decoder imports usable in CI without native USB dependencies.
+    backend = libusb_package.get_libusb1_backend()
+    if backend is None:
+        raise RuntimeError("The bundled libusb backend could not be loaded")
+    libusb1.get_backend = lambda *args, **kwargs: backend
 
 
 def parse_heartbeat(data: bytearray) -> dict[str, Any]:
@@ -60,7 +63,7 @@ def decode_heartbeat(data: bytearray) -> str:
     )
 
 
-def parse_coolant_temperature(data: bytearray) -> dict[str, Any]:
+def parse_coolant_temperature(data: bytearray, sensor_id: int | None = None) -> dict[str, Any]:
     """Return structured coolant data for CLI and UI consumers."""
     if len(data) != 8:
         raise ValueError(f"invalid coolant length={len(data)}")
@@ -68,12 +71,16 @@ def parse_coolant_temperature(data: bytearray) -> dict[str, Any]:
     status = data[2]
     adc_raw = int.from_bytes(data[4:6], byteorder="little", signed=False)
     temperature_deci_c = int.from_bytes(data[6:8], byteorder="little", signed=True)
-    temperature_c = temperature_deci_c / 10.0 if status == 0 else None
+    valid = (data[0] == 1 and data[1] in (1, 2)
+             and (sensor_id is None or data[1] == sensor_id)
+             and status == 0 and temperature_deci_c != -32768 and adc_raw <= 4095)
+    temperature_c = temperature_deci_c / 10.0 if valid else None
 
     return {
         "protocol": data[0],
         "sensor": data[1],
         "status": status,
+        "valid": valid,
         "status_text": SENSOR_STATUS.get(status, f"unknown 0x{status:02X}"),
         "sequence": data[3],
         "adc_raw": adc_raw,
@@ -83,20 +90,21 @@ def parse_coolant_temperature(data: bytearray) -> dict[str, Any]:
     }
 
 
-def decode_coolant_temperature(data: bytearray) -> str:
+def decode_coolant_temperature(data: bytearray, sensor_id: int | None = None) -> str:
     try:
-        reading = parse_coolant_temperature(data)
+        reading = parse_coolant_temperature(data, sensor_id)
     except ValueError as exc:
         return f"{exc} data={data.hex(' ')}"
 
-    if reading["status"] != 0:
+    label = "pre-radiator" if reading["sensor"] == 1 else "post-radiator"
+    if not reading["valid"]:
         return (
-            f"coolant outlet: FAULT={reading['status_text']} sequence={reading['sequence']} "
+            f"coolant {label}: FAULT={reading['status_text'] if reading['status'] else 'invalid reading'} sequence={reading['sequence']} "
             f"adc={reading['adc_raw']} ({reading['voltage']:.3f} V)"
         )
 
     return (
-        f"coolant outlet: {reading['temperature_f']:.1f} F / {reading['temperature_c']:.1f} C "
+        f"coolant {label}: {reading['temperature_f']:.1f} F / {reading['temperature_c']:.1f} C "
         f"sequence={reading['sequence']} adc={reading['adc_raw']} ({reading['voltage']:.3f} V)"
     )
 
@@ -108,6 +116,7 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
+        configure_usb_backend()
         with can.Bus(
             interface="gs_usb",
             channel=args.index,
@@ -118,12 +127,13 @@ def main() -> int:
             print("Press Ctrl+C to stop.")
             while True:
                 message = bus.recv(timeout=1.0)
-                if message is None:
+                if message is None or message.is_remote_frame or message.is_error_frame:
                     continue
                 if not message.is_extended_id and message.arbitration_id == HEARTBEAT_ID:
                     print(f"{message.timestamp:.6f}  {decode_heartbeat(message.data)}")
-                elif not message.is_extended_id and message.arbitration_id == COOLANT_1_ID:
-                    print(f"{message.timestamp:.6f}  {decode_coolant_temperature(message.data)}")
+                elif not message.is_extended_id and message.arbitration_id in (COOLANT_1_ID, COOLANT_2_ID):
+                    sensor_id = 1 if message.arbitration_id == COOLANT_1_ID else 2
+                    print(f"{message.timestamp:.6f}  {decode_coolant_temperature(message.data, sensor_id)}")
                 else:
                     print(message)
     except KeyboardInterrupt:

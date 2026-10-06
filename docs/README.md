@@ -35,3 +35,6 @@ not a prerequisite for reproducing the USB-powered bench network.
 | CAN IDs and byte layouts | [CAN protocol](can-protocol.md) |
 | Python commands and dashboard behavior | [Laptop tools](../tools/README.md) |
 | Completed work and open design decisions | [Build progress](build-progress.md) |
+| Phone dashboard and CSV recording | [Android app](../android-app/README.md) |
+| Automated tests, build downloads, and maintenance | [Automation](automation.md) |
+| Generated GitHub wiki | [Wiki publishing](wiki-publishing.md) |
