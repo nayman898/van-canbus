@@ -1,0 +1,77 @@
+{
+  "units": "mm",
+  "case": "1554UA2GY",
+  "case_insert_spacing_mm": [
+    161.5,
+    90.0
+  ],
+  "case_hole_centers_mm": [
+    [
+      4.25,
+      7.0
+    ],
+    [
+      4.25,
+      97.0
+    ],
+    [
+      165.75,
+      7.0
+    ],
+    [
+      165.75,
+      97.0
+    ]
+  ],
+  "pcb_origin_xy_mm": [
+    10.0,
+    10.75
+  ],
+  "clear_plate_length_at_right_mm": 80.0,
+  "case_screw_access_diameter_mm": 7,
+  "pcb_underside_z_mm": 12.4,
+  "pin_to_floor_clearance_mm": 2.0,
+  "retainer_vertical_clearance_mm": 0.4,
+  "tap_pilot_mm": 2.5,
+  "nominal_pcb_pin_and_part_collision_checks": "passed",
+  "physical_fit_verified": false,
+  "parts": {
+    "carrier": {
+      "size_mm": [
+        170.0,
+        104.0,
+        14.4
+      ],
+      "volume_mm3": 53059.422,
+      "solids": 1,
+      "analytic_cylinder_faces": 8,
+      "step_round_trip": "passed",
+      "stl_watertight": true
+    },
+    "retainer_print_two": {
+      "size_mm": [
+        10.8,
+        66.0,
+        2.4
+      ],
+      "volume_mm3": 1669.666,
+      "solids": 1,
+      "analytic_cylinder_faces": 2,
+      "step_round_trip": "passed",
+      "stl_watertight": true
+    },
+    "case_mount_fit_test": {
+      "size_mm": [
+        170.0,
+        104.0,
+        2.4
+      ],
+      "volume_mm3": 13534.284,
+      "solids": 1,
+      "analytic_cylinder_faces": 4,
+      "step_round_trip": "passed",
+      "stl_watertight": true
+    }
+  },
+  "assembly_step_round_trip": "passed: three solids"
+}

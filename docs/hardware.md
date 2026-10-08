@@ -278,6 +278,132 @@ stops also pass collision checks against the nominal PCB and an 8 mm-deep
 central pin envelope (excluding the edge-contact strips). **These are digital geometry
 checks, not physical fit tests.**
 
+## Hammond 1554UA2GY Nucleo carrier — V2
+
+Use this revision instead of the sliding Nucleo tray above when mounting in
+the Hammond case. The photos suggest the board was sitting above the old
+rail channel, leaving the end stops too low. V2 removes the upper rail lips:
+the board drops in vertically and two removable side retainers capture its
+edges. It does **not** assume screw-hole positions in the Nucleo PCB.
+The original V1 files and the two proto-board holders are unchanged.
+
+- [Download STL + editable STEP bundle](../hardware/protective-plates/hammond-nucleo-v2.zip)
+- [Case mounting-pattern test STL](../hardware/protective-plates/hammond-v2/case_mount_fit_test.stl)
+- [Carrier STL](../hardware/protective-plates/hammond-v2/carrier.stl)
+- [Retainer STL — print TWO](../hardware/protective-plates/hammond-v2/retainer_print_two.stl)
+- [Assembled STEP for Fusion / Onshape](../hardware/protective-plates/hammond-v2/assembled.step)
+- [Parametric generator](../hardware/protective-plates/hammond_mount.py)
+- [Validation results](../hardware/protective-plates/hammond-v2/validation.json)
+
+The [Hammond mechanical drawing](https://www.hammfg.com/files/parts/pdf/1554UA2GY.pdf?v=1748872871)
+identifies **four internal M3 brass inserts at 161.5 × 90 mm spacing**.
+These are not the M4 lid inserts or the intermediate #6 self-tapping bosses.
+The 170 × 104 × 2.4 mm carrier has four 3.6 mm clearance holes centered at
+(4.25, 7), (4.25, 97), (165.75, 7), (165.75, 97), measured from one corner.
+The narrower carrier avoids the lid-post corners; it is not a copy of the
+full-size steel accessory panel. The Nucleo holder is shifted all the way to
+the X=0 end: the outer retainer is flush with that plate edge, leaving an
+80 × 104 mm area clear of the holder at the opposite end (apart from the case
+mounting holes). PCB origin is (10, 10.75) mm, with its USB end facing Y=0.
+All four case screws retain a 7 mm diameter vertical access envelope; use
+heads/washers no larger than 7 mm. Route and strain-relieve cables separately.
+
+### Print and fit sequence
+
+1. Print **only the mounting-pattern test** first, flat at 100% scale.
+   Check it drops onto the four internal brass-insert bosses without rocking,
+   hitting the case walls, or needing screw force to align the holes.
+2. Print the carrier flat and two retainers flat. Start with 0.2 mm layers,
+   four walls and 30–40% infill; no supports are needed. PETG is suitable for
+   bench fitting; ASA is a candidate for warmer service, but this design has
+   no validated underhood temperature, vibration, or fire rating.
+3. Clear the four **blind 2.5 mm pilot holes** with a depth-limited drill and
+   tap M3 × 0.5. Usable pilot depth is 11.2 mm; do not drill through the floor.
+   Remove all chips before placing electronics. Use four M3 × 8 mm pan-head
+   screws for the retainers (5.6 mm nominal engagement through the 2.4 mm bar).
+4. Drop the unpowered Nucleo onto the two narrow support edges. PCB underside
+   is 10 mm above the carrier floor, giving the stated 8 mm pins 2 mm clearance.
+   Confirm every pin and solder joint clears the floor and supports.
+   **The outer 0.8 mm PCB edge strips must be free of pins/components**; this
+   remains an unverified physical-fit assumption. Stop if either header rests
+   on a rail, or the board cannot seat flat. Do not force it down.
+5. Fit one retainer per side, with its overhanging edge facing the PCB. Rotate
+   the second copy 180° in the plane. Two screws per bar prevent rotation.
+   The design leaves 0.4 mm above a nominal 1.6 mm PCB; tighten against the
+   printed posts, not against the PCB. The front corner stops and rear fence
+   limit lengthwise movement. Check USB/header access before powering up.
+6. Screw the carrier into the case's four **M3 brass inserts**. Hammond lists
+   M3 × 8 mm screws for its panel, but our printed carrier has a different
+   thickness: measure usable insert depth and select length/washer thickness
+   so screws engage securely without bottoming. An M3 × 8 screw through this
+   plate projects 5.6 mm before washers. Do not force a bottomed screw or use
+   self-tappers in the brass inserts. No drilling through the case is required.
+
+Check clearance to the lid with all headers, plugs and wiring installed;
+board thickness, header geometry, printer shrinkage and the case itself still
+need physical verification. This is a bench-fit prototype, not a certified
+automotive mounting system. Mounting inside a rated case does not independently
+establish a rating for the completed wired enclosure.
+
+The STEP files contain editable analytic solids, not a native Fusion timeline
+or Onshape feature tree. Import the assembly for placement or the individual
+parts for direct face edits. To regenerate after changing the constants:
+
+```sh
+python -m pip install -r hardware/protective-plates/requirements-step.txt
+python hardware/protective-plates/hammond_mount.py
+```
+
+The generator validates nominal PCB/pin and inter-part clearance, valid CAD
+solids, STEP round trips, and watertight STL meshes. These checks do not replace
+the mounting-pattern print and unpowered physical fit checks above.
+
+## EPLZON holder with 5 × 5 mm corner contacts
+
+This experimental alternative leaves all PCB mounting holes unused, for the
+assembled board whose central holes are covered by wiring and a subboard.
+Four supports and four removable corner clips overlap only the nominal
+5 × 5 mm corner squares. Revised after the first print missed the corners
+by approximately 1 mm: both the lower supports and upper clips now reach
+3 mm farther inward than the original 2 mm version. Board spacing, screw
+positions and underside clearance are unchanged; this corrects contact reach
+without making the board pocket smaller. Reprint the tray/frame and four clips.
+The user's clearance estimate is provisional:
+**rounded PCB corners or corner holes may remove too much of that contact
+area. Verify actual solid PCB material is captured before using this holder.**
+Do not enlarge the contacts into wiring or solder joints to force a fit.
+
+- [STL and editable STEP bundle](../hardware/protective-plates/eplzon-corner-holder.zip)
+- [Fit-test frame](../hardware/protective-plates/eplzon-corners/fit_test_frame.stl)
+- [Full bottom tray](../hardware/protective-plates/eplzon-corners/tray.stl)
+- [Corner clip — print four](../hardware/protective-plates/eplzon-corners/corner_clip_print_four.stl)
+- [Editable STEP assembly](../hardware/protective-plates/eplzon-corners/assembled.step)
+- [Generator](../hardware/protective-plates/eplzon_corner_mount.py)
+
+Print the fit-test frame and four clips first, flat, at 100% scale, 0.2 mm
+layers and four walls. No supports are needed. Tap the eight blind 2.5 mm
+post holes M3 × 0.5; two screws per clip prevent rotation. Use eight M3 × 6 mm
+pan-head screws with heads no larger than 5.5 mm diameter, without washers
+(3.6 mm engagement through the 2.4 mm clips). Pilot depth is
+7.1 mm; depth-limit tools and clean out debris with the electronics removed.
+Rotate identical clips to match each corner's two holes. Tighten against
+the posts, never crush the PCB or wiring.
+
+The tray is 54.1 × 66.8 mm with 6 mm free height under the board, except at
+the four contact squares. PCB thickness is assumed to be 1.6 mm, with 0.3 mm
+vertical retention clearance. Measure your longest underside solder joint
+or wire: it must fit with margin in that 6 mm space. Check all four corners
+seat and retain securely, without rocking or slipping past the clips. If
+the rounded corners cannot be captured, stop and provide a photo for a
+revised contact shape; this design is not yet physically validated.
+
+After checking fit, substitute the solid-floor tray for underside protection.
+The open frame is a fit test, not a bottom-contact guard. PETG is appropriate
+for bench fitting; this is not a sealed or vehicle-qualified enclosure and
+does not include mounting to the Hammond carrier. Existing center-hole trays
+are unchanged. Regenerate with `python hardware/protective-plates/eplzon_corner_mount.py`
+using the same STEP requirements as the Hammond holder.
+
 ## Manufacturer references
 
 - [ST MB1360 / Nucleo-64 user manual](https://www.st.com/resource/en/user_manual/dm00452640.pdf): board power selection, connectors, and onboard ST-Link.

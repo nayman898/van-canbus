@@ -1,0 +1,48 @@
+{
+  "physical_fit_verified": false,
+  "corner_contact_mm": [
+    5.0,
+    5.0
+  ],
+  "underside_clearance_mm": 6.0,
+  "pcb_thickness_assumed_mm": 1.6,
+  "nominal_collision_checks": "passed",
+  "parts": {
+    "tray": {
+      "size_mm": [
+        54.1,
+        66.8,
+        10.3
+      ],
+      "volume_mm3": 11017.396,
+      "solids": 1,
+      "analytic_cylinder_faces": 8,
+      "step_round_trip": "passed",
+      "watertight": true
+    },
+    "corner_clip_print_four": {
+      "size_mm": [
+        11.0,
+        11.0,
+        2.4
+      ],
+      "volume_mm3": 249.346,
+      "solids": 1,
+      "analytic_cylinder_faces": 2,
+      "step_round_trip": "passed",
+      "watertight": true
+    },
+    "fit_test_frame": {
+      "size_mm": [
+        54.1,
+        66.8,
+        10.3
+      ],
+      "volume_mm3": 8586.964,
+      "solids": 1,
+      "analytic_cylinder_faces": 8,
+      "step_round_trip": "passed",
+      "watertight": true
+    }
+  }
+}
