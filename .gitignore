@@ -1,12 +1,28 @@
 /build/
 /.cache/
-/.vscode/*.log
+/CMakeUserPresets.json
+/cmake-build-*/
 *.launch
 *.su
 *.map
 *.hex
 *.bin
 *.elf
+*.o
+*.obj
+
+# Python environments and tool caches
 __pycache__/
 *.pyc
 .venv/
+.pytest_cache/
+.ruff_cache/
+
+# Local logs and operating-system metadata
+*.log
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Generated bundles duplicate the tracked CAD, sources, and documentation.
+/hardware/protective-plates/*.zip

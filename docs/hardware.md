@@ -209,14 +209,19 @@ for the planned protected vehicle power stage.
 
 #### Fusion / Onshape solid CAD files
 
-- [Download CAD bundle — original 2.7 mm pilots](../hardware/protective-plates/van-can-guards-pilot_2.70mm-CAD.zip)
-- [Download CAD bundle — 2.5 mm M3-tap pilots](../hardware/protective-plates/van-can-guards-pilot_2.50mm-CAD.zip)
+- [Nucleo STEP assembly — original 2.7 mm pilots](../hardware/protective-plates/step/pilot_2.70mm/nucleo_assembled.step)
+- [Nucleo STEP assembly — 2.5 mm M3-tap pilots](../hardware/protective-plates/step/pilot_2.50mm/nucleo_assembled.step)
 
-Each ZIP includes individual **STEP solids** for both proto trays, the Nucleo
+Each assembly's directory includes individual **STEP solids** for both proto trays, the Nucleo
 tray and left/right stops, and the fit-test pieces. `nucleo_assembled.step`
 contains the tray and stops in their assembled positions as three separate
-solids; use individual part files when preparing prints. Editable generator
-source/JSON, dependency lists, and a validation report are included too.
+solids; use individual part files when preparing prints. Each directory also
+contains a validation report. Editable generator source/JSON and dependency
+lists are in `hardware/protective-plates/`.
+
+Generated ZIP bundles are excluded from Git because they duplicate the tracked
+CAD files, sources, and hardware guide. The STEP and mount generators below
+still create local ZIP bundles when you need to share a complete set.
 
 These are analytic CAD bodies, not STL-to-solid conversions. STEP does **not**
 preserve the original Fusion timeline, Onshape sketches/constraints, or named
@@ -225,9 +230,9 @@ import, use direct face edits or add sketches and features, then save in your
 application's native format. For linked dimensional changes, edit the supplied
 JSON/source and regenerate instead of expecting imported feature history.
 
-- **Fusion:** extract the ZIP, open/upload the desired `.step` as a CAD design
+- **Fusion:** download and open/upload the desired `.step` as a CAD design
   (not Insert Mesh), edit the solid bodies, and save your own Fusion document.
-- **Onshape:** import the extracted `.step` into a document; edit its solid
+- **Onshape:** import the downloaded `.step` into a document; edit its solid
   parts with direct-edit features or new sketches. See
   [Onshape's import/edit guide](https://www.onshape.com/en/resource-center/tech-tips/import-edit-step-iges-parasolid-stl).
 - Units are **mm**. Check the Nucleo tray is 88 × 89.5 × 15.6 mm after import.
@@ -287,7 +292,6 @@ the board drops in vertically and two removable side retainers capture its
 edges. It does **not** assume screw-hole positions in the Nucleo PCB.
 The original V1 files and the two proto-board holders are unchanged.
 
-- [Download STL + editable STEP bundle](../hardware/protective-plates/hammond-nucleo-v2.zip)
 - [Case mounting-pattern test STL](../hardware/protective-plates/hammond-v2/case_mount_fit_test.stl)
 - [Carrier STL](../hardware/protective-plates/hammond-v2/carrier.stl)
 - [Retainer STL — print TWO](../hardware/protective-plates/hammond-v2/retainer_print_two.stl)
@@ -373,7 +377,6 @@ The user's clearance estimate is provisional:
 area. Verify actual solid PCB material is captured before using this holder.**
 Do not enlarge the contacts into wiring or solder joints to force a fit.
 
-- [STL and editable STEP bundle](../hardware/protective-plates/eplzon-corner-holder.zip)
 - [Fit-test frame](../hardware/protective-plates/eplzon-corners/fit_test_frame.stl)
 - [Full bottom tray](../hardware/protective-plates/eplzon-corners/tray.stl)
 - [Corner clip — print four](../hardware/protective-plates/eplzon-corners/corner_clip_print_four.stl)
