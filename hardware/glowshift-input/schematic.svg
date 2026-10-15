@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1130" viewBox="0 0 1600 1130" role="img" aria-labelledby="title desc">
+<title id="title">GlowShift three-channel analog input, prototype rev A</title>
+<desc id="desc">Repeat a 100k/150k divider, 100nF input filter and two 1N4448 rail clamps three times. Each divider feeds one MCP6004 voltage follower powered by MCU 3.3 volts. A 1k resistor and 100nF capacitor feed the MCU analog input. All chip pin assignments and connector numbers are in the table. Disconnect gauge input taps before removing board power.</desc>
+<style>text{font:19px DejaVu Sans,Arial,sans-serif;fill:#173347}.title{font-size:26px;font-weight:bold}.head{font-size:23px;font-weight:bold}.small{font-size:16px}.label{font-weight:bold;fill:#27687b}.note{fill:#884116}.wire{stroke:#27687b;stroke-width:3;fill:none;stroke-linejoin:round;stroke-linecap:round}.part{stroke:#173347;stroke-width:2.5;fill:white}</style><rect width="1600" height="1130" fill="white"/>
+<text x="35" y="45" class="title" text-anchor="start">GLOWSHIFT → STM32 ANALOG INPUT BOARD</text>
+<text x="35" y="82" class="" text-anchor="start">Rev A • One MCP6004 DIP-14 serves all three channels • Nominal ADC voltage = sender voltage × 0.6</text>
+<rect x="30" y="110" width="1540" height="610" rx="10" fill="#f4f8fb" stroke="#c6d5df"/>
+<text x="50" y="145" class="head" text-anchor="start">ONE CHANNEL SHOWN — REPEAT THREE TIMES USING THE PIN TABLE BELOW</text>
+<text x="70" y="330" class="label" text-anchor="start">J1 sender signal</text>
+<text x="70" y="355" class="small" text-anchor="start">Gauge stays connected</text>
+<polyline class="wire" points="70,370 280,370"/>
+<rect x="280" y="360" width="70" height="20" class="part"/>
+<text x="315" y="329" class="label" text-anchor="middle">100k</text>
+<text x="315" y="412" class="small" text-anchor="middle">R1 / R4 / R7</text>
+<polyline class="wire" points="350,370 780,370 780,350 850,350"/>
+<circle cx="500" cy="370" r="4" fill="#27687b"/>
+<circle cx="650" cy="370" r="4" fill="#27687b"/>
+<circle cx="380" cy="370" r="4" fill="#27687b"/>
+<polyline class="wire" points="500,370 500,455"/>
+<rect x="490" y="455" width="20" height="65" class="part"/>
+<polyline class="wire" points="500,520 500,570"/>
+<polyline class="wire" points="500,570 500,580"/>
+<polyline class="wire" points="485,580 515,580"/>
+<polyline class="wire" points="490,587 510,587"/>
+<polyline class="wire" points="496,594 504,594"/>
+<text x="500" y="617" class="small" text-anchor="middle">GND</text>
+<text x="530" y="478" class="label" text-anchor="start">150k</text>
+<text x="530" y="504" class="small" text-anchor="start">R2 / R5 / R8</text>
+<polyline class="wire" points="650,370 650,475"/>
+<polyline class="wire" points="650,475 650,494"/>
+<polyline class="wire" points="632,494 668,494"/>
+<polyline class="wire" points="632,506 668,506"/>
+<polyline class="wire" points="650,506 650,525"/>
+<text x="677" y="497" class="small" text-anchor="start">C1 / C3 / C5</text>
+<text x="677" y="519" class="small" text-anchor="start">100nF</text>
+<polyline class="wire" points="650,525 650,570"/>
+<polyline class="wire" points="650,570 650,580"/>
+<polyline class="wire" points="635,580 665,580"/>
+<polyline class="wire" points="640,587 660,587"/>
+<polyline class="wire" points="646,594 654,594"/>
+<text x="650" y="617" class="small" text-anchor="middle">GND</text>
+<polyline class="wire" points="500,180 500,222"/>
+<text x="500" y="174" class="label" text-anchor="middle">+3V3</text>
+<polyline class="wire" points="485,222 515,222"/>
+<path class="part" d="M487,255 L500,228 L513,255 Z"/>
+<polyline class="wire" points="500,222 500,228"/>
+<text x="525" y="238" class="small" text-anchor="start">D2 / D4 / D6</text>
+<text x="525" y="262" class="small" text-anchor="start">1N4448</text>
+<polyline class="wire" points="500,255 500,370"/>
+<text x="660" y="234" class="small" text-anchor="start">Stripe toward +3V3</text>
+<polyline class="wire" points="380,370 380,482"/>
+<polyline class="wire" points="365,482 395,482"/>
+<path class="part" d="M367,515 L380,488 L393,515 Z"/>
+<polyline class="wire" points="380,482 380,488"/>
+<text x="355" y="498" class="small" text-anchor="end">D1 / D3 / D5</text>
+<text x="355" y="522" class="small" text-anchor="end">1N4448</text>
+<polyline class="wire" points="380,515 380,570"/>
+<polyline class="wire" points="380,570 380,580"/>
+<polyline class="wire" points="365,580 395,580"/>
+<polyline class="wire" points="370,587 390,587"/>
+<polyline class="wire" points="376,594 384,594"/>
+<text x="380" y="617" class="small" text-anchor="middle">GND</text>
+<path class="part" d="M850 300 L850 500 L1040 400 Z"/>
+<text x="863" y="358" class="head" text-anchor="start">+</text>
+<text x="863" y="456" class="head" text-anchor="start">−</text>
+<text x="910" y="402" class="head" text-anchor="start">U1</text>
+<text x="1140" y="284" class="label" text-anchor="end">MCP6004 follower</text>
+<polyline class="wire" points="910,247 910,332"/>
+<text x="910" y="239" class="label" text-anchor="middle">+3V3</text>
+<text x="925" y="314" class="small" text-anchor="start">4</text>
+<polyline class="wire" points="910,469 910,532"/>
+<polyline class="wire" points="910,548 910,570"/>
+<text x="925" y="522" class="small" text-anchor="start">11</text>
+<polyline class="wire" points="910,570 910,580"/>
+<polyline class="wire" points="895,580 925,580"/>
+<polyline class="wire" points="900,587 920,587"/>
+<polyline class="wire" points="906,594 914,594"/>
+<text x="910" y="617" class="small" text-anchor="middle">GND</text>
+<polyline class="wire" points="1040,400 1200,400"/>
+<circle cx="1090" cy="400" r="4" fill="#27687b"/>
+<polyline class="wire" points="1090,400 1090,540 800,540 800,450 850,450"/>
+<text x="1040" y="572" class="small" text-anchor="middle">Output → its own − input</text>
+<rect x="1200" y="390" width="70" height="20" class="part"/>
+<text x="1235" y="357" class="label" text-anchor="middle">1k</text>
+<text x="1235" y="443" class="small" text-anchor="middle">R3 / R6 / R9</text>
+<polyline class="wire" points="1270,400 1520,400"/>
+<text x="1520" y="365" class="label" text-anchor="end">J2 → Nucleo ADC</text>
+<polyline class="wire" points="1390,400 1390,475"/>
+<circle cx="1390" cy="400" r="4" fill="#27687b"/>
+<polyline class="wire" points="1390,475 1390,494"/>
+<polyline class="wire" points="1372,494 1408,494"/>
+<polyline class="wire" points="1372,506 1408,506"/>
+<polyline class="wire" points="1390,506 1390,525"/>
+<text x="1417" y="497" class="small" text-anchor="start">C2 / C4 / C6</text>
+<text x="1417" y="519" class="small" text-anchor="start">100nF</text>
+<polyline class="wire" points="1390,525 1390,570"/>
+<polyline class="wire" points="1390,570 1390,580"/>
+<polyline class="wire" points="1375,580 1405,580"/>
+<polyline class="wire" points="1380,587 1400,587"/>
+<polyline class="wire" points="1386,594 1394,594"/>
+<text x="1390" y="617" class="small" text-anchor="middle">GND</text>
+<text x="65" y="663" class="small" text-anchor="start">Lower diode stripe → divider node. All grounds join; confirm sender reference compatibility first.</text>
+<text x="65" y="692" class="small note" text-anchor="start">Use 1% resistors. Input load is 250kΩ (~20µA at 5V); verify the original gauge reading does not shift.</text>
+<rect x="30" y="740" width="955" height="245" rx="10" fill="#f4f8fb" stroke="#c6d5df"/>
+<text x="50" y="775" class="head" text-anchor="start">CHANNELS AND MCP6004 PACKAGE PINS — TOP VIEW</text>
+<text x="55" y="817" class="label" text-anchor="start">Channel</text>
+<text x="280" y="817" class="label" text-anchor="start">J1</text>
+<text x="360" y="817" class="label" text-anchor="start">+ / − / OUT</text>
+<text x="560" y="817" class="label" text-anchor="start">J2</text>
+<text x="645" y="817" class="label" text-anchor="start">Nucleo destination</text>
+<text x="55" y="860" class="" text-anchor="start">High fuel</text>
+<text x="280" y="860" class="" text-anchor="start">1</text>
+<text x="360" y="860" class="" text-anchor="start">3 / 2 / 1</text>
+<text x="560" y="860" class="" text-anchor="start">3</text>
+<text x="645" y="860" class="" text-anchor="start">A2 / PA4 / IN4</text>
+<text x="55" y="902" class="" text-anchor="start">Low fuel</text>
+<text x="280" y="902" class="" text-anchor="start">2</text>
+<text x="360" y="902" class="" text-anchor="start">5 / 6 / 7</text>
+<text x="560" y="902" class="" text-anchor="start">4</text>
+<text x="645" y="902" class="" text-anchor="start">A3 / PB1 / IN9</text>
+<text x="55" y="944" class="" text-anchor="start">Oil</text>
+<text x="280" y="944" class="" text-anchor="start">3</text>
+<text x="360" y="944" class="" text-anchor="start">10 / 9 / 8</text>
+<text x="560" y="944" class="" text-anchor="start">5</text>
+<text x="645" y="944" class="" text-anchor="start">A4 / PB11 / IN15*</text>
+<rect x="1005" y="740" width="565" height="245" rx="10" fill="#f4f8fb" stroke="#c6d5df"/>
+<text x="1025" y="775" class="head" text-anchor="start">SHARED POWER AND UNUSED AMPLIFIER</text>
+<text x="1025" y="808" class="small" text-anchor="start">J2.1 = Nucleo 3V3; J2.2 = GND</text>
+<text x="1025" y="841" class="small" text-anchor="start">U1: pin 4 = 3V3; pin 11 = GND</text>
+<text x="1025" y="874" class="small" text-anchor="start">C7 100nF + C8 1µF: across pins 4 / 11</text>
+<text x="1025" y="907" class="small" text-anchor="start">R10 1k: 3V3 → GND (3.3mA bleeder)</text>
+<text x="1025" y="940" class="small" text-anchor="start">Unused: pin 12 → GND; pin 13 → pin 14</text>
+<text x="40" y="1017" class="small" text-anchor="start">J1.4 = confirmed common sender reference. *Verify A4 routes to PB11, with no I²C drive on that connection.</text>
+<text x="40" y="1055" class="head note" text-anchor="start">POWER ON NUCLEO BEFORE CONNECTING J1. DISCONNECT J1 BEFORE REMOVING NUCLEO POWER.</text>
+<text x="40" y="1086" class="small note" text-anchor="start">Untested supervised prototype. No guaranteed powered-off isolation. Read docs/glowshift-circuit.md before assembly.</text>
+<text x="40" y="1114" class="small note" text-anchor="start">No sender supply wire, vehicle 12V or ignition-coil connection goes to this board.</text>
+</svg>

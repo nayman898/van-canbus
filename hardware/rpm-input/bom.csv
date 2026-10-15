@@ -1,0 +1,4 @@
+Reference,Quantity,Part,Status,Notes,Source
+M1,1,Autosport Labs CoilX ASL_COILX,Ordered by owner,Regulated 5V supply; conditioned 5V RPM output,https://www.autosportlabs.com/product/coilx-rpm-input-adapter/
+M2,1,Adafruit 757 BSS138 level converter,Proposed,5V to 3.3V digital interface; loose headers require soldering,https://www.adafruit.com/product/757
+WIRING,1,Insulated harness and strain relief,To select,CoilX insulation per manufacturer; secure low-voltage module inside enclosure,

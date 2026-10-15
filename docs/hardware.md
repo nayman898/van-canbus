@@ -5,6 +5,19 @@
 The first node uses development boards and a small discrete sensor circuit.
 There is no custom PCB or finalized enclosure design in this repository yet.
 
+The [Ford 400M RPM input](rpm-input.md) uses the selected prefab CoilX adapter
+and a proposed 3.3V level-converter module. Installation, RPM firmware and
+CAN/display support remain pending.
+
+## Component selection preference
+
+Prefer documented, assembled modules when a custom build would cost more once
+parts, tools, enclosure, assembly time and troubleshooting are included, or
+when the assembly complexity exceeds the owner's comfort level. Compare total
+installed cost and remaining wiring work before proposing a custom circuit.
+CoilX is the selected example; future sensor interfaces should follow this
+preference. Prefab boards can still need headers, connectors and setup.
+
 ## Bench parts
 
 | Quantity | Part | Role |
@@ -93,9 +106,15 @@ numbers, contact selection, face orientation, and mounting details still need
 to be recorded. Follow the provisional cavity tables in the harness plan; do
 not infer physical cavity positions from a generic connector picture.
 
-Both TX3 channels are implemented and bench reception is confirmed. GlowShift
-pressure inputs remain planned; reserved pins do not imply working pressure
-input circuits or firmware support.
+Both TX3 channels are implemented and bench reception is confirmed. The
+[GlowShift interface plan](glowshift-inputs.md) now prefers a small buffered
+input board into the existing STM32 ADC, with a $20–35 parts budget target.
+Gauge models and all three-wire senders are confirmed; electrical pinouts
+remain unconfirmed. Owner measurements provide provisional fuel calibrations;
+oil calibration remains pending. The [circuit and assembly guide](glowshift-circuit.md)
+now provides a through-hole prototype; power-off isolation is still pending for
+unattended installation. AnalogX2 remains a prefab fallback.
+Reserved pins do not imply working pressure circuits or firmware support.
 
 ## Printable bottom guards — first fit prototypes
 

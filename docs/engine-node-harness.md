@@ -219,9 +219,10 @@ Sensor 1 is **pre-radiator**, feeding the A0/PA0 divider; sensor 2 is
 sensor returns. See the [second-channel bench test](bench-setup.md#second-coolant-channel).
 Do not confuse C2 cavities 3/4 with temporary C0 cavities 3/10.
 
-The three GlowShift signals must not be connected until their gauge supply,
-signal range, and grounding have been measured. The engine node will need a
-high-impedance protected input so it does not alter the gauge readings.
+The [GlowShift input plan](glowshift-inputs.md) covers model identification
+without probing and a proposed buffered board into the STM32 ADC. Keep these cavities reserved
+until the sender supply, signal range, calibration and grounding are confirmed.
+A separate CAN input module may change the final routing.
 
 ## Work that is safe now
 

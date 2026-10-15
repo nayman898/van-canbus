@@ -1,0 +1,13 @@
+Reference,Quantity,Part / value,Package / requirement
+U1,1,MCP6004-I/P or MCP6004-E/P,14-pin PDIP; do not buy SOIC/TSSOP for this build
+SOCKET1,1,14-pin IC socket,300 mil DIP width
+R1 R4 R7,3,100k ohm 1%,Axial metal film; 0.25W
+R2 R5 R8,3,150k ohm 1%,Axial metal film; 0.25W
+R3 R6 R9 R10,4,1k ohm 1%,Axial metal film; 0.25W
+D1 D2 D3 D4 D5 D6,6,1N4448,Axial DO-35; stripe is cathode
+C1 C2 C3 C4 C5 C6 C7,7,100nF,Radial X7R ceramic; 25V or higher
+C8,1,1uF,Radial X7R ceramic; 25V or higher; nonpolar
+J1,1,4-position signal input connector,High fuel / low fuel / oil / confirmed common reference
+J2,1,5-position MCU connector,3V3 / GND / high out / low out / oil out
+BOARD,1,Small perfboard or Perma-Proto,Soldered; provide mounting and underside insulation
+HARNESS,1,Wire and mating connector contacts,Strain relief; plugs for input disconnection

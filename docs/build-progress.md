@@ -101,6 +101,23 @@ action before installing SDK packages. Local workflow validation passed;
 a successful hosted rerun of that fix has not yet been confirmed here.
 See [automation](automation.md) for artifacts and troubleshooting.
 
+## RPM and pressure interface decisions — October 15, 2026
+
+- Ordered the prefab [CoilX RPM adapter](rpm-input.md), replacing the custom
+  input circuit. The Adafruit 757 module is proposed for 5V-to-3.3V conversion;
+  its purchase, timer-pin assignment, installation and RPM software remain pending.
+- Recorded the preference for prefab parts when total build cost or complexity
+  makes custom assembly impractical.
+- Added a [GlowShift identification and input plan](glowshift-inputs.md).
+  The owner confirmed all three senders have three wires and keep their gauges.
+  The preferred route is now a small buffered board into the existing STM32 ADC
+  through the [rev A circuit and assembly guide](glowshift-circuit.md).
+  The DigiKey list totals $13.51 before shipping, tax and any tariffs, with
+  spare parts and the owner's existing prototyping boards. AnalogX2 remains
+  an optional fallback. Fuel measurements provide provisional calibration;
+  oil calibration, assembly testing, pressure software and permanent power-off
+  isolation remain pending.
+
 ## Next work
 
 - Confirm connector part numbers/orientation and finalize the two-plug drawing.
@@ -108,8 +125,10 @@ See [automation](automation.md) for artifacts and troubleshooting.
 - Add automotive transient protection to the sensor input.
 - Verify channel identity by warming one sensor at a time, check fault recovery,
   and finalize the lower-radiator-hose sensor installation.
-- Measure the GlowShift pressure interfaces before designing inputs that share
-  those signals with the existing gauges.
+- Bench-test the GlowShift board, verify gauge readings are unaffected, and
+  validate fuel scaling and oil calibration before implementing pressure support.
+- Select the RPM timer pin and verify CoilX/level-converter pulses before
+  implementing RPM capture and CAN reporting.
 - Finish enclosure support, strain relief, sealing, and the mounting tray.
 - Exercise Android CSV logging with both sensors; laptop persistent recording
   and playback remain future work.

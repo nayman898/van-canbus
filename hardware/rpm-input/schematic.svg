@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+<title id="title">Ford 400M RPM: selected CoilX module and proposed logic converter</title>
+<desc id="desc">Coil negative enters CoilX. Its conditioned five volt output feeds Adafruit 757 B1, and A1 feeds a future STM32 timer GPIO at 3.3 volts. Both modules use regulated five volts. The converter LV pin uses MCU 3.3 volts.</desc>
+<style>text{font:18px sans-serif;fill:#17364b}.title{font-size:26px;font-weight:bold}.small{font-size:16px}.wire{fill:none;stroke:#28778a;stroke-width:3}.module{fill:#f0f7fb;stroke:#28778a;stroke-width:2}</style>
+<rect width="1200" height="560" fill="white"/>
+<text x="30" y="45" class="title">FORD 400M RPM — PREFAB MODULE PLAN</text>
+<text x="30" y="79">CoilX selected • Level converter proposed • Wiring and firmware not yet tested</text>
+<rect class="module" x="230" y="125" width="260" height="280" rx="10"/>
+<text x="250" y="160" class="title">CoilX</text>
+<text x="250" y="190">Ignition conditioner</text>
+<text x="20" y="234">Coil negative</text><path class="wire" d="M20 245 H230"/>
+<text x="248" y="238" class="small">coil-side RED</text>
+<text x="20" y="309">Engine reference</text><path class="wire" d="M20 320 H230"/>
+<text x="248" y="313" class="small">coil-side BLACK</text>
+<text x="250" y="357" class="small">logic YELLOW = regulated 5V</text>
+<text x="250" y="385" class="small">logic RED = MCU ground</text>
+<rect class="module" x="665" y="125" width="265" height="280" rx="10"/>
+<text x="685" y="160" class="title">Adafruit 757</text>
+<text x="685" y="190">5V / 3.3V converter</text>
+<path class="wire" d="M490 245 H665"/><text x="505" y="228" class="small">logic BLACK</text><text x="515" y="272" class="small">5V pulse → B1</text>
+<path class="wire" d="M930 245 H1170"/><text x="947" y="228" class="small">A1 → STM32 timer GPIO</text><text x="957" y="272" class="small">3.3V pulse; pin TBD</text>
+<text x="685" y="327" class="small">HV = regulated 5V</text><text x="685" y="355" class="small">LV = MCU 3.3V</text><text x="685" y="383" class="small">GND = MCU ground</text>
+<text x="30" y="453">Then: STM32 → existing 500 kbit/s CAN → ESP32 screen</text>
+<text x="30" y="485">Single-coil four-stroke V8: 4 pulses/revolution; RPM = Hz × 15.</text>
+<text x="30" y="518" class="small">Never connect raw coil voltage or vehicle 12V to the logic converter or MCU.</text>
+<text x="30" y="545" class="small">See docs/rpm-input.md and connections.csv. Verify CoilX wire identities against the supplied module.</text>
+</svg>

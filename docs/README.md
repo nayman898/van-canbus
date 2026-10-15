@@ -34,6 +34,9 @@ not a prerequisite for reproducing the USB-powered bench network.
 | Information | Maintained in |
 | --- | --- |
 | Parts and sensor circuit | [Hardware](hardware.md) |
+| Ford 400M CoilX RPM input | [RPM circuit](rpm-input.md) |
+| GlowShift senders and calibration | [GlowShift inputs](glowshift-inputs.md) |
+| Three-channel pressure input board | [Circuit and assembly](glowshift-circuit.md) |
 | Board-to-board bench wiring | [Bench setup](bench-setup.md) |
 | External connector cavity assignments | [Harness plan](engine-node-harness.md) |
 | Firmware build and source organization | [Firmware](firmware.md) |

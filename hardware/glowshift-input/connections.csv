@@ -1,0 +1,16 @@
+Net,Connections,Notes
+3V3,J2.1 U1.4 R10.1 D2.K D4.K D6.K C7.1 C8.1,From Nucleo 3V3 only
+GND,J2.2 J1.4 U1.11 U1.12 R2.2 R5.2 R8.2 R10.2 D1.A D3.A D5.A C1.2 C2.2 C3.2 C4.2 C5.2 C6.2 C7.2 C8.2,Confirm sender reference and MCU ground compatibility first
+HIGH_TAP,J1.1 R1.1,Tap original sender signal; sender power stays on gauge
+HIGH_SENSE,R1.2 R2.1 D1.K D2.A C1.1 U1.3,Nominal 0.6 times sender voltage
+HIGH_BUFFER,U1.1 U1.2 R3.1,Unity feedback before series output resistor
+HIGH_ADC,R3.2 C2.1 J2.3,To assigned Nucleo analog input
+LOW_TAP,J1.2 R4.1,Tap original sender signal; sender power stays on gauge
+LOW_SENSE,R4.2 R5.1 D3.K D4.A C3.1 U1.5,Nominal 0.6 times sender voltage
+LOW_BUFFER,U1.7 U1.6 R6.1,Unity feedback before series output resistor
+LOW_ADC,R6.2 C4.1 J2.4,To assigned Nucleo analog input
+OIL_TAP,J1.3 R7.1,Tap original sender signal; sender power stays on gauge
+OIL_SENSE,R7.2 R8.1 D5.K D6.A C5.1 U1.10,Nominal 0.6 times sender voltage
+OIL_BUFFER,U1.8 U1.9 R9.1,Unity feedback before series output resistor
+OIL_ADC,R9.2 C6.1 J2.5,To assigned Nucleo analog input
+UNUSED_FOLLOWER,U1.13 U1.14,U1.12 is grounded; no external load

@@ -51,7 +51,8 @@ The working bench setup uses USB power for the Nucleo and U2C.
 | Vehicle harness | Provisional 6-pin power/CAN and 12-pin sensor allocations |
 | Vehicle power | Protection parts selected; assembly/vehicle validation still pending in the build notes |
 | Coolant channel 2 | Two-channel firmware flashed/verified; phone operation confirmed and both readings received on PC |
-| Additional sensors | Pressure inputs planned |
+| Pressure inputs | Three-channel prototype schematic and parts cart prepared; assembly, calibration and firmware pending |
+| RPM input | CoilX ordered; level converter, input-pin assignment and firmware pending |
 | Recording | Raw-frame CSV recording and export in the Android app |
 
 ## Follow the build
