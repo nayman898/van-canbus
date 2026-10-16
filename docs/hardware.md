@@ -116,6 +116,52 @@ now provides a through-hole prototype; power-off isolation is still pending for
 unattended installation. AnalogX2 remains a prefab fallback.
 Reserved pins do not imply working pressure circuits or firmware support.
 
+## Printable U2C case — first fit prototype
+
+The **BTT U2C V2.1** now has a two-piece case with mounting ears, a vented
+screw-on lid, USB-C access at the left short end and normal CAN screw-terminal
+cable access at the right. Body size is **109.45 × 45.35 × 32.4 mm**;
+mounting ears increase overall depth to **61.35 mm**.
+
+- [Base STL](../hardware/protective-plates/u2c-case/base.stl) and
+  [lid STL](../hardware/protective-plates/u2c-case/lid.stl)
+- [Board fit test](../hardware/protective-plates/u2c-case/board_fit_test.stl) and
+  [screw fit test](../hardware/protective-plates/u2c-case/screw_fit_test.stl)
+- [Preview](../hardware/protective-plates/u2c-case/preview.png),
+  [assembly instructions](../hardware/protective-plates/u2c-case/PRINT-ME.txt), and
+  [validation report](../hardware/protective-plates/u2c-case/validation.json)
+- [Editable dimensions](../hardware/protective-plates/u2c_case.json) and
+  [generator](../hardware/protective-plates/u2c_case.py)
+
+**Print the fit tests first.** The generic
+[BIGTREETECH drawing](https://raw.githubusercontent.com/bigtreetech/docs/master/docs/img/U2C/U2C_Dimension.webp)
+specifies the 85.45 × 25.35 mm outline and 19.23 mm transverse mounting pitch,
+but depicts an earlier board revision. The longitudinal hole inset of 3.1 mm
+is inferred from that drawing; the actual V2.1 hole positions must be checked.
+The design assumes 1.6 mm PCB thickness, 5 mm underside clearance, and 18 mm
+component height above the PCB plus 3 mm headroom. Measure underside pins
+separately; the fit frame's open centre does not check all pins.
+
+Print one base and one lid as oriented, at 100% scale: 0.2 mm layers, four
+walls, 30–40% infill, no supports. Use four **3 × 10 mm** lid screws and four
+**3 × 6 mm** PCB screws, all pan-head thread-forming types for thermoplastic;
+test their fit in the coupon and follow the screw manufacturer's pilot guidance.
+Default pilots are 2.5 mm; machine screws need tapped holes. PETG is suitable
+for initial fitting; select the final material for the actual cabin temperature.
+
+With power removed, wire normal CAN OUT H/L/GND, leave V+ disconnected for
+this USB-powered project, and set termination before closing. Unused connectors
+stay enclosed; remove the lid for terminal screws, BOOT and jumper access.
+Check the actual USB plug fits through the opening and reaches the recessed
+socket. Secure cables externally. Geometry, nominal electronics clearance and
+open cable-path checks pass; physical fit remains unverified. This unsealed
+prototype is intended for cabin/bench fitting, not an underhood installation.
+
+Regenerate with `python u2c_case.py` from `hardware/protective-plates` after
+installing `requirements-esp32-case.txt`. The generator also creates a local
+`u2c-case-print-pack.zip` containing all four STLs, instructions, preview,
+validation and editable source; generated ZIPs are ignored by Git.
+
 ## Printable bottom guards — first fit prototypes
 
 These are **open-top bench guards**, not sealed, automotive-qualified boxes.

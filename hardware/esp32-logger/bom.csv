@@ -1,0 +1,10 @@
+Reference,Quantity,Part,Status,Notes,Source
+MCU,1,Classic ESP32-WROOM-32 development board,Owner supplied,USB input and accessible GPIO headers; bare WROOM module needs a carrier,
+CAN,1,Adafruit CAN Pal 5708,To obtain,Power at 3.3V; 120-ohm terminator enabled only at a bus end,https://www.adafruit.com/product/5708
+SD,1,Adafruit Micro SD SPI/SDIO breakout 4682,Future SD recording only,Not needed for live web interface; 3.3V power and logic only,https://www.adafruit.com/product/4682
+CARD,1,High-endurance microSD 16 or 32GB,Future SD recording only,Not needed for live web interface; FAT32 when added,
+POWER,1,Owner's regulated 5V USB-C converter,Owner supplied,Use an ignition-switched feed; power through board USB connector with suitable cable; verify available current,
+STOP,1,Normally open momentary pushbutton,Future SD recording only,GPIO32 to GND; holds SD recording stopped until power cycle; live capture continues,
+LED,1,LED and 1k series resistor,Optional,GPIO25 to LED anode; LED cathode through 1k to GND,
+CASE,1,Insulated ventilated cabin enclosure with strain relief,To select,Soldered assembly; keep SD accessible; preserve ESP32 antenna clearance,
+HARNESS,1,Fused power wiring and twisted CAN pair plus reference ground,To select,Fuse near source sized to wiring and supply; no connection to coil or sender signals,

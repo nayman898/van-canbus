@@ -1,0 +1,72 @@
+ESP32 cabin case V3 LOW PROFILE - half-size Adafruit Perma-Proto
+All dimensions millimetres. Physical fit has NOT been verified.
+
+PRINT FIRST
+  board_fit_test.stl - rear screw, front corner retainers and board seating.
+  screw_fit_test.stl - left to right: 2.3 / 2.5 / 2.7 mm blind pilots.
+  Try the actual screws by hand. Default case pilot is 2.5 mm.
+  Use the fit frame with the complete unpowered assembly and USB plug.
+  If V2's fit frame already seated correctly, reuse it; bottom support and
+  retainer geometry are unchanged. Owner confirmed the bottom offsets fit.
+  The open centre does not check all pins: measure the longest underside
+  projection separately; it must be shorter than 6 mm with clearance remaining.
+
+CASE: print one each of base.stl, lid.stl, cable_panel.stl.
+Print the V3 base and cable panel. An existing V2 lid can be reused unchanged.
+V2's cable panel is too tall for V3; V1 parts do not fit this footprint.
+Already oriented on the print bed. 100% scale, millimetres, no supports.
+Start with 0.2 mm layers, four walls, 30-40% infill.
+PETG for initial fitting; select a material rated for the measured mounting
+location temperature before permanent installation. Avoid sun-exposed mounting.
+
+FASTENERS (not included)
+  4 x nominal 3 x 10 mm pan-head thread-forming screws FOR THERMOPLASTIC: lid.
+  1 x nominal 3 x 6 mm pan-head thread-forming screw FOR THERMOPLASTIC: PCB rear.
+  Machine screws require tapped holes; the default pilots are not tapped.
+  Mounting ears: two 4.2 mm clearance holes, choose screws for mounting surface.
+  Do not force screws or use a power driver. Match the pilot to the screw maker's
+  guidance and coupon result; change screw_pilot in esp32_case.json if needed.
+
+ASSEMBLY
+  Owner photo PXL_20261016_124356420.jpg (October 16, 2026) confirms the USB
+  points toward the cable end and covers the front proto-board mounting hole.
+  No screw/post is used at that hidden hole.
+  Mount board with USB toward the removable panel. Tilt the rear upward, slide
+  the front PCB corners under the two fixed lips, lower the rear onto its boss,
+  then fit the ONE accessible rear screw. Do not flex the PCB or force a fit.
+  Each front contact zone is 2 mm wide and extends 1.2 mm into the board edge.
+  These zones must be clear of components, solder and wires on both faces.
+  Check particularly the wires near the right front corner shown in the photo.
+  Nothing may touch underside pins/solder. Leave the rear screw pad clear.
+  Slide panel into the front grooves, open notches facing up.
+  Centred USB opening: 18 x 16 mm. CAN wire opening to its right: 6 x 16 mm.
+  These openings admit insulated cables, not bare pins or a guaranteed plug type.
+  Check the actual USB plug fits before fastening. There is 10 mm from the
+  PCB front edge to the outer case face, less where the panel/guides sit.
+  An already fixed ESP32 facing another direction may need a flexible USB
+  extension or a revised layout. Never bend the board connector to align it.
+  Secure cables externally near the case so pulls do not reach solder joints.
+  Fit lid with its lip inside the walls; the open side of the lip faces cables.
+  Tighten by hand just enough to seat it. Leave antenna area free of metal/wires.
+
+DESIGN ENVELOPE
+  PCB: 50.8 x 81.28 x 1.6; two holes 73.66 mm apart along centreline.
+  Allowed below PCB: 6 mm, measured from floor top to PCB underside.
+  Owner measured from PCB TOP to tallest CAN terminal: 13 mm.
+  Allowed above PCB: 13 mm components + 3 mm headroom.
+  Body including lid: 60.8 x 100.28 x 28.4; width with mounting ears: 76.8.
+  Body footprint is 26.8% smaller than V1 (74.8 x 111.28).
+  Side/rear PCB margins are 5 / 9 mm; front margin is 10 mm.
+  Height reduced 6 mm from V2; bottom offsets remain unchanged at owner's
+  request. Full assembly/lid fit still needs checking before tightening.
+  Vented, unsealed cabin prototype. Not an underhood or waterproof case.
+  No external SD opening or mount included; card module has not been selected
+  or installed. Revise when its actual layout is known.
+
+EDIT / REBUILD
+  From hardware/protective-plates with requirements-esp32-case.txt installed:
+    python esp32_case.py
+  Edit esp32_case.json to change dimensions. Source is in the ZIP's source/.
+  Validation checks watertight meshes, one solid per part, print-bed placement
+  and nominal part/PCB/component clearance. It does not certify physical fit,
+  printer tolerances, thermal performance or automotive suitability.

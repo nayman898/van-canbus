@@ -135,6 +135,15 @@ The scripts currently select `gs_usb` explicitly. A Linux SocketCAN setup or
 Raspberry Pi deployment would need its own documented configuration; there is
 no `--interface socketcan` option in these tools today.
 
+## ESP32 web-interface preview
+
+Run `python tools/preview_esp32_logger.py` from the repository root and open
+`http://127.0.0.1:8766`. This serves the actual embedded page with a visible
+simulated-data banner and never opens a CAN adapter. Use `--scenario stale`,
+`--scenario fault` or `--scenario no-can` to inspect other states. The physical
+[ESP32 gateway](../docs/esp32-logger.md) serves real data at `http://192.168.4.1`
+and works without an SD card.
+
 ## Decoder tests
 
 From the repository root:

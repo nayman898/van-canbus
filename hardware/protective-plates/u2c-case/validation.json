@@ -1,0 +1,96 @@
+{
+  "units": "mm",
+  "target_board": "BTT U2C V2.1",
+  "physical_fit_verified": false,
+  "source": "https://raw.githubusercontent.com/bigtreetech/docs/master/docs/img/U2C/U2C_Dimension.webp",
+  "source_revision_matches_target_verified": false,
+  "case_body_mm": [
+    109.45,
+    45.35,
+    32.4
+  ],
+  "depth_with_mounting_ears_mm": 61.35,
+  "pcb_origin_mm": [
+    12.0,
+    10.0,
+    7.4
+  ],
+  "pcb_hole_centers_xy_mm": [
+    [
+      15.1,
+      13.06
+    ],
+    [
+      15.1,
+      32.29
+    ],
+    [
+      94.35000000000001,
+      13.06
+    ],
+    [
+      94.35000000000001,
+      32.29
+    ]
+  ],
+  "hole_x_inset_inferred_mm": 3.1,
+  "hole_y_pitch_dimensioned_mm": 19.23,
+  "screw_pilot_mm": 2.5,
+  "underside_clearance_mm": 5.0,
+  "component_height_allowance_mm": 18.0,
+  "usb_window_mm": [
+    18.0,
+    23.0
+  ],
+  "can_window_mm": [
+    24.0,
+    21.0
+  ],
+  "nominal_part_electronics_and_cable_path_collision_checks": "passed",
+  "parts": {
+    "base": {
+      "size_mm": [
+        109.45,
+        61.35,
+        30.0
+      ],
+      "volume_mm3": 35033.63,
+      "watertight": true,
+      "connected_parts": 1,
+      "triangles": 2848
+    },
+    "lid": {
+      "size_mm": [
+        109.45,
+        45.35,
+        4.4
+      ],
+      "volume_mm3": 12062.02,
+      "watertight": true,
+      "connected_parts": 1,
+      "triangles": 972
+    },
+    "board_fit_test": {
+      "size_mm": [
+        109.45,
+        61.35,
+        7.4
+      ],
+      "volume_mm3": 14529.09,
+      "watertight": true,
+      "connected_parts": 1,
+      "triangles": 2058
+    },
+    "screw_fit_test": {
+      "size_mm": [
+        32.0,
+        12.0,
+        7.0
+      ],
+      "volume_mm3": 2599.52,
+      "watertight": true,
+      "connected_parts": 1,
+      "triangles": 588
+    }
+  }
+}

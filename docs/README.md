@@ -44,5 +44,6 @@ not a prerequisite for reproducing the USB-powered bench network.
 | Python commands and dashboard behavior | [Laptop tools](../tools/README.md) |
 | Completed work and open design decisions | [Build progress](build-progress.md) |
 | Phone dashboard and CSV recording | [Android app](../android-app/README.md) |
+| Permanent ESP32 logger and local Wi-Fi downloads | [ESP32 logger](esp32-logger.md) |
 | Automated tests, build downloads, and maintenance | [Automation](automation.md) |
 | Generated GitHub wiki | [Wiki publishing](wiki-publishing.md) |

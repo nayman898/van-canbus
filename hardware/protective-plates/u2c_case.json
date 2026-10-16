@@ -1,0 +1,22 @@
+{
+  "board_length_x": 85.45,
+  "board_width_y": 25.35,
+  "board_thickness": 1.6,
+  "hole_inset_x": 3.1,
+  "hole_spacing_y": 19.23,
+  "board_margin_x": 12.0,
+  "board_margin_y": 10.0,
+  "underside_clearance": 5.0,
+  "component_height_above_pcb": 18.0,
+  "headroom": 3.0,
+  "floor": 2.4,
+  "wall": 2.4,
+  "lid_thickness": 2.4,
+  "screw_pilot": 2.5,
+  "usb_opening_width_y": 18.0,
+  "can_opening_width_y": 24.0,
+  "source": "https://raw.githubusercontent.com/bigtreetech/docs/master/docs/img/U2C/U2C_Dimension.webp",
+  "source_pinout": "https://raw.githubusercontent.com/bigtreetech/docs/master/docs/img/U2C/U2C_Pinout.webp",
+  "physical_fit_verified": false,
+  "notes": "Target is the project's BTT U2C V2.1. Manufacturer generic U2C drawing specifies outline and Y hole pitch; X hole inset 3.1 mm is inferred from the drawing, not explicitly dimensioned. Drawing depicts an earlier board revision. Verify all four mounts on actual V2.1 with fit test. PCB thickness, 5 mm underside and 18 mm component allowance are design assumptions, not measured component heights. USB left, screw-terminal CAN right; unused connectors enclosed."
+}

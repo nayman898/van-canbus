@@ -1,0 +1,9 @@
+{
+  "additionalFiles": "../..,../..,../..,../..,../..",
+  "compiler.optimization_flags": "-Os",
+  "customBuildProperties": "",
+  "fqbn": "esp32:esp32:esp32",
+  "hardwareFolders": "/tmp/van-arduino-data/packages/esp32/hardware/esp32/3.3.6,/tmp/van-arduino-data/packages/esp32/hardware/esp32/3.3.6",
+  "otherLibrariesFolders": "/tmp/van-arduino-user/libraries",
+  "sketchLocation": "/mnt/c/users/nlm89/source/repos/van-canbus/esp32-logger/van_can_logger"
+}

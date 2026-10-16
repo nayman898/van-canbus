@@ -44,7 +44,16 @@ jobs:
       - name: Check dashboard JavaScript syntax
         run: node --check tools/dashboard/app.js
       - name: Check independent temperature displays
-        run: node tests/test_dashboard.js
+        run: |
+          node tests/test_dashboard.js
+          node tests/test_logger_web.js
+      - name: Check ESP32 ignition sequencing, log encoding and download names
+        run: |
+          mkdir -p .cache/ci
+          g++ -std=c++17 -Wall -Wextra -Werror tests/test_logger_format.cpp -o .cache/ci/test_logger_format
+          .cache/ci/test_logger_format
+          g++ -std=c++17 -Wall -Wextra -Werror tests/test_logger_live.cpp -o .cache/ci/test_logger_live
+          .cache/ci/test_logger_live
       - name: Run host and documentation tests
         run: python -m unittest discover -s tests -v
       - name: Validate workflow syntax and expressions
@@ -56,6 +65,35 @@ jobs:
         with:
           name: wiki-preview-${{ github.sha }}
           path: .cache/wiki-preview/*.md
+          if-no-files-found: error
+          retention-days: 14
+
+  esp32-logger:
+    name: ESP32 CAN logger firmware
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: arduino/setup-arduino-cli@81d310742121c928ea9c8bbd407b4217b432ae02 # v2
+        with:
+          version: '1.4.1'
+      - name: Install pinned Espressif core
+        run: |
+          arduino-cli core update-index --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core install esp32:esp32@3.3.6 --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+      - name: Build classic ESP32 logger
+        run: |
+          arduino-cli compile --fqbn esp32:esp32:esp32 --warnings all \
+            --output-dir .cache/esp32-logger esp32-logger/van_can_logger
+          cd .cache/esp32-logger
+          sha256sum *.bin *.elf > SHA256SUMS
+      - name: Upload logger firmware
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: esp32-logger-${{ github.sha }}
+          path: .cache/esp32-logger/
           if-no-files-found: error
           retention-days: 14
 
@@ -182,7 +220,7 @@ jobs:
 
   wiki:
     name: Publish generated wiki
-    needs: [checks, firmware, android]
+    needs: [checks, firmware, android, esp32-logger]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && github.repository == 'nayman898/van-canbus'
     runs-on: ubuntu-24.04
     timeout-minutes: 5

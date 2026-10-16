@@ -1,0 +1,53 @@
+BTT U2C V2.1 - printable cabin/bench enclosure, FIRST FIT PROTOTYPE
+All dimensions millimetres. Physical fit has NOT been verified.
+
+PRINT FIRST: board_fit_test.stl and screw_fit_test.stl.
+The generic BIGTREETECH U2C drawing gives 85.45 x 25.35 mm outline and
+19.23 mm transverse mounting pitch. The 3.1 mm longitudinal hole inset is
+INFERRED from that drawing. It depicts an earlier revision, not a verified
+V2.1 mechanical drawing. Do not print the full case until your actual four
+mounting holes line up without force; report any mismatch for adjustment.
+Try screws in the coupon (left to right 2.3, 2.5, 2.7 mm pilots).
+
+PRINT ONE EACH: base.stl + lid.stl, supplied flat on the bed.
+100% scale, millimetres, 0.2 mm layers, four walls, 30-40% infill, no supports.
+PETG for first fitting; choose final material for actual cabin temperature.
+Keep out of direct sun. Not sealed or intended for underhood installation.
+
+HARDWARE
+4 x nominal 3 x 10 mm pan-head thread-forming screws FOR THERMOPLASTIC (lid).
+4 x nominal 3 x 6 mm pan-head thread-forming screws FOR THERMOPLASTIC (PCB).
+Case mounting: two 4.2 mm clearance holes; select screws for mounting surface.
+Default pilots: 2.5 mm. Follow screw maker's pilot guidance and coupon result.
+Ordinary machine screws need tapped holes. Hand driver only; do not overtighten.
+Confirm screw heads stay entirely on the mounting pads, clear of components.
+
+FIT AND ASSEMBLY (unpowered)
+USB-C faces the LEFT short end; normal CAN screw-terminal block faces RIGHT.
+Seat PCB on four bosses. Ensure pin/solder projection is less than the 5 mm
+underside space with clearance remaining. The open-centre fit frame cannot
+check all underside pins: measure those separately.
+Top clearance allows 18 mm above an assumed 1.6 mm PCB, plus 3 mm headroom.
+Check actual USB-A housing, headers, fitted jumper and any plugs fit below lid.
+USB cable body opening is 18 mm wide; cable can pass into the recessed port.
+CAN wire opening is 24 mm wide. Check actual plug body and wire bend clearance.
+Attach CAN H, L and reference GND to normal CAN OUT; leave V+ disconnected
+for this project's USB-powered U2C. Unused USB/CAN connectors stay enclosed.
+Remove lid to reach terminal screws, BOOT and 120R jumper. Configure before
+closing; adding this case does not change bus termination requirements.
+Provide cable strain relief outside the case; do not load the USB socket.
+Install lid lip downward. Because USB/CAN notch widths differ, align the lid's
+wider end-lip gap with the CAN terminal end. Fasten four screws gently.
+
+BODY: 109.45 x 45.35 x 32.4 mm; 61.35 mm across mounting ears.
+Nominal mesh, PCB envelope, assembly and cable-path checks pass. This does
+not establish physical fit or automotive, thermal or vibration qualification.
+
+SOURCES
+https://raw.githubusercontent.com/bigtreetech/docs/master/docs/img/U2C/U2C_Dimension.webp
+https://raw.githubusercontent.com/bigtreetech/docs/master/docs/img/U2C/U2C_Pinout.webp
+https://github.com/bigtreetech/docs/blob/master/docs/U2C.md
+
+EDIT / REBUILD
+Edit source/u2c_case.json. Install source/requirements-esp32-case.txt in a
+Python environment and run source/u2c_case.py. No printer G-code is supplied.

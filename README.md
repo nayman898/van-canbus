@@ -54,6 +54,7 @@ The working bench setup uses USB power for the Nucleo and U2C.
 | Pressure inputs | Three-channel prototype schematic and parts cart prepared; assembly, calibration and firmware pending |
 | RPM input | CoilX ordered; level converter, input-pin assignment and firmware pending |
 | Recording | Raw-frame CSV recording and export in the Android app |
+| ESP32 gateway | [Live web monitor](docs/esp32-logger.md) with coolant readings and recent-frame CSV export; SD optional; hardware validation pending |
 
 ## Follow the build
 

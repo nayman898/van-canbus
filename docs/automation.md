@@ -12,6 +12,7 @@ only successful `main` runs in the original repository can publish the wiki.
 | Job | Checks and output |
 | --- | --- |
 | Host tools and documentation | Python decoder/dashboard/wiki tests, Python bug checks, dashboard JavaScript syntax and dual-temperature UI tests, Actions validation, generated wiki with local-link checks |
+| ESP32 logger | Pinned Espressif 3.3.6 core build for classic ESP32; ignition sequencing, log encoding and filename checks run in the host job |
 | Firmware (Debug / Release) | C encoder golden vectors; compile/link the STM32 firmware in both configurations; memory use and checksums |
 | Android checks and APK | Gradle wrapper validation, Java decoder golden vectors, Android lint, Gradle unit tests, debug APK and reports |
 | Publish generated wiki | Runs after every required job passes; updates only mapped pages and navigation; skips unchanged docs and stale main commits |
@@ -40,6 +41,8 @@ Open the repository's **Actions** tab, select a completed run for the desired
 commit, and scroll to **Artifacts**. Download and unzip:
 
 - `android-debug-<commit>`: installable APK and SHA-256 checksum.
+- `esp32-logger-<commit>`: classic ESP32 firmware binaries, ELF and checksums;
+  flashing instructions are in the [logger guide](esp32-logger.md).
 - `firmware-Debug-<commit>` / `firmware-Release-<commit>`: ELF, HEX, BIN,
   linker memory map, and checksums.
 - `android-reports-<commit>`: lint and any Gradle test reports, including on failure.

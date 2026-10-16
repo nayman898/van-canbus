@@ -118,6 +118,24 @@ See [automation](automation.md) for artifacts and troubleshooting.
   oil calibration, assembly testing, pressure software and permanent power-off
   isolation remain pending.
 
+## ESP32 logger — October 15, 2026
+
+Added the [ESP32 CAN logger](esp32-logger.md) firmware and wiring plan for
+recording on switched USB power, an external SPI microSD slot and local Wi-Fi downloads.
+Firmware compilation and host checks do not replace flashing and bench tests;
+the owner selected an existing regulated 5V USB-C converter. The default firmware
+starts live monitoring on power-up without an ignition relay or power-delay module.
+The web interface now works without an SD slot/card: independent coolant readings,
+heartbeat, sampled trends, raw frames and the latest 256-frame CSV snapshot.
+`EnableSd` defaults to false; long-term recording can be enabled when the card is added.
+With SD recording enabled later, abrupt power loss can lose recent data or
+corrupt the card; a physical stop button allows clean closure before deliberate
+disconnection. Current live-only history is volatile RAM.
+
+The first ESP32 (COM8, ESP32-D0WD-V3 rev 3.1, 4 MB flash) was flashed with the
+live-only web build. All programmed regions passed verification, and normal
+startup advertised VanCAN-1F8A3C. Device browser/CAN testing remains pending.
+
 ## Next work
 
 - Confirm connector part numbers/orientation and finalize the two-plug drawing.
@@ -130,8 +148,9 @@ See [automation](automation.md) for artifacts and troubleshooting.
 - Select the RPM timer pin and verify CoilX/level-converter pulses before
   implementing RPM capture and CAN reporting.
 - Finish enclosure support, strain relief, sealing, and the mounting tray.
-- Exercise Android CSV logging with both sensors; laptop persistent recording
-  and playback remain future work.
+- Assemble and bench-test the ESP32 logger, including manual safe stop and
+  downloading while recording. Exercise Android CSV logging with both sensors;
+  laptop persistent recording and playback remain future work.
 
 Add installation photos and enclosure drawings as the physical build progresses;
 bench operation does not establish vehicle-environment reliability.

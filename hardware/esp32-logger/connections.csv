@@ -1,0 +1,18 @@
+From,To,Notes
+ESP32 3V3,CAN Pal Vcc,Logic supply matches ESP32
+ESP32 GND,CAN Pal GND,Also join CAN reference conductor
+ESP32 GPIO26,CAN Pal TX,CAN transmit input; ACKs only in default firmware
+ESP32 GPIO27,CAN Pal RX,CAN receive output
+CAN Pal SLNT,GND,Allows ACKs; no application data transmission
+CAN Pal H,Network CAN-H,Twisted with CAN-L
+CAN Pal L,Network CAN-L,Only two 120-ohm bus-end terminators total
+ESP32 3V3,SD breakout 4682 3V,Do not supply 5V
+ESP32 GND,SD breakout GND,Short ground connection
+ESP32 GPIO18,SD breakout CLK,Short SPI wires
+ESP32 GPIO19,SD breakout D0 / MISO,Card to ESP32
+ESP32 GPIO23,SD breakout CMD / MOSI,ESP32 to card
+ESP32 GPIO13,SD breakout D3 / CS,Chip select; unused SD pins left disconnected
+ESP32 GPIO34,Unconnected,Ignition sensing disabled in the selected USB-powered configuration
+ESP32 GPIO32,Momentary button to GND,Optional for future SD safe stop; confirm ready_for_power_off on web status; live monitoring continues
+ESP32 GPIO25,Optional LED plus 1k to GND,Steady for recent CAN traffic or recording; blinking fault; off idle
+Owner's regulated 5V USB-C converter,ESP32 board USB power input,Use suitable USB cable; converter feed switched with ignition; no connection to 3V3

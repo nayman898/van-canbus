@@ -24,6 +24,7 @@ PAGES = {
     "docs/engine-node-harness.md": ("Harness-and-Power", "Harness and vehicle power"),
     "docs/firmware.md": ("Firmware", "Firmware"),
     "docs/can-protocol.md": ("CAN-Protocol", "CAN protocol"),
+    "docs/esp32-logger.md": ("ESP32-Logger", "ESP32 CAN logger and Wi-Fi"),
     "tools/README.md": ("Laptop-Tools", "Dashboard and monitoring"),
     "android-app/README.md": ("Android-App", "Android dashboard"),
     "docs/automation.md": ("Automation", "Checks and build downloads"),

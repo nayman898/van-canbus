@@ -1,0 +1,129 @@
+{
+  "units": "mm",
+  "revision": 3,
+  "physical_fit_verified": false,
+  "underside_offset_user_confirmed": true,
+  "height_above_pcb_mm": 13.0,
+  "headroom_mm": 3.0,
+  "case_body_mm": [
+    60.8,
+    100.28,
+    28.4
+  ],
+  "width_with_mount_ears_mm": 76.8,
+  "pcb_origin_mm": [
+    5.0,
+    10.0,
+    8.4
+  ],
+  "pcb_screw_centers_xy_mm": [
+    [
+      30.4,
+      87.47
+    ]
+  ],
+  "pcb_mounting": "rear screw plus two front corner retainers; covered front hole unused",
+  "front_retainer_component_free_zones_mm": [
+    [
+      5.0,
+      10.0,
+      2,
+      1.2
+    ],
+    [
+      53.8,
+      10.0,
+      2,
+      1.2
+    ]
+  ],
+  "retainer_pcb_thickness_gap_mm": 0.4,
+  "footprint_reduction_vs_v1_percent": 26.8,
+  "lid_screw_centers_xy_mm": [
+    [
+      5,
+      5
+    ],
+    [
+      5,
+      95.28
+    ],
+    [
+      55.8,
+      5
+    ],
+    [
+      55.8,
+      95.28
+    ]
+  ],
+  "lid_pilot_depth_mm": 9,
+  "pcb_pilot_depth_mm": 5.2,
+  "usb_opening_mm": [
+    18.0,
+    16.0
+  ],
+  "can_opening_mm": [
+    6.0,
+    16.0
+  ],
+  "panel_groove_clearance_each_side_mm": 0.3,
+  "nominal_electronics_assembly_and_cable_path_collision_checks": "passed",
+  "parts": {
+    "base": {
+      "size_mm": [
+        76.8,
+        100.28,
+        26.0
+      ],
+      "volume_mm3": 35493.21,
+      "watertight": true,
+      "connected_parts": 1,
+      "triangles": 1840
+    },
+    "lid": {
+      "size_mm": [
+        60.8,
+        100.28,
+        4.4
+      ],
+      "volume_mm3": 14773.93,
+      "watertight": true,
+      "connected_parts": 1,
+      "triangles": 948
+    },
+    "cable_panel": {
+      "size_mm": [
+        40.2,
+        23.3,
+        2.4
+      ],
+      "volume_mm3": 1343.66,
+      "watertight": true,
+      "connected_parts": 1,
+      "triangles": 44
+    },
+    "board_fit_test": {
+      "size_mm": [
+        76.8,
+        100.28,
+        11.6
+      ],
+      "volume_mm3": 17385.34,
+      "watertight": true,
+      "connected_parts": 1,
+      "triangles": 1038
+    },
+    "screw_fit_test": {
+      "size_mm": [
+        32.0,
+        12.0,
+        7.0
+      ],
+      "volume_mm3": 2599.52,
+      "watertight": true,
+      "connected_parts": 1,
+      "triangles": 588
+    }
+  }
+}
