@@ -32,8 +32,21 @@ SDK setup runs for PRs too and does not require signing or wiki secrets.
 If an older run fails with **`sdkmanager: command not found`**, ensure the
 branch includes the SDK setup fix. After merging the fix into `main`, update
 or rebase the Dependabot PR branch and run its checks again. Merely rerunning
-the old failing commit does not add the missing workflow step. The fix was
-validated locally; a hosted success must be checked in Actions.
+the old failing commit does not add the missing workflow step. The Android
+job succeeded in [October 16 run 38904599132](https://github.com/nayman898/van-canbus/actions/runs/38904599132).
+
+## Workflow lint failure and current fix
+
+That run also built the STM32 Debug/Release images and ESP32 firmware and
+passed the application tests, but the host job failed **Validate workflow
+syntax and expressions**. ShellCheck SC2035 flagged unprotected globs in
+`sha256sum *.bin *.elf`. The workflow now uses `sha256sum -- *.bin *.elf`;
+actionlint passes locally with ShellCheck enabled. The wiki job was skipped
+because its required host job failed. The subsequent
+[run 38910515542](https://github.com/nayman898/van-canbus/actions/runs/38910515542)
+at commit `69a9859` passed **every job**, including workflow validation and
+the wiki publishing job. Rerunning the earlier commit alone does not apply
+the fix; use a source revision containing it.
 
 ## Download a build
 
@@ -47,6 +60,18 @@ commit, and scroll to **Artifacts**. Download and unzip:
   linker memory map, and checksums.
 - `android-reports-<commit>`: lint and any Gradle test reports, including on failure.
 - `wiki-preview-<commit>`: generated Markdown pages for review.
+
+Downloading artifacts may require signing in to GitHub. Use the intended
+commit and verify the job that produced the artifact succeeded; other jobs
+can fail without invalidating an already completed build. See
+[Getting started](getting-started.md#3-get-the-software) for which image to use.
+
+Compare a downloaded file with its SHA256SUMS entry before programming it.
+In PowerShell, from the extracted STM32 artifact folder, run
+`Get-FileHash .\van-canbus.hex -Algorithm SHA256`; use `app-debug.apk` for
+an Android artifact, or the matching `.bin` filename for an ESP32 artifact.
+With a SHA-256 utility in Bash, `sha256sum --check SHA256SUMS` verifies all
+listed files from the artifact folder.
 
 Artifacts expire after 14 days to limit storage use. Save builds you want to
 keep. Overlapping runs for the same branch cancel older runs. Build dependencies
@@ -101,13 +126,38 @@ necessary before trusting a new build in the van.
 
 ## Run equivalent checks locally
 
+Use a Python environment with the monitor requirements installed, Node.js 22
+and, for the Bash checks, a host C/C++ compiler and **ShellCheck**. Install
+ShellCheck before actionlint so embedded shell scripts are checked too;
+actionlint can otherwise skip those checks. These are developer checks, not
+prerequisites for opening an already flashed dashboard.
+
 ```sh
 python -m pip install -r requirements.txt -r requirements-ci.txt
 python -m ruff check --select E9,F63,F7,F82 tools tests
 python -m unittest discover -s tests -v
 node --check tools/dashboard/app.js
 node tests/test_dashboard.js
+node tests/test_logger_web.js
 python tools/export_wiki.py --output .cache/wiki-preview
+```
+
+From Bash on Linux/WSL, run the same native host checks as CI:
+
+```sh
+mkdir -p .cache/ci
+cc -std=c11 -Wall -Wextra -Werror -I Inc Src/can_protocol.c tests/test_can_protocol.c -o .cache/ci/test_can_protocol
+.cache/ci/test_can_protocol
+g++ -std=c++17 -Wall -Wextra -Werror tests/test_logger_format.cpp -o .cache/ci/test_logger_format
+.cache/ci/test_logger_format
+g++ -std=c++17 -Wall -Wextra -Werror tests/test_logger_live.cpp -o .cache/ci/test_logger_live
+.cache/ci/test_logger_live
+bash tools/ci/check-workflows.sh
+```
+
+Build the STM32 separately once its toolchain/submodules are installed:
+
+```sh
 cmake --preset Debug
 cmake --build --preset Debug
 cmake --preset Release
@@ -118,3 +168,5 @@ In `android-app`, use JDK 21 and run `gradlew.bat :app:lintDebug
 :app:testDebugUnitTest :app:assembleDebug` on Windows, or the same tasks with
 `bash gradlew` on Linux. The firmware commands require the Arm toolchain and
 initialized STM32 submodules described in [Firmware](firmware.md).
+For the separate Arduino core and ESP32 build/upload commands, follow
+[ESP32 Build and flash](esp32-logger.md#build-and-flash).

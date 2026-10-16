@@ -4,6 +4,11 @@ Native, receive-only Android dashboard for the van's project-owned CAN network.
 It connects directly to the BTT U2C over Android USB Host, so the first version
 does not require a laptop or Raspberry Pi in the vehicle.
 
+New builds should start with [Getting started](../docs/getting-started.md) for
+the engine node, sensor circuits and receiver choices. For viewing in a browser
+without a USB-host connection to the phone, use the separate
+[ESP32 Wi-Fi gateway](../docs/esp32-logger.md).
+
 ## Current capabilities
 
 - Direct GS_USB/candleLight connection to the U2C at **500 kbit/s**.
@@ -43,9 +48,10 @@ uninstalling removes its private files. See [debug signing](../docs/automation.m
 
 1. In Android Studio, select **Open** and choose the `android-app` directory.
 2. Allow the initial Gradle sync to finish.
-3. On the Pixel, enable **Developer options → Wireless debugging**.
-4. In Android Studio, choose **Pair Devices Using Wi-Fi** and pair the Pixel.
-5. Select the Pixel as the run target and press **Run**.
+3. On a phone supporting wireless debugging, enable **Developer options → Wireless debugging**.
+4. In Android Studio, choose **Pair Devices Using Wi-Fi** and pair the phone.
+5. Select it as the run target and press **Run**. A USB debugging connection
+   can also install the app; disconnect it before attaching the U2C.
 
 Wireless debugging keeps the Pixel's USB-C port free for the U2C. The generated
 debug APK is at:

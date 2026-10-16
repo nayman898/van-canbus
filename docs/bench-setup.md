@@ -2,7 +2,7 @@
 
 [Documentation index](README.md) · [Hardware](hardware.md) · [Laptop tools](../tools/README.md)
 
-This guide reproduces the current one-sensor bench setup. Keep vehicle power
+This guide reproduces the current two-sensor bench setup. Keep vehicle power
 disconnected throughout. Prepare the [firmware](firmware.md) and
 [Python environment](../tools/README.md#install-on-windows) before bring-up.
 
@@ -111,7 +111,7 @@ the terminal monitor against the same adapter.
 | --- | --- |
 | Dashboard connection | Changes to `CAN live` when traffic arrives |
 | Heartbeat | Node uptime increases; sequence changes about twice per second |
-| Coolant | A plausible bench temperature, updated about four times per second |
+| Coolant | Two plausible bench temperatures, independently updated about four times per second |
 | ADC | Count between the configured short/open thresholds for a connected sensor |
 | Frame count | About ten frames per second: four per coolant channel plus two heartbeats |
 | Nucleo PA5 LED | Toggles when a heartbeat is queued; this alone does not prove bus reception |
@@ -133,7 +133,7 @@ again before restoring the connection.
 | Open-circuit fault | Sensor connection and dedicated return; ADC count at or above 4050 |
 | Short-circuit fault | Signal-to-ground short or divider wiring; ADC count at or below 16 |
 | Plausible but wrong temperature | Actual pull-up resistance and whether the sensor matches the assumed calibration |
-| Temperature stops changing | Connection status and last-frame age; the dashboard retains its last reading |
+| Temperature stops changing | Check that channel's age/fault status; stale/disconnected temperatures clear after about 1.5 seconds |
 
 For software errors, see [tool troubleshooting](../tools/README.md#troubleshooting).
 For vehicle-power work, continue with the [harness plan](engine-node-harness.md)

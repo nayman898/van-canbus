@@ -1,4 +1,4 @@
-# GlowShift pressure inputs — plan before measurements
+# GlowShift pressure inputs — identification and provisional calibration
 
 [Hardware](hardware.md) · [Harness](engine-node-harness.md)
 
@@ -163,7 +163,11 @@ the assembly guide for the exact connection/disconnection sequence.
 
 ### Preliminary parts budget for all three channels
 
-These are planning allowances in USD, not vendor quotations or a verified cart.
+The [rev A shopping list](glowshift-circuit.md#shopping-list) supersedes these
+early allowances: its dated October 15 parts subtotal is **$13.51**, using the
+owner's existing board and including listed connectors/spares. Shipping, tax,
+tariffs and tools are extra. The table below is retained as the original
+general budget, not the current parts cart.
 
 | Item | Estimated allowance |
 | --- | ---: |

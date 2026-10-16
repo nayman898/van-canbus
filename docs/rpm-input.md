@@ -9,7 +9,10 @@ This replaces the earlier custom optocoupler/monostable build. Selection is
 confirmed; the owner reports CoilX ordered. Installation and vehicle testing
 remain pending.
 
-**Coil negative → CoilX → 5V/3.3V level-shifter module → STM32 → CAN → ESP32 screen.**
+**Planned signal path:** coil negative → CoilX → 5V/3.3V level-shifter → STM32
+→ CAN → dashboard. RPM acquisition, CAN messages and dashboard decoding still
+need implementation; the current ESP32 provides a browser interface and has
+no dedicated screen driver.
 
 ## Selected modules
 

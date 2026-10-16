@@ -6,6 +6,9 @@ These notes describe the engine-monitoring system as it is being built. A
 working bench circuit, a proposed vehicle circuit, and a reserved connector pin
 are different stages of the project; each guide identifies which it describes.
 
+**For a first build, follow [Getting started](getting-started.md).** It covers
+receiver choice, minimum parts, software downloads, wiring and expected results.
+
 ## If you want to see how it is being built
 
 Start with [build progress](build-progress.md), then read the
@@ -33,6 +36,7 @@ not a prerequisite for reproducing the USB-powered bench network.
 
 | Information | Maintained in |
 | --- | --- |
+| First setup and choice of display | [Getting started](getting-started.md) |
 | Parts and sensor circuit | [Hardware](hardware.md) |
 | Ford 400M CoilX RPM input | [RPM circuit](rpm-input.md) |
 | GlowShift senders and calibration | [GlowShift inputs](glowshift-inputs.md) |
@@ -44,6 +48,7 @@ not a prerequisite for reproducing the USB-powered bench network.
 | Python commands and dashboard behavior | [Laptop tools](../tools/README.md) |
 | Completed work and open design decisions | [Build progress](build-progress.md) |
 | Phone dashboard and CSV recording | [Android app](../android-app/README.md) |
-| Permanent ESP32 logger and local Wi-Fi downloads | [ESP32 logger](esp32-logger.md) |
+| ESP32 Wi-Fi viewing, RAM CSV snapshots and optional SD | [ESP32 logger](esp32-logger.md) |
+| Current case STLs, fit tests and editable dimensions | [Printed cases](printing.md) |
 | Automated tests, build downloads, and maintenance | [Automation](automation.md) |
 | Generated GitHub wiki | [Wiki publishing](wiki-publishing.md) |

@@ -3,7 +3,8 @@
 [Documentation index](README.md) · [Next: bench setup](bench-setup.md)
 
 The first node uses development boards and a small discrete sensor circuit.
-There is no custom PCB or finalized enclosure design in this repository yet.
+There is no custom production PCB yet. Printable cabin cases and engine-node
+holders are available as first-fit prototypes in [Printed cases and mounts](printing.md).
 
 The [Ford 400M RPM input](rpm-input.md) uses the selected prefab CoilX adapter
 and a proposed 3.3V level-converter module. Installation, RPM firmware and
@@ -49,7 +50,11 @@ Nucleo 3V3
     |
    470 ohm
     |
-    +-------- 1 kohm -------- A0 / PA0 / ADC1_IN0
+    +-------- 1 kohm --------+---- A0 / PA0 / ADC1_IN0
+    |                       |
+    |                     100 nF
+    |                       |
+    |                      GND
     |
  TX3 thermistor
     |

@@ -4,6 +4,10 @@ A build-in-progress engine monitoring system for a **1982 Ford E-350**.
 This repository contains the STM32 firmware, a laptop dashboard, and wiring
 notes so others can follow along with the build.
 
+**New to the project? Start with [Getting started](docs/getting-started.md)**
+for the parts, software, receiver choices and first working bench test.
+The same guides are available in the [GitHub wiki](https://github.com/nayman898/van-canbus/wiki).
+
 The native [Android dashboard](android-app/README.md) connects a BTT U2C
 directly to a phone or head unit over USB Host, without requiring a laptop or
 Raspberry Pi in the vehicle.
@@ -31,15 +35,21 @@ does not mean CAN listen-only mode.
 
 ```mermaid
 flowchart LR
-    TX3[TX3 coolant sensor] -->|Analog voltage| MCU[NUCLEO-G0B1RE]
+    TX3[Two TX3 coolant sensors] -->|Separate ADC inputs| MCU[NUCLEO-G0B1RE]
     MCU -->|CAN TX / RX| PAL[Adafruit CAN Pal]
     PAL <-->|CAN-H / CAN-L + ground| U2C[BTT U2C V2.1]
     U2C <-->|USB| HOST[Android app or laptop dashboard]
+    PAL <-->|Same CAN bus| WPAL[Second CAN Pal]
+    WPAL <-->|CAN TX / RX| ESP[Optional ESP32 gateway]
+    ESP -->|Local Wi-Fi| WEB[Phone or browser]
 ```
 
 The Nucleo samples the sensor and encodes the messages. The CAN Pal provides
 the physical CAN interface; the U2C bridges the bus to Android or the laptop.
 The working bench setup uses USB power for the Nucleo and U2C.
+The optional ESP32 has its own CAN Pal and can provide browser viewing without
+the U2C. There are two bus-end terminators total, including when both receivers
+are connected.
 
 ## Current status
 
@@ -54,12 +64,14 @@ The working bench setup uses USB power for the Nucleo and U2C.
 | Pressure inputs | Three-channel prototype schematic and parts cart prepared; assembly, calibration and firmware pending |
 | RPM input | CoilX ordered; level converter, input-pin assignment and firmware pending |
 | Recording | Raw-frame CSV recording and export in the Android app |
-| ESP32 gateway | [Live web monitor](docs/esp32-logger.md) with coolant readings and recent-frame CSV export; SD optional; hardware validation pending |
+| ESP32 gateway | [Live web monitor](docs/esp32-logger.md) flashed and boot-verified; assembled board photographed; CAN/vehicle acceptance tests pending; SD optional |
+| Printed cases | [ESP32 compact V3 and U2C case](docs/printing.md); fit checks and assembly instructions included |
 
 ## Follow the build
 
 | Guide | What it covers |
 | --- | --- |
+| [Getting started](docs/getting-started.md) | First setup, receiver choices and acceptance checks |
 | [Documentation index](docs/README.md) | Suggested reading and build order |
 | [Build progress](docs/build-progress.md) | Completed milestones, design choices, and next steps |
 | [Hardware](docs/hardware.md) | Bench parts, sensor circuit, and hardware references |
@@ -69,6 +81,8 @@ The working bench setup uses USB power for the Nucleo and U2C.
 | [CAN protocol](docs/can-protocol.md) | Message layouts, units, fault flags, and examples |
 | [Laptop tools](tools/README.md) | Dashboard, terminal monitor, setup, and limitations |
 | [Android app](android-app/README.md) | Direct U2C connection, phone setup, and logging |
+| [ESP32 gateway](docs/esp32-logger.md) | Wi-Fi viewing, cardless CSV snapshots, optional SD recording |
+| [Printed cases](docs/printing.md) | Current case revisions, STL downloads, fit tests and CAD regeneration |
 
 ## Bench wiring
 

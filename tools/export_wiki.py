@@ -14,9 +14,11 @@ REPOSITORY = "https://github.com/nayman898/van-canbus"
 WIKI = f"{REPOSITORY}/wiki"
 PAGES = {
     "README.md": ("Home", "Project overview"),
-    "docs/README.md": ("Build-Guide", "Start here"),
+    "docs/getting-started.md": ("Getting-Started", "Start here: first setup"),
+    "docs/README.md": ("Build-Guide", "Guide index"),
     "docs/build-progress.md": ("Build-Progress", "Build progress"),
     "docs/hardware.md": ("Hardware", "Hardware and parts"),
+    "docs/printing.md": ("Printed-Cases", "Printed cases and mounts"),
     "docs/rpm-input.md": ("RPM-Input", "Ford 400M RPM circuit"),
     "docs/glowshift-inputs.md": ("GlowShift-Inputs", "GlowShift pressure inputs"),
     "docs/glowshift-circuit.md": ("GlowShift-Circuit", "Build the pressure input board"),

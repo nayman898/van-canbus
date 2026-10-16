@@ -19,6 +19,13 @@ class WikiTests(unittest.TestCase):
             self.assertEqual(len(list(output.glob("*.md"))), len(export_wiki.PAGES) + 2)
             self.assertIn("/wiki/Android-App", (output / "Home.md").read_text())
             self.assertIn("/wiki/Automation", (output / "_Sidebar.md").read_text())
+            self.assertIn("/wiki/Getting-Started", (output / "_Sidebar.md").read_text())
+            self.assertIn("/wiki/Printed-Cases", (output / "_Sidebar.md").read_text())
+
+    def test_all_build_guides_are_in_wiki_navigation(self):
+        guides = {path.relative_to(ROOT).as_posix() for path in (ROOT / "docs").glob("*.md")}
+        guides.update({"README.md", "tools/README.md", "android-app/README.md"})
+        self.assertEqual(set(export_wiki.PAGES), guides)
 
     def test_fenced_examples_are_not_rewritten(self):
         body = "```md\n[example](missing.md)\n```\n[firmware](docs/firmware.md)\n"

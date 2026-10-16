@@ -22,6 +22,21 @@ initializes the bundled libusb backend before loading the CAN interface, so
 Windows does not need to provide that DLL itself. This does not replace the
 USB device driver requirement.
 
+### Check the U2C Windows driver
+
+If the U2C appears in Device Manager but the tool cannot access it, check its
+USB driver. The [python-can GS_USB guide](https://github.com/hardbyte/python-can/blob/main/doc/interfaces/gs_usb.rst)
+documents **WinUSB** and **libusbK** support and using Zadig to bind a driver.
+Identify the U2C by unplugging/reconnecting it before selecting a device;
+change only that adapter's driver, not the Nucleo ST-Link or ESP32 USB-UART
+driver. Restart the tool after driver setup. Compatible candleLight/gs_usb
+firmware is still required; installing a driver does not flash that firmware.
+
+For Android viewing, move the U2C USB cable to the phone and follow the
+[Android guide](../android-app/README.md); Windows driver changes are not part
+of the Android setup. For Wi-Fi viewing, use the separate
+[ESP32 gateway](../docs/esp32-logger.md), which does not need a U2C USB driver.
+
 ## Browser dashboard
 
 ```powershell
@@ -98,7 +113,7 @@ The dashboard also accepts:
 Example, using another HTTP port:
 
 ```powershell
-.\.venv\Scripts\python tools\can_dashboard.py --port 8766 --no-browser
+.\.venv\Scripts\python tools\can_dashboard.py --port 8767 --no-browser
 ```
 
 The server is local-only by default and has no authentication. Keep that

@@ -11,9 +11,11 @@ cabin logger. The owner selected **ignition-on recording only**, using an existi
 is a live web monitor and works **without any SD breakout or card**. An external
 SPI microSD breakout can add continuous recording later.
 Firmware compilation, decoder/UI tests and simulated desktop/mobile browser
-checks pass; the first board is flashed and boots normally. Physical assembly, CAN/SD/Wi-Fi tests
-and vehicle-power validation remain to be done. This guide is a build plan,
-not a claim of a completed or qualified automotive installation.
+checks pass; the first board is flashed and boots normally. The October 16
+photo shows the ESP32 and CAN Pal on the proto board, and the owner confirmed
+the case's bottom offsets fit. Wired-CAN, device-browser, optional SD and
+vehicle-power acceptance tests still need recording. Start with the cardless
+steps below; this is not yet a validated permanent vehicle installation.
 
 ### First board flashed — October 15, 2026
 
@@ -83,7 +85,7 @@ exercise other states. This preview never connects to or transmits on CAN.
 
 ### Printed cabin enclosure
 
-The owner confirmed an approximately **81 × 51 mm Adafruit proto board**, a
+The owner confirmed an approximately **81 × 51 mm Adafruit proto board**,
 **13 mm from PCB top to the CAN terminals**, and **all cables leaving one side**.
 This corrects the earlier 19 mm estimate; the owner confirmed the bottom
 offsets fit. The prototype uses the half-size Perma-Proto 1609 outline. **Compact V3**
@@ -125,7 +127,9 @@ maker's pilot guidance. Default pilots are 2.5 mm; ordinary machine screws
 need tapped holes. PETG is suitable for first fitting; choose the final
 material for the measured cabin location temperature. Keep it out of direct
 sun, secure cables externally, and leave the antenna area clear of metal.
-This vented prototype is unsealed and has not been physically fit-tested.
+The owner confirmed the bottom offsets; the complete V3 lid/panel fit remains
+to be checked. This vented prototype is unsealed. For downloads, slicing and
+regenerating local print packs, see [Printed cases and mounts](printing.md).
 The future SD breakout is not accommodated until its mounting layout is known.
 
 ### Electronics
@@ -151,19 +155,25 @@ board's labels and 3.3V regulator capacity before assembly.
 
 | ESP32 | Connect to |
 | --- | --- |
-| 3V3 / GND | CAN Pal Vcc / GND; SD breakout 3V / GND |
+| 3V3 / GND | CAN Pal Vcc / GND |
 | GPIO26 | CAN Pal TX |
 | GPIO27 | CAN Pal RX |
+| GPIO34 | Leave unconnected; ignition sensing is disabled |
+| GPIO25 | Optional LED anode; LED cathode through 1k to GND |
+
+**Future SD only:** these connections are not needed for the live web page.
+
+| ESP32 | SD breakout / control |
+| --- | --- |
+| 3V3 / GND | Breakout 3V / GND |
 | GPIO18 | SD CLK |
 | GPIO19 | SD SO / D0 / MISO |
 | GPIO23 | SD SI / CMD / MOSI |
 | GPIO13 | SD CS / D3 |
-| GPIO34 | Leave unconnected; ignition sensing is disabled |
-| GPIO32 | Optional normally open stop button to GND for SD recording |
-| GPIO25 | Optional LED anode; LED cathode through 1k to GND |
+| GPIO32 | Optional normally open safe-stop button to GND |
 
-Leave all SD connections absent for the current live-only setup. Later, keep SPI wiring short, initially under about
-10 cm. Neither the SD breakout nor ESP32 GPIO can accept 5V or vehicle 12V.
+Keep future SPI wiring short, initially under about 10 cm. Neither the SD
+breakout nor ESP32 GPIO can accept 5V or vehicle 12V.
 The default firmware does not read GPIO34, so no ignition pull-down or relay is needed.
 Optional LED: steady = recent CAN traffic or SD recording, blinking = CAN
 initialization/storage fault, off = idle. Missing/disabled storage is not a fault.
@@ -200,7 +210,8 @@ recent data or corrupt the SD card/filesystem**; supply stability during normal
 operation does not provide time to finish a write after power disappears. The
 owner accepts this simpler power arrangement for the logger. Before deliberate
 USB disconnection, hold the stop button until `ready_for_power_off` is true:
-this stops capture, drains the queue, closes the CSV and saves health counters.
+this stops new SD enqueues, drains the queue, closes the CSV and saves health
+counters. Live reception and RAM snapshots continue.
 The button cannot automatically predict key-off. An ordinary abrupt key-off
 may therefore leave no shutdown-health JSON for that boot.
 
@@ -211,22 +222,21 @@ It is disabled in this build; no vehicle voltage should reach GPIO34.
 
 ## Build and flash
 
-The verified local firmware binaries, `BUILD-INFO.txt` and `SHA256SUMS` are in
-`.cache/esp32-logger/`. They survive a reboot but are ignored by Git. A local
-recovery snapshot is saved as `.cache/esp32-logger-recovery.zip`; it includes
-the logger source, wiring notes, integration files and firmware binaries. It is
-a point-in-time copy, not a remote backup or a replacement for version control.
-If local artifacts are missing, rebuild using the commands below or download
-the matching successful CI artifact. See the dated board-flashing record above.
-
-Use Arduino CLI with the official **esp32:esp32 core 3.3.6**. No third-party
-Arduino libraries are needed. From the repository root:
+Install Arduino CLI (**1.4.1** is used in CI) and the official
+**esp32:esp32 core 3.3.6**. No third-party Arduino libraries are needed.
+From the repository root, build and list the connected serial ports:
 
 ```sh
 arduino-cli core update-index --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
 arduino-cli core install esp32:esp32@3.3.6 --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
 arduino-cli compile --fqbn esp32:esp32:esp32 --output-dir .cache/esp32-logger esp32-logger/van_can_logger
 arduino-cli board list
+```
+
+Replace `COM5` below with your actual board port, then upload and open the
+serial monitor. Close other serial monitors before uploading.
+
+```sh
 arduino-cli upload --fqbn esp32:esp32:esp32 --port COM5 esp32-logger/van_can_logger --input-dir .cache/esp32-logger
 arduino-cli monitor --port COM5 --config baudrate=115200
 ```
@@ -236,7 +246,18 @@ Disconnect vehicle power for PC-powered flashing. USB driver/port access depends
 on the existing board. The default generic ESP32 target assumes a compatible
 classic development board; confirm its flash size before flashing.
 
-At first boot the device stores a unique boot counter and generated 16-character
+To use a matching `esp32-logger-<commit>` Actions artifact instead of compiling,
+extract its files into `.cache/esp32-logger`, install the same core, then use
+the upload command above. Verify its SHA256SUMS first; do not flash the STM32
+BIN or the ESP32 application BIN alone as though it were a complete image.
+
+The owner's `.cache/esp32-logger/` and `.cache/esp32-logger-recovery.zip` are
+local, ignored recovery copies, not prerequisites or files supplied by a clone.
+Rebuild or download the matching artifact if they are absent. Never publish
+the local serial capture containing the device Wi-Fi password.
+
+On each boot the device advances a persistent boot counter. At first setup it
+stores a generated 16-character
 Wi-Fi password in NVS. Read the SSID/password at 115200 baud and save them.
 Join `VanCAN-xxxxxx`, stay connected when the phone warns of no internet, then
 open **http://192.168.4.1**. Only people with the hotspot password should join:
@@ -303,6 +324,25 @@ on the actual board. There is no TCP CAN forwarding or web-based CAN transmissio
    that USB power switches off while parked, and a warm cabin soak.
    Check 3.3V stability with Wi-Fi and SD writes active. Use soldered connections,
    secured card, insulated mounting and antenna clearance before installing.
+
+## Troubleshooting
+
+| Symptom | Next check |
+| --- | --- |
+| No serial port | Use a data-capable cable; check the board's USB-UART driver and OS port permissions |
+| Port busy | Close Arduino/terminal serial monitors and other flash tools |
+| Wrong boot mode / cannot connect | Hold BOOT while starting upload; release once writing begins. If needed, hold BOOT, tap EN/RESET and retry |
+| Reset circuit still defeats manual boot | Run the upload with `--verbose`, save the printed esptool command, enter bootloader manually, then rerun that command with `--before no-reset` in place of `--before default-reset` |
+| Flashed but no application output | Release BOOT, tap EN/RESET, open the serial monitor at 115200 baud |
+| Hotspot password unknown | Read startup serial output; credentials belong to this board, not the example COM8 board above |
+| Phone leaves the hotspot | Choose to stay connected without internet and open `http://192.168.4.1` explicitly |
+| Web page works but no CAN | Check GPIO26/TX, GPIO27/RX, 3.3V supply, SLNT/GND, reference ground, 500 kbit/s and two terminators total |
+| One reading stale/faulted | Check that sensor's `0x110`/`0x111` frames and engine-node input; Wi-Fi/SD do not create missing sensor data |
+| SD error after opting in | Check `EnableSd`, SPI wiring, 3.3V power and FAT32; return to `EnableSd = false` for cardless use |
+
+Manual entry is documented in [Espressif's boot-mode guide](https://docs.espressif.com/projects/esptool/en/latest/esp32/advanced-topics/boot-mode-selection.html).
+The no-reset retry is for a board already placed in its bootloader, not a
+reason to erase NVS or reinstall firmware when only the hotspot needs joining.
 
 ## Primary references
 

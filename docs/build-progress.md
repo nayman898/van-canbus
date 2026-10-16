@@ -48,7 +48,8 @@ additional sensors and lets the sensor harness be serviced independently.
 The older combined 12-pin arrangement is retained in the
 [harness plan](engine-node-harness.md) as a temporary reference. Its pinout is
 different from the sensor-only connector. The final housing part numbers,
-orientation, contact sizes, cable exits, and mounting tray are still open.
+orientation, contact sizes and cable exits are still open. Printable holders
+and cabin cases are now available; see [Printed cases and mounts](printing.md).
 
 ## 5. Prepare vehicle power — parts selected
 
@@ -91,14 +92,23 @@ calibration, and installation checks remain separate from confirmed reception.
 ## 7. Automated verification and build maintenance
 
 The repository workflow checks host tools/docs, builds both firmware variants,
-builds/lints the Android APK, and generates the wiki. Pull requests do not
+builds/lints the Android APK, builds the ESP32 gateway, and generates the wiki. Pull requests do not
 publish the wiki; successful `main` runs can. Two-temperature browser tests
 are included in the workflow.
 
 A Dependabot PR exposed `sdkmanager: command not found`. The workflow now
 explicitly initializes Android command-line tools with a SHA-pinned setup
-action before installing SDK packages. Local workflow validation passed;
-a successful hosted rerun of that fix has not yet been confirmed here.
+action before installing SDK packages. In
+[October 16 run 38904599132](https://github.com/nayman898/van-canbus/actions/runs/38904599132),
+the Android APK and both STM32 builds passed, as did the ESP32 build and all
+22 then-current Python tests. The remaining failure was workflow lint:
+ShellCheck SC2035 on the ESP32 checksum globs. The checksum command now uses
+`sha256sum -- *.bin *.elf`; local actionlint validation with ShellCheck passes.
+The wiki publish job was skipped in that run because lint failed. The later
+[fix-build-issues run 38910515542](https://github.com/nayman898/van-canbus/actions/runs/38910515542)
+at commit `69a9859` passed every job, including host/workflow validation and
+the wiki publishing job. New documentation changes still need their own
+successful source push/run to reach the live wiki.
 See [automation](automation.md) for artifacts and troubleshooting.
 
 ## RPM and pressure interface decisions — October 15, 2026
@@ -134,7 +144,26 @@ disconnection. Current live-only history is volatile RAM.
 
 The first ESP32 (COM8, ESP32-D0WD-V3 rev 3.1, 4 MB flash) was flashed with the
 live-only web build. All programmed regions passed verification, and normal
-startup advertised VanCAN-1F8A3C. Device browser/CAN testing remains pending.
+startup advertised VanCAN-1F8A3C. The October 16 photo shows the ESP32 and CAN
+Pal assembled on the half-size proto board. Device browser/CAN acceptance
+results and vehicle-power checks remain pending.
+
+## Printed cases and measured ESP32 fit — October 16, 2026
+
+- Added the [U2C two-piece case](hardware.md#printable-u2c-case--first-fit-prototype)
+  with USB and CAN at opposite ends. The generic drawing's longitudinal hole
+  inset is inferred; verify all four holes on the actual V2.1 with its fit frame.
+- Reworked the [ESP32 case](esp32-logger.md#printed-cabin-enclosure) around the
+  assembly photo: the ESP32 hides the front proto-board hole, so front retainers
+  and one accessible rear screw hold the board.
+- The owner confirmed the bottom offsets fit and corrected the component
+  height to **13 mm above the PCB**. Compact V3 keeps the 6 mm underside offset,
+  adds 3 mm headroom and measures **60.8 × 100.28 × 28.4 mm** excluding ears.
+  V2's lid fits V3; the shorter base and panel must be V3.
+- Mesh, nominal clearance and cable-path checks pass. Full case/plug fit,
+  strain relief, heat and vibration still need physical checks. STL downloads,
+  printing instructions and editable-source commands are in the
+  [print guide](printing.md).
 
 ## Next work
 
@@ -147,9 +176,11 @@ startup advertised VanCAN-1F8A3C. Device browser/CAN testing remains pending.
   validate fuel scaling and oil calibration before implementing pressure support.
 - Select the RPM timer pin and verify CoilX/level-converter pulses before
   implementing RPM capture and CAN reporting.
-- Finish enclosure support, strain relief, sealing, and the mounting tray.
-- Assemble and bench-test the ESP32 logger, including manual safe stop and
-  downloading while recording. Exercise Android CSV logging with both sensors;
+- Fit the ESP32 V3 case and U2C case, then finish mounting and strain relief.
+  The cabin prints are unsealed; engine-node sealing remains separate work.
+- Bench-test the assembled ESP32 gateway's cardless live page and CSV export
+  against real CAN traffic. Add SD hardware later, then test manual safe stop
+  and downloading while recording. Exercise Android CSV logging with both sensors;
   laptop persistent recording and playback remain future work.
 
 Add installation photos and enclosure drawings as the physical build progresses;

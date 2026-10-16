@@ -99,7 +99,7 @@ reports an open-circuit fault; it does not suppress sensor 1.
 
 ## Planned expansion
 
-Pressure inputs have no implemented message definitions yet.
+RPM and pressure inputs have no implemented message definitions yet.
 Allocate their IDs and payloads alongside the firmware and
 host changes, then update this reference. There is currently no DBC file,
 configuration protocol, or vehicle-control message set.

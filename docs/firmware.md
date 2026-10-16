@@ -106,3 +106,8 @@ These tests exercise heartbeat/coolant parsing, malformed payload lengths, and
 fault presentation. They do not validate MCU timing, physical wiring, sensor
 calibration, or vehicle-input protection. Those need the documented bench and
 hardware checks.
+
+For the native C encoder checks, ESP32 host checks, JavaScript checks and
+workflow validation used in CI, see [local verification commands](automation.md#run-equivalent-checks-locally).
+The classic ESP32 gateway is a separate firmware project; its pinned Arduino
+core, wiring, build and flash commands are in the [ESP32 guide](esp32-logger.md).
