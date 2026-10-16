@@ -88,7 +88,7 @@ jobs:
           arduino-cli compile --fqbn esp32:esp32:esp32 --warnings all \
             --output-dir .cache/esp32-logger esp32-logger/van_can_logger
           cd .cache/esp32-logger
-          sha256sum *.bin *.elf > SHA256SUMS
+          sha256sum -- *.bin *.elf > SHA256SUMS
       - name: Upload logger firmware
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
