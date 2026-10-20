@@ -47,8 +47,9 @@ additional sensors and lets the sensor harness be serviced independently.
 
 The older combined 12-pin arrangement is retained in the
 [harness plan](engine-node-harness.md) as a temporary reference. Its pinout is
-different from the sensor-only connector. The final housing part numbers,
-orientation, contact sizes and cable exits are still open. Printable holders
+different from the sensor-only connector. Purchased housing part numbers and
+contact sizes are now recorded in the harness plan; physical cavity orientation,
+final assignments and cable exits still need verification. Printable holders
 and cabin cases are now available; see [Printed cases and mounts](printing.md).
 
 ## 5. Prepare vehicle power — parts selected
@@ -167,7 +168,8 @@ results and vehicle-power checks remain pending.
 
 ## Next work
 
-- Confirm connector part numbers/orientation and finalize the two-plug drawing.
+- Verify physical connector cavity orientation and finalize the two-plug drawing;
+  purchased part numbers and contact sizes are recorded in the harness plan.
 - Assemble and measure the protected power stage before vehicle-power use.
 - Add automotive transient protection to the sensor input.
 - Verify channel identity by warming one sensor at a time, check fault recovery,
@@ -185,3 +187,85 @@ results and vehicle-power checks remain pending.
 
 Add installation photos and enclosure drawings as the physical build progresses;
 bench operation does not establish vehicle-environment reliability.
+
+
+## Fuel-level bench software — October 17, 2026
+
+Added A5/PB12/ADC1_IN16 sampling for the isolated Spectra FG72A circuit with a
+1k pull-up. CAN `0x120` reports resistance, raw count and independent faults
+every 500 ms. Android adds raw diagnostics and a damped, explicitly uncalibrated
+75-ohm-empty / 10-ohm-full estimate. Host conversion, wire-contract and Android
+freshness/damping checks cover the new path. Hardware acceptance, installed
+sender connection repair, multi-point tank calibration and vehicle input
+protection remain pending. See [fuel-level testing](fuel-level.md).
+
+
+## Fuel on the ESP32 Wi-Fi gateway — October 17, 2026
+
+Added matching fuel-message validation, timestamp-based five-second level
+damping, raw fuel diagnostics, a responsive uncalibrated fuel card and a fuel
+raw-frame filter. Updated preview data includes `0x120`. No new ESP32 hardware,
+SD card or sender wiring is required. ESP32 upload and end-to-end fuel hardware
+verification remain pending; the October 15 flash predates this feature.
+
+
+### Nucleo fuel firmware flashed — October 17, 2026
+
+Programmed the connected NUCLEO-G0B1RE through ST-Link with the Release fuel
+firmware. STM32CubeProgrammer completed a successful flash read-back verification
+and reset the MCU. This establishes programming success; sender accuracy and
+fuel hardware acceptance still require the documented resistor/sender checks.
+
+
+## Customizable Android dashboard — October 17, 2026
+
+App 0.3.0 makes both coolant channels, fuel, engine status and raw CAN separate
+cards in a saved ordered selection. Edit layout provides add, remove, move
+up/down and reset controls; an empty dashboard can always add cards back.
+Wide landscape fills two columns in row order, and narrow windows use one.
+Hiding cards affects display only; reception, fault/freshness processing and
+CSV logging continue. Plain-JDK layout tests cover restart persistence,
+all-hidden recovery, ordering boundaries and invalid saved IDs. Android lint
+and the debug APK build pass; physical phone/head-unit UI acceptance remains
+pending. See [dashboard customization](../android-app/README.md#customize-your-dashboard-app-030).
+
+
+## Customizable Wi-Fi dashboard — October 17, 2026
+
+The ESP32 page now supports add/remove, move up/down, reset and saved browser
+layouts for both coolant cards, fuel, engine/capture status and raw frames.
+Hidden cards remain connected to live data; CSV capture and fault/freshness
+checks continue. Tests cover reload persistence, duplicates/unknown IDs,
+empty-dashboard recovery and browser storage failures. Actual headless Chrome
+checks exercised the controls and verified desktop/390px phone layouts with
+simulated telemetry and no horizontal overflow. Browser and Android layouts
+save independently. After the owner corrected the pull-down to P12/GPIO12,
+the flash identified correctly as 4MB at 3.3V. The four firmware regions were
+written and hash verified, preserving NVS. A subsequent reset and filtered
+serial check confirmed normal application boot, the Wi-Fi hotspot and dashboard
+address, with no fatal startup message. Live CAN/sensor acceptance awaits the
+bench harness.
+
+## Fuel ADC channel-selection correction — October 17, 2026
+
+Investigating a fuel card stuck near 1.5V exposed a Nucleo firmware error:
+the configurable ADC sequencer cannot address IN16, so the request selected
+IN0 instead. The corrected firmware uses the fixed sequencer, replaces the
+channel mask on each input change, and waits for configuration readiness.
+A regression test using ST's actual register helpers reproduces the alias
+and verifies independent IN0/IN1/IN16 selection. Fuel conversion and CAN
+encoding tests pass, as does the Release build. The corrected image was flashed
+to the NUCLEO-G0B1RE, read-back verified successfully by STM32CubeProgrammer,
+and reset. The user confirmed the Nucleo is disconnected from the rest of the
+system while awaiting bench-harness connectors, so live fuel acceptance and
+the resistor/sender checks remain pending.
+
+
+## RPM replaces high-pressure fuel acquisition — October 19, 2026
+
+The owner deferred the high-pressure fuel channel while retaining its existing
+gauge. Current C2 stacked pairs are coolant 1/12 and 2/11, oil 3/10, RPM 4/9,
+low fuel pressure 5/8, and fuel level 6/7. The local interactive RPM guide and
+connection list reflect C2.4 to B1 and C2.9 to logic ground. CoilX is still
+shipping; its separate regulated 5V feed and any new enclosure connector await
+photos/layout planning. RPM GPIO/firmware and pressure firmware remain pending.

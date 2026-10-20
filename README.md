@@ -23,7 +23,9 @@ custom telemetry network, not an OBD-II scanner or decoder for a factory
 vehicle network.
 
 The current bench firmware transmits a Classical CAN heartbeat and two TX3
-coolant-temperature inputs (pre- and post-radiator) at 500 kbit/s.
+coolant-temperature inputs (pre- and post-radiator), plus a fuel-level bench
+input on A5/PB12, at 500 kbit/s. Fuel hardware acceptance and tank calibration
+are pending; Android labels its percentage as an uncalibrated estimate.
 
 The provisional vehicle wiring and connector allocation are documented in
 [the engine-node harness plan](docs/engine-node-harness.md).
@@ -36,6 +38,7 @@ does not mean CAN listen-only mode.
 ```mermaid
 flowchart LR
     TX3[Two TX3 coolant sensors] -->|Separate ADC inputs| MCU[NUCLEO-G0B1RE]
+    FUEL[Isolated FG72A fuel sender] -->|A5 / PB12 bench input| MCU
     MCU -->|CAN TX / RX| PAL[Adafruit CAN Pal]
     PAL <-->|CAN-H / CAN-L + ground| U2C[BTT U2C V2.1]
     U2C <-->|USB| HOST[Android app or laptop dashboard]
@@ -56,15 +59,16 @@ are connected.
 | Area | What exists today |
 | --- | --- |
 | CAN and coolant channel 1 | Working on the bench at 500 kbit/s |
-| Android app | Native U2C dashboard, raw-frame view, and CSV logging |
+| Android app | Native U2C dashboard with saved, reorderable sensor cards, raw-frame view, and CSV logging |
 | Laptop tools | Terminal monitor and live browser dashboard |
 | Vehicle harness | Provisional 6-pin power/CAN and 12-pin sensor allocations |
 | Vehicle power | Protection parts selected; assembly/vehicle validation still pending in the build notes |
 | Coolant channel 2 | Two-channel firmware flashed/verified; phone operation confirmed and both readings received on PC |
+| Fuel level | [Isolated FG72A bench input](docs/fuel-level.md), resistance telemetry and Android estimate implemented; hardware test/calibration pending |
 | Pressure inputs | Three-channel prototype schematic and parts cart prepared; assembly, calibration and firmware pending |
 | RPM input | CoilX ordered; level converter, input-pin assignment and firmware pending |
 | Recording | Raw-frame CSV recording and export in the Android app |
-| ESP32 gateway | [Live web monitor](docs/esp32-logger.md) flashed and boot-verified; assembled board photographed; CAN/vehicle acceptance tests pending; SD optional |
+| ESP32 gateway | Fuel card added in current source/build; updated flash and fuel acceptance pending. [Live web monitor](docs/esp32-logger.md) flashed and boot-verified; assembled board photographed; CAN/vehicle acceptance tests pending; SD optional |
 | Printed cases | [ESP32 compact V3 and U2C case](docs/printing.md); fit checks and assembly instructions included |
 
 ## Follow the build
@@ -78,6 +82,7 @@ are connected.
 | [Bench setup](docs/bench-setup.md) | Wiring, first power-up, expected readings, and troubleshooting |
 | [Harness and vehicle power](docs/engine-node-harness.md) | Connector assignments and staged power-input work |
 | [Firmware](docs/firmware.md) | Build, programming, and source walkthrough |
+| [Fuel level](docs/fuel-level.md) | Isolated sender circuit, Android readings and bench checks |
 | [CAN protocol](docs/can-protocol.md) | Message layouts, units, fault flags, and examples |
 | [Laptop tools](tools/README.md) | Dashboard, terminal monitor, setup, and limitations |
 | [Android app](android-app/README.md) | Direct U2C connection, phone setup, and logging |
@@ -111,6 +116,8 @@ end. With all USB cables unplugged, CAN-H to CAN-L should measure about 60 ohms.
 - Coolant period: 250 ms per sensor
 - Coolant inputs: pre-radiator A0 / PA0 / ADC1_IN0; post-radiator A1 / PA1 / ADC1_IN1
 - TX3 pull-up: nominal 2.47 kohm to 3.3 V
+- Fuel level: `0x120` every 500 ms, A5 / PB12 / ADC1_IN16, isolated 1k pull-up
+- Fuel conversion: raw ADC + resistance; Android percent is an uncalibrated estimate
 
 | Byte | Meaning |
 | ---: | --- |

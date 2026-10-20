@@ -67,6 +67,10 @@ To try the ESP32 interface before wiring hardware, run
 Its banner identifies **simulated data**; this preview does not open the U2C
 or connect to the van. Stop it with Ctrl+C when finished.
 
+The current firmware also sends fuel-level `0x120` at 2 Hz. The optional
+[fuel bench circuit](fuel-level.md) is separate; fuel readings are unvalidated
+if A5/PB12 is left floating. Coolant operation does not depend on that input.
+
 ## 4. Wire and power the bench network
 
 Follow [Bench setup](bench-setup.md) with all power removed while wiring:
@@ -89,7 +93,7 @@ is fitted. That does not stop the connected sensor from reporting.
 
 | Check | Expected result |
 | --- | --- |
-| CAN traffic | `0x100` heartbeat twice/second; `0x110` and `0x111` four times/second each |
+| CAN traffic | `0x100` heartbeat twice/second; `0x110` and `0x111` four times/second each; `0x120` fuel twice/second |
 | Connected TX3 sensors | Two plausible, independently updating temperatures |
 | Warm one sensor | Only the corresponding temperature changes |
 | Disconnect one sensor while unpowered, then restart | That channel reports OPEN; the other still updates |

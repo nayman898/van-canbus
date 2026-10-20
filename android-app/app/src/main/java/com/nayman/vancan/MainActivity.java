@@ -257,6 +257,7 @@ public final class MainActivity extends Activity implements DashboardView.Action
             if (frame.canId == VanCanDecoder.COOLANT_OUTLET_ID) state.coolant = coolant;
             else state.coolantPost = coolant;
         }
+        state.fuel.accept(VanCanDecoder.decodeFuel(frame));
         refresh();
     }
 
@@ -296,6 +297,7 @@ public final class MainActivity extends Activity implements DashboardView.Action
         state.recentFrames.clear();
         state.coolant = null;
         state.coolantPost = null;
+        state.fuel.clear();
         state.heartbeat = null;
         frameTimes.clear();
         adapter.start(device);

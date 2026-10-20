@@ -22,6 +22,7 @@ PAGES = {
     "docs/rpm-input.md": ("RPM-Input", "Ford 400M RPM circuit"),
     "docs/glowshift-inputs.md": ("GlowShift-Inputs", "GlowShift pressure inputs"),
     "docs/glowshift-circuit.md": ("GlowShift-Circuit", "Build the pressure input board"),
+    "docs/fuel-level.md": ("Fuel-Level", "Fuel-level bench input"),
     "docs/bench-setup.md": ("Bench-Setup", "Bench setup"),
     "docs/engine-node-harness.md": ("Harness-and-Power", "Harness and vehicle power"),
     "docs/firmware.md": ("Firmware", "Firmware"),

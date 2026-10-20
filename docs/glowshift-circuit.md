@@ -15,6 +15,20 @@ Pressure firmware/display support is still pending.
 
 ![Three-channel input schematic](../hardware/glowshift-input/schematic.svg)
 
+## Current scope — October 19, 2026
+
+Only **low fuel pressure and oil pressure** are planned for acquisition now.
+High-pressure fuel stays on its existing gauge; its former C2 pair 4/9 is now
+reserved for RPM. The original three-channel schematic/BOM below is retained
+as a reference. Do not wire its high-pressure input into the RPM pair.
+
+If the original pressure board is already assembled, the high-pressure input
+can remain disconnected: its fitted 150k divider resistor holds amplifier A's
+input near ground. If omitting that entire channel during a new build, terminate
+amplifier A as an unused follower: pin 3 to GND, pin 2 to pin 1, output left
+unloaded. Amplifier D stays terminated as documented. A2/PA4 is unallocated;
+the RPM timer GPIO has not been assigned.
+
 ## Parts to gather
 
 - One **MCP6004-I/P** (or -E/P) and one 14-pin DIP socket.
@@ -71,7 +85,7 @@ A2/A3/A4 are CN8 pins 3/4/5 respectively. 3V3 is CN6 pin 4; GND is CN6 pin 6
 or 7. A4 can also be routed/shared with PB9 for I²C: confirm continuity to PB11
 and ensure no I²C output drives that connection before using the oil channel.
 Check the board labels and manual before wiring. A0/A1 stay connected to
-the existing coolant circuits; A5 stays free.
+the existing coolant circuits; A5/PB12 is now allocated to the separate [fuel-level bench input](fuel-level.md).
 
 ## External plugs
 

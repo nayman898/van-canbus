@@ -16,6 +16,11 @@ Prefer documented, assembled modules when a custom build would cost more once
 parts, tools, enclosure, assembly time and troubleshooting are included, or
 when the assembly complexity exceeds the owner's comfort level. Compare total
 installed cost and remaining wiring work before proposing a custom circuit.
+Existing component stock includes **two ELEGOO Most Complete Starter Kits for
+Mega 2560** and **four ELEGOO Super Starter Kits for Uno R3**. Prefer suitable
+parts from these kits before recommending additional purchases; check actual
+values and ratings rather than assuming exact kit contents.
+
 CoilX is the selected example; future sensor interfaces should follow this
 preference. Prefab boards can still need headers, connectors and setup.
 
@@ -92,6 +97,13 @@ Do not share its signal junction or pull-up with A0. Both sensors use the same
 conversion constants and nominal pull-up value. Add the 100 nF filter from
 each ADC pin to ground, after that channel's 1-kohm series resistor.
 See [second-channel wiring and tests](bench-setup.md#second-coolant-channel).
+
+## Fuel-level bench input
+
+The separate [FG72A fuel-level circuit](fuel-level.md) uses two 1k resistors,
+a 100nF capacitor and A5/PB12. It has no amplifier and requires the original
+dash gauge to be electrically disconnected. Firmware and Android support are
+implemented; hardware validation and tank calibration remain pending.
 
 ## Vehicle hardware in preparation
 
@@ -337,6 +349,19 @@ of 40.6 mm. The Perma-Proto uses the exact 81.28 × 50.8 mm outline and
 rather than rounded shop dimensions. Its long axis is Y in this model.
 Physical board revision, solder clearance, and printer shrinkage still need
 checking. Do not scale the whole part to change screw-hole size.
+
+Every new assembly/wiring map must reuse these known outlines and the relevant
+holder geometry before assigning holes. Show mounting holes and reserve the
+post contacts plus a labeled screw-head/washer/tool envelope. For the EPLZON,
+the central holes are 3.2 mm diameter at (19.05, 5.1) and (19.05, 45.7) mm from
+the PCB edges; the original tray has 6 mm diameter posts. The alternative
+corner holder needs all four 5 × 5 mm contact squares kept clear. These are
+different holder choices, not a requirement to install both. Preserving both
+sets of areas makes a layout compatible with either nominal mounting scheme.
+An 8 mm diameter access zone used in the RPM map is an explicit design margin,
+not a measured screw-head diameter. Check body outlines, solder pads and wire
+routes as well as electrical nets; physical assembly/holder fit still needs
+confirmation.
 
 With Python 3.12+:
 

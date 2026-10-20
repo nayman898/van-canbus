@@ -31,6 +31,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/files.cmake)
 # Add sources to executable/library
 target_sources(${PROJECT_NAME} PRIVATE
   Src/can_protocol.c
+  Src/fuel_sensor.c
   Src/tx3_sensor.c
   Src/stm32g0xx_hal_msp.c
   Src/stm32g0xx_it.c

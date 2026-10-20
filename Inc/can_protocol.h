@@ -7,8 +7,10 @@
 #define CAN_ID_ENGINE_HEARTBEAT 0x100U
 #define CAN_ID_ENGINE_COOLANT_1 0x110U
 #define CAN_ID_ENGINE_COOLANT_2 0x111U
+#define CAN_ID_ENGINE_FUEL_LEVEL 0x120U
 #define CAN_HEARTBEAT_PERIOD_MS 500U
 #define CAN_COOLANT_PERIOD_MS 250U
+#define CAN_FUEL_PERIOD_MS 500U
 
 #define CAN_PROTOCOL_VERSION 1U
 #define CAN_NODE_ENGINE 1U
@@ -16,6 +18,7 @@
 
 #define CAN_SENSOR_ID_COOLANT_OUTLET 1U
 #define CAN_SENSOR_ID_COOLANT_POST_RADIATOR 2U
+#define CAN_SENSOR_ID_FUEL_TANK 1U
 
 void CanProtocol_EncodeHeartbeat(uint8_t payload[8],
                                  uint8_t sequence,
@@ -27,5 +30,11 @@ void CanProtocol_EncodeCoolantTemperature(uint8_t payload[8],
                                           uint8_t sensor_status,
                                           uint16_t adc_raw,
                                           int16_t temperature_deci_c);
+
+void CanProtocol_EncodeFuelLevel(uint8_t payload[8],
+                                 uint8_t sequence,
+                                 uint8_t sensor_status,
+                                 uint16_t adc_raw,
+                                 uint16_t resistance_deci_ohms);
 
 #endif

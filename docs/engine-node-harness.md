@@ -15,12 +15,37 @@ the installation serviceable without disturbing the other.
 Both the 6-pin and 12-pin plugs are now available for this build. The intended
 allocation is [C1 for power/CAN](#c1-final-power-and-can-provisional-6-way) and
 [C2 for sensors](#c2-final-sensors-provisional-12-way). Those cavity assignments
-remain provisional until the housing part numbers and orientation are recorded.
+remain provisional until the physical cavity orientation is verified.
 The older C0 combined allocation below is retained as a temporary reference;
 it is **not pin-compatible** with the sensor-only C2 allocation.
 
 Connector names C1/C2 and capacitor references C1/C2 in the power schematic
 belong to separate naming contexts in these prototype notes.
+
+### Purchased connector families
+
+Confirmed on October 17, 2026 from the owner's DigiKey screenshots and order
+acknowledgements:
+
+| Connection | Module housing | Harness mate | Wedgelocks | Contact size |
+| --- | --- | --- | --- | --- |
+| C1 power/CAN | Amphenol `AT04-6P-CL06`, flanged | `AT06-6S-MM01` | `AW6P` / `AW6S` | 16 |
+| C2 sensors | TE Deutsch `DTM04-12PA-L012`, flanged, key A | `DTM06-12SA` | `WM-12P` / `WM-12S` | 20 |
+
+The purchased contacts are stamped and formed: `AT60-16-0622` pins and
+`AT62-16-0622` sockets (10 each), plus `AT60-20-0122` pins and
+`AT62-20-0122` sockets (15 each). Use tooling specified for those open-barrel
+contacts; a four-indent crimper for machined contacts is unsuitable.
+Purchased cavity plugs are `A114017` (4) and `AT13-204-2005` (16); remaining
+stock after assembly is not recorded. Do not substitute a DT 12-way housing
+for the DTM 12-way housing.
+
+For a separate bench harness, duplicate each socket-side harness connector.
+Leave the existing van leads installed. To cap those leads when the module
+is removed, use a blank mating `AT04-6P` and `DTM04-12PA`, with their respective
+wedgelocks and every rear cavity sealed: six `A114017` plugs and twelve
+`0413-204-2005` plugs. Fit no metal contacts or jumpers in these caps. Verify
+plug seating and mating seals before treating the assembled caps as sealed.
 
 ## C0: temporary combined 12-way
 
@@ -198,31 +223,47 @@ in the final wiring drawing before wiring cavity 1.
 
 ### C2: final sensors (provisional 12-way)
 
-| Cavity | Circuit | Initial use |
-| --- | --- | --- |
-| 1 | Coolant sensor 1 signal | TX3 at thermostat outlet |
-| 2 | Coolant sensor 1 return | Dedicated return to engine node |
-| 3 | Coolant sensor 2 signal | TX3 at lower radiator hose |
-| 4 | Coolant sensor 2 return | Dedicated return to engine node |
-| 5 | Regulated 5 V sensor supply | Reserved for future active sensors |
-| 6 | Active-sensor return | Reserved for future active sensors |
-| 7 | Oil-pressure signal | Reserved; GlowShift interface TBD |
-| 8 | EFI fuel-pressure signal | Reserved; GlowShift interface TBD |
-| 9 | Carburetor fuel-pressure signal | Reserved; GlowShift interface TBD |
-| 10 | Spare analog input | Reserved |
-| 11 | Spare digital/frequency input | Reserved |
-| 12 | Spare | Reserved |
+The sensor connector uses vertically stacked signal/return pairs, as specified
+by the owner. Follow molded cavity numbers, not apparent left/right position.
+
+| Sensor | Signal cavity | Return cavity | Board destination |
+| --- | ---: | ---: | --- |
+| Pre-radiator coolant | 1 | 12 | A0/PA0 circuit |
+| Post-radiator coolant | 2 | 11 | A1/PA1 circuit |
+| Oil pressure | 3 | 10 | GlowShift interface to A4/PB11 |
+| RPM (replaces deferred high fuel pressure) | 4 | 9 | CoilX conditioned output to level shifter B1; return to logic GND |
+| Low fuel pressure | 5 | 8 | GlowShift interface to A3/PB1 |
+| Fuel level | 6 | 7 | Fuel measuring circuit to A5/PB12 |
+
+This fills all twelve cavities. High-pressure fuel acquisition is deferred; its
+existing gauge stays connected and its former A2/PA4 input is now unallocated.
+RPM uses C2.4 for the conditioned 5V CoilX pulse and C2.9 for its data-system
+ground. The level shifter stays inside the module: C2.4 → B1, A1 → future
+Nucleo timer GPIO. Never route raw coil negative into these logic/sensor pads.
+CoilX also needs a separate regulated 5V feed; this two-wire pair does not
+provide it. The extra connector/power-feed layout awaits enclosure photos,
+and the timer GPIO and RPM firmware remain pending. The pressure gauges retain their
+existing sender supplies; these pressure pairs carry signal and confirmed
+signal reference only. No 5V supply cavity is allocated in this paired layout.
 
 Sensor 1 is **pre-radiator**, feeding the A0/PA0 divider; sensor 2 is
 **post-radiator**, feeding its own identical divider on A1/PA1. Both use
 2.47-kohm pull-ups to 3V3, separate 1-kohm ADC series resistors, and dedicated
 sensor returns. See the [second-channel bench test](bench-setup.md#second-coolant-channel).
-Do not confuse C2 cavities 3/4 with temporary C0 cavities 3/10.
+Do not use the temporary C0 allocation for this sensor-only C2 connector.
 
 The [GlowShift input plan](glowshift-inputs.md) covers model identification
 without probing and a proposed buffered board into the STM32 ADC. Keep these cavities reserved
 until the sender supply, signal range, calibration and grounding are confirmed.
 A separate CAN input module may change the final routing.
+
+For the proposed fuel addition, route the FG72A signal through C2 cavity 6
+to the fuel measuring junction and its separate return through cavity 7
+to board ground. The sender does not connect directly to A5: the board provides
+the 1k pull-up, 1k ADC series resistor and 100nF filter described in
+[fuel level](fuel-level.md#sharing-the-pressure-board). These are planning
+reservations, not confirmation of the existing harness wiring. Verify molded
+cavity numbers and continuity before populating either connector half.
 
 ## Work that is safe now
 

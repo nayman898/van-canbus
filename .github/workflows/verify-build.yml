@@ -126,6 +126,16 @@ jobs:
           cc -std=c11 -Wall -Wextra -Werror -I Inc \
             Src/can_protocol.c tests/test_can_protocol.c -o .cache/ci/test_can_protocol
           .cache/ci/test_can_protocol
+          cc -std=c11 -Wall -Wextra -Werror -I Inc \
+            Src/fuel_sensor.c tests/test_fuel_sensor.c -o .cache/ci/test_fuel_sensor
+          .cache/ci/test_fuel_sensor
+          cc -std=c11 -Wall -Wextra -Werror \
+            -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -DSTM32G0B1xx \
+            -I Inc -I third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Inc \
+            -I third_party/STM32CubeG0/Drivers/CMSIS/Device/ST/STM32G0xx/Include \
+            -I third_party/STM32CubeG0/Drivers/CMSIS/Core/Include \
+            tests/test_adc_input.c -o .cache/ci/test_adc_input
+          .cache/ci/test_adc_input
       - name: Build firmware and report memory use
         env:
           PRESET: ${{ matrix.preset }}
@@ -172,14 +182,18 @@ jobs:
           packages: ''
       - name: Install the project's Android SDK packages
         run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
-      - name: Check Android CAN decoding
+      - name: Check Android CAN decoding and dashboard layout
         run: |
           mkdir -p .cache/java-tests
           javac -d .cache/java-tests \
             android-app/app/src/main/java/com/nayman/vancan/protocol/CanFrame.java \
             android-app/app/src/main/java/com/nayman/vancan/protocol/VanCanDecoder.java \
-            tests/java/VanCanDecoderTest.java
+            android-app/app/src/main/java/com/nayman/vancan/protocol/FuelLevelDisplay.java \
+            android-app/app/src/main/java/com/nayman/vancan/DashboardLayout.java \
+            tests/java/VanCanDecoderTest.java \
+            tests/java/DashboardLayoutTest.java
           java -cp .cache/java-tests VanCanDecoderTest
+          java -cp .cache/java-tests DashboardLayoutTest
       - name: Restore optional consistent debug signing key
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:

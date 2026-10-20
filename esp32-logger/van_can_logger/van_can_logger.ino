@@ -246,10 +246,12 @@ void sendLive() {
   CanRecord frames[32];
   LiveCoolant coolant[2];
   LiveHeartbeat heartbeat;
+  LiveFuel fuel;
   xSemaphoreTake(liveLock, portMAX_DELAY);
   const size_t n = live.copyRecent(frames, 32);
   coolant[0] = live.coolant[0]; coolant[1] = live.coolant[1];
   heartbeat = live.heartbeat;
+  fuel = live.fuel;
   const size_t buffered = live.count();
   const uint32_t overwritten = live.overwritten;
   xSemaphoreGive(liveLock);
@@ -279,7 +281,18 @@ void sendLive() {
     body += text;
   }
   snprintf(text, sizeof(text),
-      "],\"heartbeat\":{\"seen\":%s,\"valid\":%s,\"sequence\":%u,\"uptime_ms\":%lu,\"age_ms\":%lu},\"frames\":[",
+      "],\"fuel\":{\"seen\":%s,\"valid\":%s,\"status\":%u,\"sequence\":%u,\"adc\":%u,"
+      "\"resistance_deci_ohms\":%u,\"age_ms\":%lu,\"estimated_percent\":",
+      fuel.seen ? "true" : "false", fuel.valid ? "true" : "false", unsigned(fuel.status),
+      unsigned(fuel.sequence), unsigned(fuel.adc), unsigned(fuel.resistanceDeciOhms),
+      (unsigned long)(now - fuel.updatedMs));
+  body += text;
+  if (fuel.valid) {
+    snprintf(text, sizeof(text), "%.3f", double(fuel.estimatedPercent));
+    body += text;
+  } else body += "null";
+  snprintf(text, sizeof(text),
+      "},\"heartbeat\":{\"seen\":%s,\"valid\":%s,\"sequence\":%u,\"uptime_ms\":%lu,\"age_ms\":%lu},\"frames\":[",
       heartbeat.seen ? "true" : "false", heartbeat.valid ? "true" : "false", unsigned(heartbeat.sequence),
       (unsigned long)heartbeat.uptimeMs, (unsigned long)(now - heartbeat.updatedMs));
   body += text;

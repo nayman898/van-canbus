@@ -60,15 +60,18 @@ Start/reset the target after programming, then verify reception using the
 At startup the firmware configures its clock, PA5 status LED, ADC1, and FDCAN1,
 including ADC calibration before starting CAN. The main loop schedules the
 heartbeat every 500 ms and both coolant channels every 250 ms: pre-radiator
-on A0/PA0 and post-radiator on A1/PA1.
+on A0/PA0 and post-radiator on A1/PA1. Fuel level is sampled on A5/PB12
+every 500 ms using the [isolated 1k pull-up circuit](fuel-level.md).
 
 Each channel selection replaces rank 1 in the configurable ADC sequencer.
 The first conversion after switching channels is discarded for settling.
-Each coolant reading then averages 32 ADC conversions, checks fault thresholds,
+Each sensor reading then averages 32 ADC conversions, checks fault thresholds,
 and converts thermistor resistance to temperature with a Steinhart-Hart fit.
-Failed ADC reads produce a fault payload instead of a valid temperature.
+Fuel uses the same averaging and settling procedure, then converts the count
+to sender resistance. Failed ADC reads produce a fault payload. Fuel open,
+short and range faults use their own thresholds.
 
-The three sequence counters advance independently when frames are successfully
+The four sequence counters advance independently when frames are successfully
 queued. PA5 toggles on a queued heartbeat, not on confirmation that the laptop
 received it. The CAN controller uses automatic retransmission. Incoming frames
 are rejected by the configured global filter; there is no command handler.
@@ -76,11 +79,12 @@ are rejected by the configured global filter; there is no command handler.
 | File | Responsibility |
 | --- | --- |
 | [Src/main.c](../Src/main.c) | Peripheral configuration, scheduling, ADC averaging, CAN transmission |
-| [Src/stm32g0xx_hal_msp.c](../Src/stm32g0xx_hal_msp.c) | Peripheral clocks and PA0/PA1/PA11/PA12 pin setup |
+| [Src/stm32g0xx_hal_msp.c](../Src/stm32g0xx_hal_msp.c) | Peripheral clocks and PA0/PA1/PB12 ADC and PA11/PA12 CAN pin setup |
 | [Inc/can_protocol.h](../Inc/can_protocol.h) | Message IDs, periods, protocol constants |
 | [Src/can_protocol.c](../Src/can_protocol.c) | Byte-level payload encoding |
 | [Inc/tx3_sensor.h](../Inc/tx3_sensor.h) | Pull-up value, thresholds, status flags |
 | [Src/tx3_sensor.c](../Src/tx3_sensor.c) | Thermistor conversion and range/fault handling |
+| [Inc/fuel_sensor.h](../Inc/fuel_sensor.h) / [Src/fuel_sensor.c](../Src/fuel_sensor.c) | Isolated FG72A resistance conversion and fault thresholds |
 | [CMakeLists.txt](../CMakeLists.txt) | Target sources, HAL dependencies, HEX/BIN generation |
 
 ## Changing the prototype

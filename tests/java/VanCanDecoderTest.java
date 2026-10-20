@@ -1,4 +1,5 @@
 import com.nayman.vancan.protocol.CanFrame;
+import com.nayman.vancan.protocol.FuelLevelDisplay;
 import com.nayman.vancan.protocol.VanCanDecoder;
 
 /** Runs on a plain JDK so the telemetry contract is checked without an emulator. */
@@ -44,7 +45,67 @@ public final class VanCanDecoderTest {
                     new byte[] {1, 2, 0, 0, 0, 8, 0, 1});
             check(VanCanDecoder.decodeCoolant(special) == null, "reject extended/RTR/error");
         }
-        System.out.println("Android CAN decoder checks passed");
+        checkFuel();
+        System.out.println("Android CAN decoder and fuel display checks passed");
+    }
+
+    private static void checkFuel() {
+        VanCanDecoder.FuelReading empty = VanCanDecoder.decodeFuel(
+                frame(0x120, 1, 1, 0, 7, 0x1e, 1, 0xef, 2));
+        check(empty != null && empty.valid && empty.adcRaw == 286, "fuel raw ADC");
+        check(empty.resistanceOhms == 75.1 && empty.estimatedPercent == 0, "empty endpoint clamped");
+        check(Math.abs(empty.voltage - 0.23048) < 0.0001, "fuel voltage");
+        VanCanDecoder.FuelReading full = VanCanDecoder.decodeFuel(
+                frame(0x120, 1, 1, 0, 255, 41, 0, 101, 0));
+        check(full.valid && Math.abs(full.estimatedPercent - 99.846) < .001, "full estimate");
+        for (int status : new int[] {1, 2, 4, 8, 3, 16, 255}) {
+            VanCanDecoder.FuelReading fault = VanCanDecoder.decodeFuel(
+                    frame(0x120, 1, 1, status, 0, 255, 15, 255, 255));
+            check(!fault.valid && Double.isNaN(fault.resistanceOhms)
+                    && Double.isNaN(fault.estimatedPercent), "fuel fault suppresses values");
+        }
+        check(!VanCanDecoder.decodeFuel(frame(0x120, 1, 1, 0, 0, 41, 0, 255, 255)).valid, "fuel sentinel");
+        check(!VanCanDecoder.decodeFuel(frame(0x120, 2, 1, 0, 0, 41, 0, 101, 0)).valid, "fuel version");
+        check(!VanCanDecoder.decodeFuel(frame(0x120, 1, 2, 0, 0, 41, 0, 101, 0)).valid, "fuel identity");
+        check(!VanCanDecoder.decodeFuel(frame(0x120, 1, 1, 0, 0, 0, 16, 101, 0)).valid, "fuel ADC range");
+        check(!VanCanDecoder.decodeFuel(frame(0x120, 1, 1, 0, 0, 0, 0, 101, 0)).valid, "fuel short without status");
+        check(!VanCanDecoder.decodeFuel(frame(0x120, 1, 1, 0, 0, 255, 15, 101, 0)).valid, "fuel open without status");
+        check(!VanCanDecoder.decodeFuel(frame(0x120, 1, 1, 0, 0, 41, 0, 49, 0)).valid, "fuel low resistance");
+        check(!VanCanDecoder.decodeFuel(frame(0x120, 1, 1, 0, 0, 41, 0, 0xe9, 3)).valid, "fuel high resistance");
+        check(VanCanDecoder.decodeFuel(frame(0x120, 1, 1, 0)) == null, "fuel truncated");
+        check(VanCanDecoder.decodeFuel(frame(0x121, 1, 1, 0, 0, 41, 0, 101, 0)) == null, "fuel wrong CAN ID");
+        for (int flag = 0; flag < 3; flag++) {
+            check(VanCanDecoder.decodeFuel(new CanFrame(1000, 0x120, flag == 0, flag == 1, flag == 2,
+                    new byte[] {1, 1, 0, 0, 41, 0, 101, 0})) == null, "fuel special frame");
+        }
+        check(VanCanDecoder.fuelStatusText(8).equals("OUT OF RANGE"), "fuel status label");
+
+        FuelLevelDisplay display = new FuelLevelDisplay();
+        check(!display.fresh(true, 1000), "absent fuel is stale");
+        display.accept(empty);
+        check(display.estimatedPercent(true, 1000) == 0, "first fuel sample immediate");
+        VanCanDecoder.FuelReading later = VanCanDecoder.decodeFuel(new CanFrame(1500, 0x120,
+                false, false, false, fullFrame()));
+        display.accept(later);
+        double smooth = display.estimatedPercent(true, 1500);
+        check(smooth > 9 && smooth < 10, "five-second slosh damping");
+        check(display.reading().resistanceOhms == full.resistanceOhms, "diagnostics stay unsmoothed");
+        check(display.fresh(true, 2999) && !display.fresh(true, 3000), "independent fuel freshness");
+        check(Double.isNaN(display.estimatedPercent(false, 1500)), "disconnect hides fuel");
+        check(!display.fresh(true, 1499), "negative age not fresh");
+        display.accept(VanCanDecoder.decodeFuel(frame(0x120, 1, 1, 1, 0, 255, 15, 255, 255)));
+        check(Double.isNaN(display.estimatedPercent(true, 1000)), "fault clears smoothed value");
+        display.accept(later);
+        check(display.estimatedPercent(true, 1500) > 99, "fault recovery resets filter");
+        display.accept(VanCanDecoder.decodeFuel(new CanFrame(4000, 0x120, false, false, false,
+                new byte[] {1, 1, 0, 0, 0x1e, 1, (byte)0xef, 2})));
+        check(display.estimatedPercent(true, 4000) == 0, "stale gap resets filter");
+        display.clear();
+        check(display.reading() == null && !display.fresh(true, 4000), "reconnect clears fuel");
+    }
+
+    private static byte[] fullFrame() {
+        return new byte[] {1, 1, 0, 0, 41, 0, 101, 0};
     }
 
     private static CanFrame frame(int id, int... bytes) {

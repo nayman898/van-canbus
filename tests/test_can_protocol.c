@@ -34,5 +34,12 @@ int main(void)
     CanProtocol_EncodeCoolantTemperature(payload, 2, 7, 0, 2098, 266);
     failures += expect(payload, post);
 
+    const uint8_t fuel[8] = {1, 1, 0, 7, 0x1e, 0x01, 0xef, 0x02};
+    CanProtocol_EncodeFuelLevel(payload, 7, 0, 286, 751);
+    failures += expect(payload, fuel);
+    const uint8_t fuel_fault[8] = {1, 1, 1, 255, 0xff, 0x0f, 0xff, 0xff};
+    CanProtocol_EncodeFuelLevel(payload, 255, 1, 4095, UINT16_MAX);
+    failures += expect(payload, fuel_fault);
+
     return failures ? 1 : 0;
 }

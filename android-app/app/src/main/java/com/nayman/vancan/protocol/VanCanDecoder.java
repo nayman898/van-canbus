@@ -6,6 +6,7 @@ public final class VanCanDecoder {
     public static final int HEARTBEAT_ID = 0x100;
     public static final int COOLANT_OUTLET_ID = 0x110;
     public static final int COOLANT_POST_RADIATOR_ID = 0x111;
+    public static final int FUEL_LEVEL_ID = 0x120;
 
     private VanCanDecoder() {}
 
@@ -41,6 +42,28 @@ public final class VanCanDecoder {
                 d[3] & 0xff, adc, adc * 3.3 / 4095.0,
                 valid, celsius, celsius * 9.0 / 5.0 + 32.0,
                 frame.receivedAtMillis);
+    }
+
+    public static FuelReading decodeFuel(CanFrame frame) {
+        if (frame.canId != FUEL_LEVEL_ID || frame.extended || frame.remote
+                || frame.error || frame.data.length != 8) return null;
+        byte[] d = frame.data;
+        int adc = (d[4] & 0xff) | ((d[5] & 0xff) << 8);
+        int resistance = (d[6] & 0xff) | ((d[7] & 0xff) << 8);
+        int status = d[2] & 0xff;
+        boolean valid = (d[0] & 0xff) == PROTOCOL_VERSION && (d[1] & 0xff) == 1
+                && status == 0 && adc > 4 && adc < 4050
+                && resistance >= 50 && resistance <= 1000;
+        return new FuelReading(d[0] & 0xff, d[1] & 0xff, status, d[3] & 0xff,
+                adc, valid, resistance, frame.receivedAtMillis);
+    }
+
+    public static String fuelStatusText(int status) {
+        if ((status & 0x08) != 0) {
+            String other = sensorStatusText(status & ~0x08);
+            return status == 0x08 ? "OUT OF RANGE" : other + " + OUT OF RANGE";
+        }
+        return sensorStatusText(status);
     }
 
     public static String sensorStatusText(int status) {
@@ -79,6 +102,35 @@ public final class VanCanDecoder {
             this.nodeStatus = nodeStatus;
             this.sequence = sequence;
             this.uptimeMillis = uptimeMillis;
+            this.receivedAtMillis = receivedAtMillis;
+        }
+    }
+
+    public static final class FuelReading {
+        public final int version;
+        public final int sensorId;
+        public final int status;
+        public final int sequence;
+        public final int adcRaw;
+        public final boolean valid;
+        public final double voltage;
+        public final double resistanceOhms;
+        public final double estimatedPercent;
+        public final long receivedAtMillis;
+
+        FuelReading(int version, int sensorId, int status, int sequence, int adcRaw,
+                    boolean valid, int resistanceDeciOhms, long receivedAtMillis) {
+            this.version = version;
+            this.sensorId = sensorId;
+            this.status = status;
+            this.sequence = sequence;
+            this.adcRaw = adcRaw;
+            this.valid = valid;
+            this.voltage = adcRaw <= 4095 ? adcRaw * 3.3 / 4095.0 : Double.NaN;
+            this.resistanceOhms = valid ? resistanceDeciOhms / 10.0 : Double.NaN;
+            // Provisional electrical endpoint interpolation, not tank calibration.
+            this.estimatedPercent = valid ? Math.max(0, Math.min(100,
+                    100.0 * (75.0 - resistanceOhms) / 65.0)) : Double.NaN;
             this.receivedAtMillis = receivedAtMillis;
         }
     }

@@ -97,6 +97,48 @@ For the same test reading on sensor 2, use `0x111` with payload
 `01 02 00 07 32 08 0A 01`. An absent second sensor with its pull-up installed
 reports an open-circuit fault; it does not suppress sensor 1.
 
+## Fuel level — `0x120`
+
+Nominal period: **500 ms**, with its own sequence counter. Input is
+A5 / PB12 / ADC1_IN16 using the isolated 1k pull-up circuit in the
+[fuel-level guide](fuel-level.md). The original dash gauge must be disconnected.
+This additive message retains protocol version 1 and all existing coolant IDs.
+
+| Byte | Field | Encoding |
+| --- | --- | --- |
+| 0 | Protocol version | `1` |
+| 1 | Sensor identity | `1` = single fuel tank |
+| 2 | Status | Flags below; zero means valid |
+| 3 | Sequence | Unsigned eight-bit counter |
+| 4–5 | ADC reading | Averaged 12-bit count, unsigned little-endian |
+| 6–7 | Resistance | Unsigned little-endian tenths of an ohm; `65535` invalid |
+
+| Status | Meaning | Firmware condition |
+| --- | --- | --- |
+| `0x00` | Valid | Resistance 5–100 ohms after conversion |
+| `0x01` | Open circuit | ADC >= 4050 |
+| `0x02` | Short circuit | ADC <= 4 |
+| `0x04` | ADC error | Acquisition failed or raw count exceeds 4095 |
+| `0x08` | Out of range | Other counts convert outside the 5–100-ohm diagnostic range |
+
+The fuel short threshold is intentionally lower than coolant's: a normal full
+sender produces only about 41 counts with the 1k pull-up. Status `0x08` means
+OUT OF RANGE here, not coolant's CALC ERROR. A fault always carries the invalid
+resistance sentinel; no fault should be interpreted as empty/full. Android
+also rejects unsupported versions, sensor IDs, special CAN frames, invalid
+counts, the sentinel, and out-of-range resistance before displaying level.
+
+Golden vector: `01 01 00 07 1E 01 EF 02` = sequence 7, ADC 286, **75.1 ohms**.
+Open vector: `01 01 01 FF FF 0F FF FF` = sequence 255, ADC 4095, invalid resistance.
+
+Voltage is estimated as `ADC * 3.3 / 4095`, not measured independently.
+Resistance is ratiometric when the pull-up uses the ADC reference supply.
+Fuel percentage is not on the wire: Android's explicitly uncalibrated estimate
+uses 75-ohm empty / 10-ohm full endpoints and five-second display damping.
+The fuel card becomes stale after 1.5 seconds without its own frames and hides
+level on USB disconnect. A current node sends about **12 frames/s** including
+the existing heartbeat and two coolant channels. Hardware acceptance is pending.
+
 ## Planned expansion
 
 RPM and pressure inputs have no implemented message definitions yet.

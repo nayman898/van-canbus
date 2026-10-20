@@ -1,6 +1,7 @@
 package com.nayman.vancan;
 
 import com.nayman.vancan.protocol.CanFrame;
+import com.nayman.vancan.protocol.FuelLevelDisplay;
 import com.nayman.vancan.protocol.VanCanDecoder;
 
 import java.io.File;
@@ -19,6 +20,7 @@ public final class DashboardState {
     public VanCanDecoder.Heartbeat heartbeat;
     public VanCanDecoder.CoolantReading coolant;
     public VanCanDecoder.CoolantReading coolantPost;
+    public final FuelLevelDisplay fuel = new FuelLevelDisplay();
     public boolean logging;
     public File latestLog;
     public final Deque<CanFrame> recentFrames = new ArrayDeque<>();

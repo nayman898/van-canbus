@@ -40,6 +40,14 @@ and [10 Color oil](https://glowshift.com/instructions/10-Color-Digital-Series/GS
 Their 12V gauge-power wiring does not establish the sender's excitation voltage;
 do not apply gauge supply voltage to a sender or logger signal pin.
 
+## Current scope — October 19, 2026
+
+Acquire low fuel pressure and oil pressure. High-pressure fuel is deferred;
+its existing gauge is retained. C2 pair 4/9 now carries RPM, with the separate
+CoilX 5V supply route pending enclosure planning. Historical three-channel
+assignments and measurements below are reference material, not an instruction
+to connect high-pressure fuel to the current harness.
+
 ## Owner-measured fuel calibration — provisional
 
 The owner measured the installed fuel sender signals and reported the following
@@ -229,8 +237,12 @@ Account for added channel scan time so existing coolant acquisition continues
 at its current schedule. Firmware must reconstruct sender voltage using the
 measured divider ratio and ADC reference, then apply each sender's own curve.
 
-C2 cavities 7/8/9 remain reserved for oil/high-fuel/low-fuel signals. Record the
-signal-return routing and connector view before making the harness. ADC pin assignments are documented in the circuit, but no pressure message
+The current stacked-pair C2 layout assigns oil signal/return to 3/10 and
+low fuel pressure to 5/8. High-pressure fuel acquisition is deferred as of
+October 19; its existing gauge remains in use. Pair 4/9 is now allocated to RPM,
+so do not wire the high-pressure sender tap to that pair. Its measurements and
+former A2/PA4 design are retained below for a possible future addition. Confirm signal-reference
+compatibility and the connector view before making the harness. ADC pin assignments are documented in the circuit, but no pressure message
 format, firmware acquisition or dashboard pressure support has been implemented. Retain raw voltage and
 invalid/stale status; do not display uncalibrated pressure as a real PSI value.
 

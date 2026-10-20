@@ -20,6 +20,7 @@ class WikiTests(unittest.TestCase):
             self.assertIn("/wiki/Android-App", (output / "Home.md").read_text())
             self.assertIn("/wiki/Automation", (output / "_Sidebar.md").read_text())
             self.assertIn("/wiki/Getting-Started", (output / "_Sidebar.md").read_text())
+            self.assertIn("/wiki/Fuel-Level", (output / "_Sidebar.md").read_text())
             self.assertIn("/wiki/Printed-Cases", (output / "_Sidebar.md").read_text())
 
     def test_all_build_guides_are_in_wiki_navigation(self):

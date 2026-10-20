@@ -79,7 +79,7 @@ git -C ../van-canbus.wiki diff
 Review new files as well as the diff. Stage only the generated files:
 
 ```powershell
-git -C ../van-canbus.wiki add Home.md Getting-Started.md Build-Guide.md Build-Progress.md Hardware.md Printed-Cases.md RPM-Input.md GlowShift-Inputs.md GlowShift-Circuit.md Bench-Setup.md Harness-and-Power.md Firmware.md CAN-Protocol.md ESP32-Logger.md Laptop-Tools.md Android-App.md Automation.md Wiki-Publishing.md _Sidebar.md _Footer.md
+git -C ../van-canbus.wiki add Home.md Getting-Started.md Build-Guide.md Build-Progress.md Hardware.md Printed-Cases.md RPM-Input.md GlowShift-Inputs.md GlowShift-Circuit.md Fuel-Level.md Bench-Setup.md Harness-and-Power.md Firmware.md CAN-Protocol.md ESP32-Logger.md Laptop-Tools.md Android-App.md Automation.md Wiki-Publishing.md _Sidebar.md _Footer.md
 git -C ../van-canbus.wiki commit -m "Update build documentation"
 git -C ../van-canbus.wiki push origin HEAD
 ```

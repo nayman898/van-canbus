@@ -25,13 +25,26 @@ def state(scenario="live"):
                     deci_c=value, age_ms=age) for i, value in enumerate(temperatures)]
     if scenario == "fault":
         coolant[1].update(valid=False, status=1, adc=4095, deci_c=-32768)
+    resistance = round(425 + 12 * math.sin(elapsed / 8))
+    fuel = dict(seen=scenario != "no-can", valid=True, status=0,
+                adc=round(4095 * resistance / (10000 + resistance)),
+                resistance_deci_ohms=resistance, estimated_percent=(750 - resistance) / 6.5,
+                sequence=tick % 256, age_ms=age)
+    if scenario == "fault":
+        fuel.update(valid=False, status=1, adc=4095,
+                    resistance_deci_ohms=65535, estimated_percent=None)
     frames = []
     for sequence in range(1200 + tick - 255, 1201 + tick):
-        channel = sequence % 3
-        identifier = [0x100, 0x110, 0x111][channel]
-        payload = (struct.pack("<BBBBI", 1, 1, 1, sequence % 256, 3572000 + tick * 100)
-                   if channel == 0 else struct.pack("<BBBBHh", 1, channel, coolant[channel - 1]["status"],
-                   sequence % 256, coolant[channel - 1]["adc"], coolant[channel - 1]["deci_c"]))
+        channel = sequence % 4
+        identifier = [0x100, 0x110, 0x111, 0x120][channel]
+        if channel == 0:
+            payload = struct.pack("<BBBBI", 1, 1, 1, sequence % 256, 3572000 + tick * 100)
+        elif channel == 3:
+            payload = struct.pack("<BBBBHH", 1, 1, fuel["status"], sequence % 256,
+                                  fuel["adc"], fuel["resistance_deci_ohms"])
+        else:
+            payload = struct.pack("<BBBBHh", 1, channel, coolant[channel - 1]["status"],
+                                  sequence % 256, coolant[channel - 1]["adc"], coolant[channel - 1]["deci_c"])
         frames.append(dict(sequence=sequence, timestamp_us=(uptime - (1200 + tick - sequence) * 100) * 1000,
                            id=identifier, extended=False, rtr=False, dlc=8, data=payload.hex().upper()))
     if scenario == "no-can":
@@ -42,7 +55,7 @@ def state(scenario="live"):
                 reason="Live mode; SD recording off", ready_for_power_off=True,
                 queue_drops=0, driver_missed=0, driver_overruns=0, bus_errors=0, storage_errors=0,
                 buffered=len(frames), capacity=256, overwritten=944 + tick if frames else 0,
-                coolant=coolant, heartbeat=dict(seen=bool(frames), valid=True, sequence=tick % 256,
+                coolant=coolant, fuel=fuel, heartbeat=dict(seen=bool(frames), valid=True, sequence=tick % 256,
                 uptime_ms=3572000 + int(elapsed * 1000), age_ms=age), frames=frames)
 
 

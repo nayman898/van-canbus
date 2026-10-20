@@ -34,6 +34,13 @@ checks do not replace those hardware tests. COM numbering may change.
 - Receives Classical CAN at 500 kbit/s. The web page shows both coolant channels,
   independent freshness/fault states, engine heartbeat/uptime, sampled temperature
   trends, °F/°C controls, and a filterable/freezable raw-frame view.
+- Decodes fuel level `0x120` from the updated Nucleo firmware. Shows voltage,
+  resistance/count and a five-second-damped **uncalibrated** 10–75-ohm level
+  estimate. Fuel stale/fault status is independent of the coolant channels;
+  fuel frames are included in RAM CSV and optional SD recording.
+- Offers **Edit layout** with add/remove cards, move up/down, reset and automatic
+  browser-local layout saving. Hidden cards keep receiving data and CSV logging
+  continues. Engine/capture status and raw frames can also be hidden or reordered.
 - Keeps the latest **256 frames in RAM** independently of SD recording. Export
   them using **Export recent CSV**. This is a rolling snapshot, not an entire-trip
   recording; history disappears when power is removed. The table shows the newest
@@ -62,11 +69,17 @@ checks do not replace those hardware tests. COM numbering may change.
    at 115200 baud. Join `VanCAN-xxxxxx` on the phone/head unit and open
    **http://192.168.4.1**. Stay connected when warned that the hotspot has no internet.
 3. The page shows **Live only**, with no SD error or requirement to install a card.
-   Coolant readings clear independently after 1.5 seconds without valid updates;
+   Coolant and fuel readings clear independently after 1.5 seconds without updates;
    a lost gateway connection clears live values rather than leaving frozen readings.
 4. Download a RAM snapshot with **Export recent CSV**. Save it before switching
    USB power off. Missing samples overwritten in the rolling history are counted
    separately from actual driver/queue drops.
+
+The fuel card requires the updated engine-node firmware and the
+[isolated FG72A circuit](fuel-level.md), with the original gauge disconnected.
+It does not require any sender wires connected to the ESP32: only the existing
+CAN Pal connection. No fuel frames means **Waiting for fuel sender**, rather
+than a guessed level. Percentage is provisional until custom tank calibration.
 
 RPM and pressure are not decoded yet because their STM32 messages are not
 implemented. Unknown IDs still appear in the raw view and recent CSV.
@@ -288,7 +301,7 @@ clock yet. Identifier and payload are hexadecimal; RTR payloads are empty.
 Sequence increments on every received frame, including while not recording.
 This format is distinct from Android CSV; existing playback/import is not implied.
 
-`/api/live` provides sensor/heartbeat snapshots, per-channel ages, diagnostic
+`/api/live` provides coolant/fuel/heartbeat snapshots, per-channel ages, diagnostic
 counters and the newest 32 raw frames. `/recent.csv` snapshots the RAM ring
 without holding the receive lock while HTTP sends data. Browser display polling
 is every 500 ms; received-frame timestamps are independent of that polling.
@@ -344,9 +357,73 @@ Manual entry is documented in [Espressif's boot-mode guide](https://docs.espress
 The no-reset retry is for a board already placed in its bootloader, not a
 reason to erase NVS or reinstall firmware when only the hotspot needs joining.
 
+## Customize the Wi-Fi dashboard
+
+Tap **Edit layout** above the cards. Use **↑** / **↓** to move a card, or
+**Remove** to hide it. **Add card** restores any hidden card at the end of the
+list. **Done** hides the editing controls, and **Reset layout** restores the
+default selection and order. All cards may be removed; the empty page keeps an
+**Add card** button available.
+
+The two coolant sensors and fuel level have separate cards. **Engine & capture
+status** and **Raw CAN frames** are also optional cards. On wider screens, the
+coolant cards can share a row; fuel and utility cards span the width. Order runs
+left-to-right and then top-to-bottom. Hiding or moving cards does not change
+sampling, freshness/fault checks, raw-frame freezing, RAM CSV capture or SD logging.
+
+Layouts save in browser storage on that phone/browser for the gateway address.
+They survive page reloads and ESP32 restarts, but clearing browser/site data resets
+them. Android app layouts save separately and are not synchronized with browser
+layouts. If browser storage is blocked/full, the editor reports that changes
+last until reload; live readings continue to work.
+
+Desktop and phone browser checks use clearly marked simulated telemetry.
+The October 17 fuel/card-editor firmware has now been flashed and verified on
+the ESP32; its startup log confirms the hotspot and dashboard address.
+Live sensor acceptance still awaits the bench harness.
+
+The October 17 card-editor build compiled with core 3.3.6 (77% program storage,
+19% static RAM). Its local output is `.cache/esp32-logger-dashboard`; the prepared
+`.cache/esp32-logger-dashboard-update.zip` contains the four normal flash regions,
+source/artifact hashes and instructions, excluding the full-flash merged image.
+The four regions were written and their hashes verified on October 17.
+NVS was preserved. After correcting the pull-down connection to **P12/GPIO12**,
+flash identification succeeded at 3.3V with 4MB detected. Manual BOOT/reset
+was used before the upload with automatic reset disabled. Subsequent startup
+confirmed `VanCAN-1F8A3C` and `http://192.168.4.1`, with no fatal startup message.
+Keep the GPIO12 pull-down correctly connected for the current hardware setup.
+
 ## Primary references
 
 - [Espressif TWAI driver](https://docs.espressif.com/projects/esp-idf/en/v5.5.2/esp32/api-reference/peripherals/twai.html): controller modes, queues and external transceiver requirement.
 - [Espressif Arduino core 3.3.6](https://github.com/espressif/arduino-esp32/releases/tag/3.3.6): pinned build dependency.
 - [CAN Pal pinout](https://learn.adafruit.com/adafruit-can-pal/pinouts): logic supply and selectable 120-ohm termination.
 - [SD breakout pinout](https://learn.adafruit.com/adafruit-microsd-spi-sdio/pinouts): SPI signals and 3.3V-only connections.
+
+
+## Fuel support flashed — October 17, 2026
+
+The current sketch adds fuel CAN `0x120` without changing pins, power, SD mode
+or stored Wi-Fi credentials. Update both the Nucleo firmware and the ESP32
+sketch to see fuel. The October 17 ESP32 update includes this feature and the
+card editor. Successful programming/startup does not establish live fuel
+accuracy; the Nucleo-to-gateway test awaits the bench harness.
+
+`/api/live` adds a `fuel` object containing `seen`, `valid`, `status`, `sequence`,
+`adc`, `resistance_deci_ohms`, `age_ms` and `estimated_percent`. Invalid readings
+use JSON `null` for the estimated percentage. Version, sender identity, length,
+raw-count limits and 5–100-ohm diagnostic margins match Android.
+
+The ESP32 damps valid percentages using CAN receive timestamps and a five-second
+time constant. HTTP polling does not advance the filter. Raw resistance/count
+and derived nominal-3.3V voltage are not damped. Faults hide level immediately;
+stale gaps and fault recovery reset smoothing. Browser fuel values clear on
+CAN failure, gateway loss or a 1.5-second fuel timeout independently of coolant.
+The **Fuel level** raw-frame filter and existing freeze controls affect the table
+only, not live readings or CSV capture.
+
+For a local build prepared in `.cache/esp32-logger-fuel`, upload with the same
+board/port selection as above and `--input-dir .cache/esp32-logger-fuel`. This
+folder is a local artifact, not a tracked dependency. No erase operation is
+needed; normal sketch upload retains NVS credentials. Live fuel hardware and
+browser acceptance tests remain pending until the updated devices are connected.

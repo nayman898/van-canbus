@@ -1,9 +1,9 @@
 From,To,Notes
 Coil primary negative,CoilX coil-side red,High-voltage ignition pickup; secure and insulate
 Engine reference,CoilX coil-side black,External ground
-Protected regulated 5V,CoilX logic-side yellow,Not vehicle 12V
-STM32 GND,CoilX logic-side red,Data-system ground; colors differ across CoilX sides
-CoilX logic-side black,Adafruit 757 B1,Conditioned 5V signal
+Protected regulated 5V,CoilX logic-side yellow,Separate feed route or extra connector pending; not vehicle 12V
+STM32 GND via C2 cavity 9,CoilX logic-side red,Data-system ground; colors differ across CoilX sides
+CoilX logic-side black via C2 cavity 4,Adafruit 757 B1,Conditioned 5V signal; replaces deferred high fuel pressure
 Protected regulated 5V,Adafruit 757 HV,Same 5V supply as CoilX
 STM32 3V3,Adafruit 757 LV,Low-side reference supply
 STM32 GND,Adafruit 757 GND pins,Common logic reference

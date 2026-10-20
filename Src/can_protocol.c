@@ -1,5 +1,21 @@
 #include "can_protocol.h"
 
+void CanProtocol_EncodeFuelLevel(uint8_t payload[8],
+                                 uint8_t sequence,
+                                 uint8_t sensor_status,
+                                 uint16_t adc_raw,
+                                 uint16_t resistance_deci_ohms)
+{
+    payload[0] = CAN_PROTOCOL_VERSION;
+    payload[1] = CAN_SENSOR_ID_FUEL_TANK;
+    payload[2] = sensor_status;
+    payload[3] = sequence;
+    payload[4] = (uint8_t)(adc_raw & 0xFFU);
+    payload[5] = (uint8_t)(adc_raw >> 8U);
+    payload[6] = (uint8_t)(resistance_deci_ohms & 0xFFU);
+    payload[7] = (uint8_t)(resistance_deci_ohms >> 8U);
+}
+
 void CanProtocol_EncodeHeartbeat(uint8_t payload[8],
                                  uint8_t sequence,
                                  uint32_t uptime_ms)

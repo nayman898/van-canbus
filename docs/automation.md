@@ -14,7 +14,7 @@ only successful `main` runs in the original repository can publish the wiki.
 | Host tools and documentation | Python decoder/dashboard/wiki tests, Python bug checks, dashboard JavaScript syntax and dual-temperature UI tests, Actions validation, generated wiki with local-link checks |
 | ESP32 logger | Pinned Espressif 3.3.6 core build for classic ESP32; ignition sequencing, log encoding and filename checks run in the host job |
 | Firmware (Debug / Release) | C encoder golden vectors; compile/link the STM32 firmware in both configurations; memory use and checksums |
-| Android checks and APK | Gradle wrapper validation, Java decoder golden vectors, Android lint, Gradle unit tests, debug APK and reports |
+| Android checks and APK | Gradle wrapper validation, Java decoder/layout checks, Android lint, Gradle unit tests, debug APK and reports |
 | Publish generated wiki | Runs after every required job passes; updates only mapped pages and navigation; skips unchanged docs and stale main commits |
 
 These are software checks, not a hardware certification. USB enumeration,
@@ -148,11 +148,30 @@ From Bash on Linux/WSL, run the same native host checks as CI:
 mkdir -p .cache/ci
 cc -std=c11 -Wall -Wextra -Werror -I Inc Src/can_protocol.c tests/test_can_protocol.c -o .cache/ci/test_can_protocol
 .cache/ci/test_can_protocol
+cc -std=c11 -Wall -Wextra -Werror -I Inc Src/fuel_sensor.c tests/test_fuel_sensor.c -o .cache/ci/test_fuel_sensor
+.cache/ci/test_fuel_sensor
+cc -std=c11 -Wall -Wextra -Werror \
+  -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -DSTM32G0B1xx \
+  -I Inc -I third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Inc \
+  -I third_party/STM32CubeG0/Drivers/CMSIS/Device/ST/STM32G0xx/Include \
+  -I third_party/STM32CubeG0/Drivers/CMSIS/Core/Include \
+  tests/test_adc_input.c -o .cache/ci/test_adc_input
+.cache/ci/test_adc_input
 g++ -std=c++17 -Wall -Wextra -Werror tests/test_logger_format.cpp -o .cache/ci/test_logger_format
 .cache/ci/test_logger_format
 g++ -std=c++17 -Wall -Wextra -Werror tests/test_logger_live.cpp -o .cache/ci/test_logger_live
 .cache/ci/test_logger_live
 bash tools/ci/check-workflows.sh
+```
+
+The Android decoder, fuel freshness/damping and saved dashboard-layout tests
+also run on a plain JDK:
+
+```sh
+mkdir -p .cache/java-tests
+javac -d .cache/java-tests android-app/app/src/main/java/com/nayman/vancan/protocol/CanFrame.java android-app/app/src/main/java/com/nayman/vancan/protocol/VanCanDecoder.java android-app/app/src/main/java/com/nayman/vancan/protocol/FuelLevelDisplay.java android-app/app/src/main/java/com/nayman/vancan/DashboardLayout.java tests/java/VanCanDecoderTest.java tests/java/DashboardLayoutTest.java
+java -cp .cache/java-tests VanCanDecoderTest
+java -cp .cache/java-tests DashboardLayoutTest
 ```
 
 Build the STM32 separately once its toolchain/submodules are installed:

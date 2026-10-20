@@ -42,4 +42,55 @@ int main() {
   heartbeat.data[1] = 2; live.push(heartbeat); assert(!live.heartbeat.valid);
   heartbeat.data[1] = 1; heartbeat.dlc = 4; live.push(heartbeat); assert(!live.heartbeat.valid);
   assert(live.coolant[1].valid && live.coolant[1].updatedMs == 1000);
+
+  LiveState<4> fuelLive;
+  CanRecord fuel = {1000000, 1, 0x120, 8, false, false, {1, 1, 0, 7, 0x1e, 1, 0xef, 2}};
+  fuelLive.push(fuel);
+  assert(fuelLive.fuel.seen && fuelLive.fuel.valid && fuelLive.fuel.adc == 286);
+  assert(fuelLive.fuel.resistanceDeciOhms == 751 && fuelLive.fuel.sequence == 7);
+  assert(fuelLive.fuel.estimatedPercent == 0 && !fuelLive.coolant[0].seen);
+  fuel.timestampUs = 1500000; fuel.data[4] = 41; fuel.data[5] = 0;
+  fuel.data[6] = 101; fuel.data[7] = 0;
+  fuelLive.push(fuel);
+  assert(fuelLive.fuel.valid && fuelLive.fuel.resistanceDeciOhms == 101);
+  assert(fuelLive.fuel.estimatedPercent > 9 && fuelLive.fuel.estimatedPercent < 10);
+  // Duplicate polls/frames at the same timestamp cannot advance damping.
+  const float previous = fuelLive.fuel.estimatedPercent;
+  fuelLive.push(fuel); assert(fuelLive.fuel.estimatedPercent == previous);
+  fuel.timestampUs = 3000000; fuelLive.push(fuel);
+  assert(fuelLive.fuel.estimatedPercent > 99); // Stale gap resets smoothing.
+  const CanRecord goodFuel = fuel;
+  for (uint8_t status : {1, 2, 4, 8, 3, 16, 255}) {
+    fuel = goodFuel; fuel.data[2] = status; fuelLive.push(fuel);
+    assert(!fuelLive.fuel.valid);
+    fuel = goodFuel; fuelLive.push(fuel);
+    assert(fuelLive.fuel.valid && fuelLive.fuel.estimatedPercent > 99); // Fault recovery.
+  }
+  for (unsigned field : {0U, 1U}) {
+    fuel = goodFuel; fuel.data[field] = 2; fuelLive.push(fuel);
+    assert(!fuelLive.fuel.valid); // Unsupported version or sender identity.
+  }
+  for (uint16_t adc : {0, 4, 4050, 4095, 4096, 65535}) {
+    fuel = goodFuel; fuel.data[4] = adc & 255; fuel.data[5] = adc >> 8;
+    fuelLive.push(fuel); assert(!fuelLive.fuel.valid);
+  }
+  for (uint16_t resistance : {0, 49, 1001, 65535}) {
+    fuel = goodFuel; fuel.data[6] = resistance & 255; fuel.data[7] = resistance >> 8;
+    fuelLive.push(fuel); assert(!fuelLive.fuel.valid);
+  }
+  fuel = goodFuel; fuelLive.push(fuel);
+  fuel.extended = true; fuel.data[0] = 9; fuelLive.push(fuel);
+  assert(fuelLive.fuel.valid); // Extended namespace is ignored.
+  fuel.extended = false; fuel.rtr = true; fuelLive.push(fuel);
+  assert(fuelLive.fuel.valid); // RTR does not replace live data.
+  fuel.rtr = false; fuel.dlc = 7; fuelLive.push(fuel);
+  assert(fuelLive.fuel.seen && !fuelLive.fuel.valid);
+  fuel = goodFuel;
+  fuel.timestampUs = uint64_t(UINT32_MAX - 200U) * 1000U; fuelLive.push(fuel);
+  fuel.timestampUs += 500000U; fuel.data[6] = 0xef; fuel.data[7] = 2;
+  fuel.data[4] = 0x1e; fuel.data[5] = 1; fuelLive.push(fuel);
+  assert(fuelLive.fuel.valid && fuelLive.fuel.estimatedPercent > 90); // millis rollover.
+  const uint32_t fuelTime = fuelLive.fuel.updatedMs;
+  fuelLive.push(post); fuelLive.push(heartbeat);
+  assert(fuelLive.fuel.updatedMs == fuelTime && fuelLive.fuel.valid);
 }

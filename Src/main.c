@@ -1,6 +1,8 @@
 #include "main.h"
 
+#include "adc_input.h"
 #include "can_protocol.h"
+#include "fuel_sensor.h"
 #include "tx3_sensor.h"
 
 FDCAN_HandleTypeDef hfdcan1;
@@ -18,13 +20,16 @@ static bool ADC1_ReadAverage(uint32_t adc_channel, uint16_t *adc_raw);
 static bool CAN_TrySend(uint32_t identifier, const uint8_t payload[8]);
 static bool Heartbeat_TrySend(uint8_t sequence);
 static bool CoolantTemperature_TrySend(uint8_t sensor_id, uint8_t sequence);
+static bool FuelLevel_TrySend(uint8_t sequence);
 
 int main(void)
 {
     uint8_t sequence = 0U;
     uint8_t coolant_sequence[2] = {0U, 0U};
+    uint8_t fuel_sequence = 0U;
     uint32_t next_heartbeat_ms;
     uint32_t next_coolant_ms;
+    uint32_t next_fuel_ms;
 
     HAL_Init();
     SystemClock_Config();
@@ -38,6 +43,7 @@ int main(void)
 
     next_heartbeat_ms = HAL_GetTick();
     next_coolant_ms = next_heartbeat_ms;
+    next_fuel_ms = next_heartbeat_ms;
 
     for (;;) {
         const uint32_t now_ms = HAL_GetTick();
@@ -57,6 +63,13 @@ int main(void)
                 }
             }
             next_coolant_ms += CAN_COOLANT_PERIOD_MS;
+        }
+
+        if ((int32_t)(now_ms - next_fuel_ms) >= 0) {
+            if (FuelLevel_TrySend(fuel_sequence)) {
+                fuel_sequence++;
+            }
+            next_fuel_ms += CAN_FUEL_PERIOD_MS;
         }
     }
 }
@@ -116,7 +129,7 @@ static void ADC1_Init(void)
     hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
     hadc1.Init.Resolution = ADC_RESOLUTION_12B;
     hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+    hadc1.Init.ScanConvMode = ADC_SCAN_SEQ_FIXED;
     hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
     hadc1.Init.LowPowerAutoWait = DISABLE;
     hadc1.Init.LowPowerAutoPowerOff = DISABLE;
@@ -136,7 +149,7 @@ static void ADC1_Init(void)
     }
 
     channel.Channel = ADC_CHANNEL_0;
-    channel.Rank = ADC_REGULAR_RANK_1;
+    channel.Rank = ADC_RANK_CHANNEL_NUMBER;
     channel.SamplingTime = ADC_SAMPLINGTIME_COMMON_1;
     if (HAL_ADC_ConfigChannel(&hadc1, &channel) != HAL_OK) {
         Error_Handler();
@@ -192,18 +205,18 @@ static void FDCAN1_Start(void)
 static bool ADC1_ReadAverage(uint32_t adc_channel, uint16_t *adc_raw)
 {
     uint32_t sample_sum = 0U;
-    ADC_ChannelConfTypeDef channel = {0};
-
     if (adc_raw == NULL) {
         return false;
     }
 
-    /* ADC_SCAN_DISABLE uses the configurable sequencer: replace rank 1. */
-    channel.Channel = adc_channel;
-    channel.Rank = ADC_REGULAR_RANK_1;
-    channel.SamplingTime = ADC_SAMPLINGTIME_COMMON_1;
-    if (HAL_ADC_ConfigChannel(&hadc1, &channel) != HAL_OK) {
-        return false;
+    /* IN16 requires the fixed sequencer; select only this one input. */
+    __HAL_ADC_CLEAR_FLAG(&hadc1, ADC_FLAG_CCRDY);
+    AdcInput_SelectChannel(hadc1.Instance, adc_channel);
+    const uint32_t configured_at = HAL_GetTick();
+    while (__HAL_ADC_GET_FLAG(&hadc1, ADC_FLAG_CCRDY) == RESET) {
+        if ((HAL_GetTick() - configured_at) >= ADC_CONVERSION_TIMEOUT_MS) {
+            return false;
+        }
     }
 
     /* Discard the first conversion after switching inputs to allow settling. */
@@ -281,6 +294,25 @@ static bool CoolantTemperature_TrySend(uint8_t sensor_id, uint8_t sequence)
                                          reading.temperature_deci_c);
 
     return CAN_TrySend(pre_radiator ? CAN_ID_ENGINE_COOLANT_1 : CAN_ID_ENGINE_COOLANT_2, payload);
+}
+
+static bool FuelLevel_TrySend(uint8_t sequence)
+{
+    uint8_t payload[8];
+    uint16_t adc_raw = 0U;
+    FuelSensorReading reading;
+
+    /* A5 must route to PB12/IN16, not its alternative PB8/I2C connection. */
+    if (ADC1_ReadAverage(ADC_CHANNEL_16, &adc_raw)) {
+        reading = FuelSensor_ConvertAdc(adc_raw);
+    } else {
+        reading.adc_raw = 0U;
+        reading.resistance_deci_ohms = FUEL_INVALID_RESISTANCE_DECI_OHMS;
+        reading.status = FUEL_STATUS_ADC_ERROR;
+    }
+    CanProtocol_EncodeFuelLevel(payload, sequence, reading.status,
+                                reading.adc_raw, reading.resistance_deci_ohms);
+    return CAN_TrySend(CAN_ID_ENGINE_FUEL_LEVEL, payload);
 }
 
 void Error_Handler(void)

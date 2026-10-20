@@ -26,7 +26,7 @@ work still needed before installation.
 
 For direct phone viewing without a PC or Pi, use the
 [Android app guide](../android-app/README.md): APK installation, U2C connection,
-two-temperature display, CSV logging/export, and troubleshooting. In the wiki,
+coolant and fuel display, CSV logging/export, and troubleshooting. In the wiki,
 this is the **Android dashboard** sidebar entry (`Android-App`).
 
 Vehicle-power tests are a later stage in the [harness plan](engine-node-harness.md),
@@ -41,6 +41,7 @@ not a prerequisite for reproducing the USB-powered bench network.
 | Ford 400M CoilX RPM input | [RPM circuit](rpm-input.md) |
 | GlowShift senders and calibration | [GlowShift inputs](glowshift-inputs.md) |
 | Three-channel pressure input board | [Circuit and assembly](glowshift-circuit.md) |
+| Single fuel sender, isolated bench circuit and calibration | [Fuel level](fuel-level.md) |
 | Board-to-board bench wiring | [Bench setup](bench-setup.md) |
 | External connector cavity assignments | [Harness plan](engine-node-harness.md) |
 | Firmware build and source organization | [Firmware](firmware.md) |
