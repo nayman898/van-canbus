@@ -34,7 +34,7 @@ jobs:
           cache-dependency-path: |
             requirements.txt
             requirements-ci.txt
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '22'
       - name: Install host and check dependencies
@@ -61,7 +61,7 @@ jobs:
       - name: Validate links and generate wiki preview
         run: python tools/export_wiki.py --output .cache/wiki-preview
       - name: Upload generated wiki for review
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: wiki-preview-${{ github.sha }}
           path: .cache/wiki-preview/*.md
@@ -90,7 +90,7 @@ jobs:
           cd .cache/esp32-logger
           sha256sum -- *.bin *.elf > SHA256SUMS
       - name: Upload logger firmware
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: esp32-logger-${{ github.sha }}
           path: .cache/esp32-logger/
@@ -136,7 +136,7 @@ jobs:
           cd "build/$PRESET"
           sha256sum van-canbus.elf van-canbus.hex van-canbus.bin van-canbus.map > SHA256SUMS
       - name: Upload firmware images and memory map
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: firmware-${{ matrix.preset }}-${{ github.sha }}
           path: |
@@ -156,12 +156,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: '21'
       - name: Validate Gradle wrapper and cache dependencies
-        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
       # Hosted runners may have an SDK without sdkmanager on PATH.
@@ -199,7 +199,7 @@ jobs:
         working-directory: android-app/app/build/outputs/apk/debug
         run: sha256sum app-debug.apk > SHA256SUMS
       - name: Upload installable debug APK
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: android-debug-${{ github.sha }}
           path: |
@@ -209,7 +209,7 @@ jobs:
           retention-days: 14
       - name: Upload lint and test reports, including failures
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: android-reports-${{ github.sha }}
           path: |
