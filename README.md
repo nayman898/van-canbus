@@ -207,3 +207,14 @@ Questions and observations are welcome in
 [GitHub Issues](https://github.com/nayman898/van-canbus/issues). Include the board
 and adapter versions, firmware commit, wiring, and observed behavior so your
 setup can be compared with this one.
+
+## License
+
+Original project code, documentation, and design files are licensed under the
+[Apache License 2.0](LICENSE), unless otherwise noted. See [NOTICE](NOTICE) for
+the licensing scope and third-party exclusions.
+
+Third-party code, generated vendor support files, dependencies, and externally
+sourced assets retain their respective licenses and copyright notices. The
+project license does not relicense those materials or grant rights to third-party
+trademarks.
