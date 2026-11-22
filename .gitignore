@@ -26,3 +26,12 @@ Desktop.ini
 
 # Generated bundles duplicate the tracked CAD, sources, and documentation.
 /hardware/protective-plates/*.zip
+
+# Web telemetry studio build artifacts and dependencies
+/node_modules/
+/dist/
+/bun.lock
+/public/*.apk
+/public/*.patch
+
+

@@ -1,0 +1,5 @@
+{
+  "name": "Van CAN Telemetry & Calibration Studio",
+  "description": "Engine telemetry dashboard, raw ADC/voltage vs. reported value inspector, and sensor transfer curve calibration tool for the 1982 Ford E-350 CAN bus network.",
+  "requestFramePermissions": []
+}
