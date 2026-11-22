@@ -17,11 +17,11 @@ class WikiTests(unittest.TestCase):
             output = pathlib.Path(temp)
             export_wiki.export(output, "main")
             self.assertEqual(len(list(output.glob("*.md"))), len(export_wiki.PAGES) + 2)
-            self.assertIn("/wiki/Android-App", (output / "Home.md").read_text())
-            self.assertIn("/wiki/Automation", (output / "_Sidebar.md").read_text())
-            self.assertIn("/wiki/Getting-Started", (output / "_Sidebar.md").read_text())
-            self.assertIn("/wiki/Fuel-Level", (output / "_Sidebar.md").read_text())
-            self.assertIn("/wiki/Printed-Cases", (output / "_Sidebar.md").read_text())
+            self.assertIn("/wiki/Android-App", (output / "Home.md").read_text(encoding="utf-8"))
+            self.assertIn("/wiki/Automation", (output / "_Sidebar.md").read_text(encoding="utf-8"))
+            self.assertIn("/wiki/Getting-Started", (output / "_Sidebar.md").read_text(encoding="utf-8"))
+            self.assertIn("/wiki/Fuel-Level", (output / "_Sidebar.md").read_text(encoding="utf-8"))
+            self.assertIn("/wiki/Printed-Cases", (output / "_Sidebar.md").read_text(encoding="utf-8"))
 
     def test_all_build_guides_are_in_wiki_navigation(self):
         guides = {path.relative_to(ROOT).as_posix() for path in (ROOT / "docs").glob("*.md")}
@@ -51,15 +51,15 @@ class WikiTests(unittest.TestCase):
                 return publish_wiki.git(*args, cwd=checkout)
             git("config", "user.name", "Wiki test")
             git("config", "user.email", "wiki-test@example.invalid")
-            (checkout / "Manual.md").write_text("Keep my manual notes\n")
+            (checkout / "Manual.md").write_text("Keep my manual notes\n", encoding="utf-8")
             git("add", "Manual.md")
             git("commit", "-qm", "Existing wiki")
             self.assertTrue(publish_wiki.update_checkout(checkout, "a" * 40))
             first = git("rev-parse", "HEAD")
-            self.assertEqual((checkout / "Manual.md").read_text(), "Keep my manual notes\n")
+            self.assertEqual((checkout / "Manual.md").read_text(encoding="utf-8"), "Keep my manual notes\n")
             self.assertFalse(publish_wiki.update_checkout(checkout, "b" * 40))
             self.assertEqual(git("rev-parse", "HEAD"), first)
-            (checkout / "Manual.md").write_text("Unsaved local edits\n")
+            (checkout / "Manual.md").write_text("Unsaved local edits\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "must be clean"):
                 publish_wiki.update_checkout(checkout, "c" * 40)
 
