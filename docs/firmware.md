@@ -3,7 +3,8 @@
 [Documentation index](README.md) · [CAN protocol](can-protocol.md)
 
 The firmware targets the STM32G0B1RET6 on the NUCLEO-G0B1RE. It uses ST's HAL,
-a polling main loop, ADC1, and FDCAN1 operating in Classical CAN mode.
+a polling main loop, ADC1, interrupt-driven TIM3 RPM capture, and FDCAN1
+operating in Classical CAN mode.
 
 ## Clone and dependencies
 
@@ -62,6 +63,12 @@ including ADC calibration before starting CAN. The main loop schedules the
 heartbeat every 500 ms and both coolant channels every 250 ms: pre-radiator
 on A0/PA0 and post-radiator on A1/PA1. Fuel level is sampled on A5/PB12
 every 500 ms using the [isolated 1k pull-up circuit](fuel-level.md).
+[CoilX RPM](rpm-input.md) captures rising edges on D5/PB4 using TIM3 channel 1
+at 100 kHz and sends `0x130` every 100 ms. After 500 ms without an edge, the
+message carries NO SIGNAL and an invalid RPM sentinel.
+The same reading is mirrored over USART2 TX/PA2 at 115200 baud through the
+onboard ST-Link USB serial port, with an independent sequence that advances
+without a CAN receiver. The bounded UART write keeps capture interrupts enabled.
 
 Each channel selection replaces rank 1 in the configurable ADC sequencer.
 The first conversion after switching channels is discarded for settling.
@@ -71,7 +78,7 @@ Fuel uses the same averaging and settling procedure, then converts the count
 to sender resistance. Failed ADC reads produce a fault payload. Fuel open,
 short and range faults use their own thresholds.
 
-The four sequence counters advance independently when frames are successfully
+The five sequence counters advance independently when frames are successfully
 queued. PA5 toggles on a queued heartbeat, not on confirmation that the laptop
 received it. The CAN controller uses automatic retransmission. Incoming frames
 are rejected by the configured global filter; there is no command handler.
@@ -82,6 +89,8 @@ are rejected by the configured global filter; there is no command handler.
 | [Src/stm32g0xx_hal_msp.c](../Src/stm32g0xx_hal_msp.c) | Peripheral clocks and PA0/PA1/PB12 ADC and PA11/PA12 CAN pin setup |
 | [Inc/can_protocol.h](../Inc/can_protocol.h) | Message IDs, periods, protocol constants |
 | [Src/can_protocol.c](../Src/can_protocol.c) | Byte-level payload encoding |
+| [Inc/rpm_input.h](../Inc/rpm_input.h) / [Inc/rpm_sensor.h](../Inc/rpm_sensor.h) / [Src/rpm_input.c](../Src/rpm_input.c) / [Src/rpm_sensor.c](../Src/rpm_sensor.c) | PB4/TIM3 capture ISR, atomic snapshot, period conversion, timeout and faults |
+| [Inc/debug_serial.h](../Inc/debug_serial.h) / [Src/debug_serial.c](../Src/debug_serial.c) | USART2 TX/PA2 ST-Link VCP RPM bench telemetry mirror |
 | [Inc/tx3_sensor.h](../Inc/tx3_sensor.h) | Pull-up value, thresholds, status flags |
 | [Src/tx3_sensor.c](../Src/tx3_sensor.c) | Thermistor conversion and range/fault handling |
 | [Inc/fuel_sensor.h](../Inc/fuel_sensor.h) / [Src/fuel_sensor.c](../Src/fuel_sensor.c) | Isolated FG72A resistance conversion and fault thresholds |
@@ -106,10 +115,10 @@ With the Python dependencies installed, run the existing host decoder tests:
 .\.venv\Scripts\python -m unittest discover -s tests -v
 ```
 
-These tests exercise heartbeat/coolant parsing, malformed payload lengths, and
-fault presentation. They do not validate MCU timing, physical wiring, sensor
-calibration, or vehicle-input protection. Those need the documented bench and
-hardware checks.
+These tests exercise heartbeat, coolant, fuel, RPM, and direct USB serial
+parsing, malformed payload lengths, and fault presentation. They do not validate
+MCU timing, physical wiring, sensor calibration, or vehicle-input protection.
+Those need the documented bench and hardware checks.
 
 For the native C encoder checks, ESP32 host checks, JavaScript checks and
 workflow validation used in CI, see [local verification commands](automation.md#run-equivalent-checks-locally).

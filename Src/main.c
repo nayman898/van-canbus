@@ -3,6 +3,8 @@
 #include "adc_input.h"
 #include "can_protocol.h"
 #include "fuel_sensor.h"
+#include "rpm_input.h"
+#include "debug_serial.h"
 #include "tx3_sensor.h"
 
 FDCAN_HandleTypeDef hfdcan1;
@@ -21,12 +23,15 @@ static bool CAN_TrySend(uint32_t identifier, const uint8_t payload[8]);
 static bool Heartbeat_TrySend(uint8_t sequence);
 static bool CoolantTemperature_TrySend(uint8_t sensor_id, uint8_t sequence);
 static bool FuelLevel_TrySend(uint8_t sequence);
+static bool Rpm_TrySend(uint8_t sequence);
 
 int main(void)
 {
     uint8_t sequence = 0U;
     uint8_t coolant_sequence[2] = {0U, 0U};
     uint8_t fuel_sequence = 0U;
+    uint8_t rpm_sequence = 0U;
+    uint32_t next_rpm_ms;
     uint32_t next_heartbeat_ms;
     uint32_t next_coolant_ms;
     uint32_t next_fuel_ms;
@@ -34,6 +39,8 @@ int main(void)
     HAL_Init();
     SystemClock_Config();
     GPIO_Init();
+    RpmInput_Init();
+    DebugSerial_Init();
     ADC1_Init();
     if (HAL_ADCEx_Calibration_Start(&hadc1) != HAL_OK) {
         Error_Handler();
@@ -44,9 +51,15 @@ int main(void)
     next_heartbeat_ms = HAL_GetTick();
     next_coolant_ms = next_heartbeat_ms;
     next_fuel_ms = next_heartbeat_ms;
+    next_rpm_ms = next_heartbeat_ms;
 
     for (;;) {
         const uint32_t now_ms = HAL_GetTick();
+
+        if ((int32_t)(now_ms - next_rpm_ms) >= 0) {
+            if (Rpm_TrySend(rpm_sequence)) rpm_sequence++;
+            next_rpm_ms = now_ms + CAN_RPM_PERIOD_MS;
+        }
 
         if ((int32_t)(now_ms - next_heartbeat_ms) >= 0) {
             if (Heartbeat_TrySend(sequence)) {
@@ -313,6 +326,16 @@ static bool FuelLevel_TrySend(uint8_t sequence)
     CanProtocol_EncodeFuelLevel(payload, sequence, reading.status,
                                 reading.adc_raw, reading.resistance_deci_ohms);
     return CAN_TrySend(CAN_ID_ENGINE_FUEL_LEVEL, payload);
+}
+
+static bool Rpm_TrySend(uint8_t sequence)
+{
+    uint8_t payload[8];
+    const RpmReading reading = RpmInput_Read();
+    DebugSerial_SendRpm(reading);
+    CanProtocol_EncodeRpm(payload, sequence, reading.status,
+                          reading.period_ticks, reading.rpm);
+    return CAN_TrySend(CAN_ID_ENGINE_RPM, payload);
 }
 
 void Error_Handler(void)

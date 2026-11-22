@@ -127,6 +127,9 @@ jobs:
             Src/can_protocol.c tests/test_can_protocol.c -o .cache/ci/test_can_protocol
           .cache/ci/test_can_protocol
           cc -std=c11 -Wall -Wextra -Werror -I Inc \
+            Src/rpm_sensor.c tests/test_rpm_sensor.c -o .cache/ci/test_rpm_sensor
+          .cache/ci/test_rpm_sensor
+          cc -std=c11 -Wall -Wextra -Werror -I Inc \
             Src/fuel_sensor.c tests/test_fuel_sensor.c -o .cache/ci/test_fuel_sensor
           .cache/ci/test_fuel_sensor
           cc -std=c11 -Wall -Wextra -Werror \

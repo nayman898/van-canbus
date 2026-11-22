@@ -7,8 +7,60 @@ public final class VanCanDecoder {
     public static final int COOLANT_OUTLET_ID = 0x110;
     public static final int COOLANT_POST_RADIATOR_ID = 0x111;
     public static final int FUEL_LEVEL_ID = 0x120;
+    public static final int RPM_ID = 0x130;
 
     private VanCanDecoder() {}
+
+    public static RpmReading decodeRpm(CanFrame frame) {
+        if (frame.canId != RPM_ID || frame.extended || frame.remote || frame.error
+                || frame.data.length != 8) return null;
+        byte[] d = frame.data;
+        int period = (d[4] & 0xff) | ((d[5] & 0xff) << 8);
+        int rpm = (d[6] & 0xff) | ((d[7] & 0xff) << 8);
+        int status = d[2] & 0xff;
+        boolean valid = (d[0] & 0xff) == PROTOCOL_VERSION && (d[1] & 0xff) == 1
+                && status == 0 && period >= 150 && period < 50000
+                && rpm >= 30 && rpm <= 10000 && rpm == (1500000 + period / 2) / period;
+        return new RpmReading(status, d[3] & 0xff, period, rpm, valid, frame.receivedAtMillis);
+    }
+
+    public static String rpmStatusText(int status) {
+        switch (status) {
+            case 0: return "VALID";
+            case 1: return "NO PULSES";
+            case 2: return "ACQUIRING";
+            case 4: return "OUT OF RANGE";
+            case 8: return "CAPTURE OVERRUN";
+            default: return String.format("UNKNOWN 0x%02X", status);
+        }
+    }
+
+    public static final class RpmReading {
+        public final int status;
+        public final int sequence;
+        public final int periodTicks;
+        public final int rpm;
+        public final boolean valid;
+        public final long receivedAtMillis;
+
+        RpmReading(int status, int sequence, int periodTicks, int rpm, boolean valid, long receivedAtMillis) {
+            this.status = status;
+            this.sequence = sequence;
+            this.periodTicks = periodTicks;
+            this.rpm = rpm;
+            this.valid = valid;
+            this.receivedAtMillis = receivedAtMillis;
+        }
+
+        public boolean fresh(boolean connected, long now) {
+            long age = now - receivedAtMillis;
+            return connected && age >= 0 && age < 500;
+        }
+
+        public double pulseHz() {
+            return valid ? 100000.0 / periodTicks : Double.NaN;
+        }
+    }
 
     public static Heartbeat decodeHeartbeat(CanFrame frame) {
         if (frame.canId != HEARTBEAT_ID || frame.extended || frame.remote || frame.error || frame.data.length != 8) {

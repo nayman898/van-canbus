@@ -1,5 +1,18 @@
 #include "can_protocol.h"
 
+void CanProtocol_EncodeRpm(uint8_t payload[8], uint8_t sequence,
+                           uint8_t status, uint16_t period_ticks, uint16_t rpm)
+{
+    payload[0] = CAN_PROTOCOL_VERSION;
+    payload[1] = CAN_NODE_ENGINE;
+    payload[2] = status;
+    payload[3] = sequence;
+    payload[4] = (uint8_t)period_ticks;
+    payload[5] = (uint8_t)(period_ticks >> 8U);
+    payload[6] = (uint8_t)rpm;
+    payload[7] = (uint8_t)(rpm >> 8U);
+}
+
 void CanProtocol_EncodeFuelLevel(uint8_t payload[8],
                                  uint8_t sequence,
                                  uint8_t sensor_status,

@@ -19,7 +19,16 @@
       </div>
     </header>
 
-    <div class="temperatures">
+    <section class="hero card" id="rpm-card" style="margin-bottom:16px">
+      <div class="card-heading">
+        <div><p class="label">ENGINE RPM</p><p id="rpm-state" class="sensor-state">Waiting for data</p></div>
+        <span id="rpm-source" class="can-id">CAN 0x130</span>
+      </div>
+      <div class="temperature-row"><div class="temperature-main"><span id="rpm-value">--</span><small>RPM</small></div></div>
+      <p class="detail-note"><span id="rpm-hz">--</span> Hz · 4 pulses / revolution · D5 / PB4 · sequence <span id="rpm-sequence">--</span></p>
+      <p id="rpm-note" class="detail-note" style="margin-top:12px">Waiting for RPM telemetry</p>
+    </section>
+    <div class="temperatures" id="temperatures">
     <section class="hero card" id="coolant-card">
       <div class="card-heading">
         <div>
@@ -69,14 +78,14 @@
         <p class="detail-note">Node uptime · sequence <span id="heartbeat-sequence">--</span></p>
       </article>
       <article class="card detail-card">
-        <p class="label">CAN TRAFFIC</p>
+        <p class="label" id="traffic-label">CAN TRAFFIC</p>
         <p class="detail-value"><span id="frame-count">0</span></p>
-        <p class="detail-note">CAN frames this session</p>
+        <p class="detail-note" id="traffic-note">CAN frames this session</p>
       </article>
     </section>
 
     <footer>
-      <span>U2C · <span id="bitrate">500</span> kbit/s</span>
+      <span id="transport-label">U2C · 500 kbit/s</span>
       <span id="last-update">No frames received</span>
     </footer>
   </main>

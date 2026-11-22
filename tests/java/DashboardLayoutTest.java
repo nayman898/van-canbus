@@ -7,7 +7,7 @@ import java.util.List;
 public final class DashboardLayoutTest {
     public static void main(String[] args) {
         DashboardLayout layout = new DashboardLayout(null);
-        check(layout.visibleCards().size() == 5, "new install shows every supported card");
+        check(layout.visibleCards().size() == 6, "new install shows every supported card");
         check(layout.hiddenCards().isEmpty(), "no duplicate add choices");
         check(!layout.move(Card.COOLANT_PRE, -1), "first card cannot move up");
         check(!layout.move(Card.RAW, 1), "last card cannot move down");
@@ -23,15 +23,15 @@ public final class DashboardLayoutTest {
         check(restored.visibleCards().equals(layout.visibleCards()), "restart preserves order and selection");
         check(restored.hiddenCards().equals(List.of(Card.COOLANT_POST)), "hidden card remains addable after restart");
         check(restored.add(Card.COOLANT_POST), "add removed card back");
-        check(restored.visibleCards().get(4) == Card.COOLANT_POST, "added card goes last");
-        check(snapshot.size() == 4, "callers receive stable snapshots");
+        check(restored.visibleCards().get(5) == Card.COOLANT_POST, "added card goes last");
+        check(snapshot.size() == 5, "callers receive stable snapshots");
         boolean immutable = false;
         try { snapshot.clear(); } catch (UnsupportedOperationException expected) { immutable = true; }
         check(immutable, "callers cannot mutate saved selection");
         for (Card card : layout.visibleCards()) check(layout.remove(card), "remove all cards");
         check(layout.serialize().isEmpty(), "all-hidden layout saved explicitly");
         restored = new DashboardLayout(layout.serialize());
-        check(restored.visibleCards().isEmpty() && restored.hiddenCards().size() == 5,
+        check(restored.visibleCards().isEmpty() && restored.hiddenCards().size() == 6,
                 "empty layout survives restart and all cards can be restored");
         check(restored.add(Card.FUEL), "recover from empty dashboard");
         check(restored.visibleCards().equals(List.of(Card.FUEL)), "single card layout");
@@ -41,8 +41,12 @@ public final class DashboardLayoutTest {
         restored = new DashboardLayout("fuel,fuel,removed_future_card, raw ,engine");
         check(restored.visibleCards().equals(List.of(Card.FUEL, Card.RAW, Card.ENGINE)),
                 "unknown and duplicate preferences do not create bad cards");
-        check(new DashboardLayout("unknown,,,").visibleCards().size() == 5,
+        check(new DashboardLayout("unknown,,,").visibleCards().size() == 6,
                 "unusable preferences recover default dashboard");
+        restored = new DashboardLayout("coolant_pre,coolant_post,fuel,engine,raw");
+        check(restored.hiddenCards().equals(List.of(Card.RPM)), "upgrade preserves layout; RPM is addable");
+        check(restored.add(Card.RPM), "add new RPM card after upgrade");
+        check(new DashboardLayout(restored.serialize()).visibleCards().contains(Card.RPM), "RPM survives restart");
         System.out.println("Android dashboard layout checks passed");
     }
 

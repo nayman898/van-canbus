@@ -7,8 +7,8 @@ There is no custom production PCB yet. Printable cabin cases and engine-node
 holders are available as first-fit prototypes in [Printed cases and mounts](printing.md).
 
 The [Ford 400M RPM input](rpm-input.md) uses the selected prefab CoilX adapter
-and a proposed 3.3V level-converter module. Installation, RPM firmware and
-CAN/display support remain pending.
+and a 3.3V level-converter module. D5/PB4 capture, CAN reporting and Android
+0.4.0 display are prepared; electrical/vehicle acceptance remains pending.
 
 ## Component selection preference
 

@@ -20,6 +20,7 @@ public final class DashboardState {
     public VanCanDecoder.Heartbeat heartbeat;
     public VanCanDecoder.CoolantReading coolant;
     public VanCanDecoder.CoolantReading coolantPost;
+    public VanCanDecoder.RpmReading rpm;
     public final FuelLevelDisplay fuel = new FuelLevelDisplay();
     public boolean logging;
     public File latestLog;

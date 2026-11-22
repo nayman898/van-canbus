@@ -93,7 +93,7 @@ is fitted. That does not stop the connected sensor from reporting.
 
 | Check | Expected result |
 | --- | --- |
-| CAN traffic | `0x100` heartbeat twice/second; `0x110` and `0x111` four times/second each; `0x120` fuel twice/second |
+| CAN traffic | `0x100` heartbeat twice/second; `0x110` and `0x111` four times/second each; `0x120` fuel twice/second; `0x130` RPM ten times/second |
 | Connected TX3 sensors | Two plausible, independently updating temperatures |
 | Warm one sensor | Only the corresponding temperature changes |
 | Disconnect one sensor while unpowered, then restart | That channel reports OPEN; the other still updates |
@@ -115,9 +115,10 @@ The [harness and power plan](engine-node-harness.md) covers the separate stage
 of preparing vehicle power; the engine node's protected power system is not
 yet a validated vehicle installation.
 
-RPM capture and pressure acquisition/messages/displays are **not implemented**.
-[CoilX RPM](rpm-input.md) and the [GlowShift board](glowshift-circuit.md) are
-documented expansion work; reserved connector cavities do not enable them.
+[CoilX RPM](rpm-input.md) now has D5/PB4 capture, CAN reporting and Android
+0.4.0 display support ready for bench acceptance. Pressure acquisition/messages/
+displays are **not implemented**; the [GlowShift board](glowshift-circuit.md)
+remains expansion work. Reserved connector cavities alone do not enable inputs.
 ESP32 continuous SD recording is optional firmware functionality requiring
 additional hardware and its own bench tests. The current live build does not
 retain a whole trip through a power cycle.

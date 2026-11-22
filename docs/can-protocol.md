@@ -136,12 +136,52 @@ Resistance is ratiometric when the pull-up uses the ADC reference supply.
 Fuel percentage is not on the wire: Android's explicitly uncalibrated estimate
 uses 75-ohm empty / 10-ohm full endpoints and five-second display damping.
 The fuel card becomes stale after 1.5 seconds without its own frames and hides
-level on USB disconnect. A current node sends about **12 frames/s** including
-the existing heartbeat and two coolant channels. Hardware acceptance is pending.
+level on USB disconnect. Including the existing heartbeat, two coolant channels,
+fuel (`0x120`), and RPM (`0x130`), the current node sends about **22 frames/s**.
+Hardware acceptance is pending for fuel and RPM.
+
+## Engine RPM — `0x130`
+
+Nominal period: **100 ms**, including missing-signal/fault readings.
+
+| Byte | Field | Encoding |
+| --- | --- | --- |
+| 0 | Protocol version | `1` |
+| 1 | Node | `1` = engine node |
+| 2 | RPM status | `0` OK; `1` no signal; `2` acquiring; `4` range fault; `8` capture overrun |
+| 3 | Sequence | Independent unsigned eight-bit counter |
+| 4–5 | Pulse period | Unsigned 16-bit count in **10 µs** units; zero if unavailable |
+| 6–7 | RPM | Unsigned 16-bit whole RPM; **65535** = invalid |
+
+These status values are RPM-specific, not coolant/fuel flags. A valid reading
+requires protocol/node `1`, status zero, period 150–49999 ticks and RPM equal
+to `(1500000 + period/2) / period` with integer division (rounded to nearest).
+This represents four pulses per crank revolution on a single-coil four-stroke
+V8. Count rising edges only. The first edge after startup or a gap of at least
+500 ms reports ACQUIRING; a second clean edge supplies a period. No edges for
+500 ms reports NO SIGNAL. Range faults retain their short measured period;
+acquiring, overrun and no-signal readings use zero. RPM is invalid for all faults.
+
+Example: 100 Hz / 1500 RPM, sequence 7:
+
+```text
+130#01010007E803DC05
+```
+
+Stopped/missing signal, sequence 255:
+
+```text
+130#010101FF0000FFFF
+```
+
+Android clears a value after 500 ms without a new RPM frame or USB disconnect,
+independently of heartbeat and other telemetry. A reported NO SIGNAL cannot
+identify whether the engine is stopped or a lead is disconnected. See the
+[CoilX test guide](rpm-input.md) for hardware validation.
 
 ## Planned expansion
 
-RPM and pressure inputs have no implemented message definitions yet.
+Pressure inputs have no implemented message definitions yet.
 Allocate their IDs and payloads alongside the firmware and
 host changes, then update this reference. There is currently no DBC file,
 configuration protocol, or vehicle-control message set.

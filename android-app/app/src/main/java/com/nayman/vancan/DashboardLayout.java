@@ -11,6 +11,7 @@ public final class DashboardLayout {
         COOLANT_PRE("coolant_pre", "Pre-radiator coolant", 240),
         COOLANT_POST("coolant_post", "Post-radiator coolant", 240),
         FUEL("fuel", "Fuel level", 200),
+        RPM("rpm", "Engine RPM", 200),
         ENGINE("engine", "Engine node", 140),
         RAW("raw", "Raw CAN frames", 180);
 

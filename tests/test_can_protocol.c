@@ -13,6 +13,12 @@ int main(void)
 {
     uint8_t payload[8];
     int failures = 0;
+    const uint8_t rpm[8] = {1, 1, 0, 7, 0xe8, 3, 0xdc, 5};
+    CanProtocol_EncodeRpm(payload, 7, 0, 1000, 1500);
+    failures += expect(payload, rpm);
+    const uint8_t rpm_stopped[8] = {1, 1, 1, 255, 0, 0, 255, 255};
+    CanProtocol_EncodeRpm(payload, 255, 1, 0, UINT16_MAX);
+    failures += expect(payload, rpm_stopped);
     /* Golden vectors also appear in docs/can-protocol.md and host tests. */
     const uint8_t heartbeat[8] = {1, 1, 1, 42, 0x78, 0x56, 0x34, 0x12};
     CanProtocol_EncodeHeartbeat(payload, 42, UINT32_C(0x12345678));

@@ -17,28 +17,54 @@ function setConnection(kind, text) {
 }
 
 function updateDashboard(state) {
+  const serial = state.transport === "serial";
   const stale = state.last_frame_age_ms === null || state.last_frame_age_ms > 1500;
   if (!state.connected) {
-    setConnection("fault", "U2C disconnected");
+    setConnection("fault", serial ? "Nucleo USB disconnected" : "U2C disconnected");
   } else if (stale) {
-    setConnection("waiting", "Waiting for CAN data");
+    setConnection("waiting", serial ? "Waiting for USB RPM data" : "Waiting for CAN data");
   } else {
-    setConnection("live", "CAN live");
+    setConnection("live", serial ? "Nucleo USB live" : "CAN live");
   }
 
-  byId("bitrate").textContent = Math.round(state.bitrate / 1000);
+  byId("transport-label").textContent = serial ? `ST-Link USB · ${state.serial_port} · 115200 baud`
+    : `U2C · ${Math.round(state.bitrate / 1000)} kbit/s`;
+  byId("temperatures").style.display = serial ? "none" : "";
+  byId("traffic-label").textContent = serial ? "USB RPM SAMPLES" : "CAN TRAFFIC";
+  byId("traffic-note").textContent = serial ? "Samples recorded to CSV" : "CAN frames this session";
+  byId("rpm-source").textContent = serial ? "DIRECT NUCLEO USB" : "CAN 0x130";
   byId("frame-count").textContent = state.frames_received.toLocaleString();
   byId("last-update").textContent = state.last_frame_age_ms === null
-    ? "No frames received"
-    : `Last frame ${state.last_frame_age_ms} ms ago`;
+    ? "No samples received"
+    : `Last sample ${state.last_frame_age_ms} ms ago`;
 
   if (state.heartbeat) {
     byId("node-uptime").textContent = formatUptime(state.heartbeat.uptime_ms);
     byId("heartbeat-sequence").textContent = state.heartbeat.sequence;
   }
+  if (serial && state.rpm) {
+    byId("node-uptime").textContent = formatUptime(state.rpm.uptime_ms);
+    byId("heartbeat-sequence").textContent = state.rpm.sequence;
+  }
+  updateRpm(state.rpm, state.connected, state.error);
 
   updateCoolant("", state.coolant, state.connected);
   updateCoolant("post-", state.coolant_post, state.connected);
+}
+
+function updateRpm(rpm, connected, error) {
+  const fresh = connected && rpm && rpm.age_ms >= 0 && rpm.age_ms < 500;
+  const valid = fresh && rpm.valid;
+  byId("rpm-value").textContent = valid ? rpm.rpm.toLocaleString() : "--";
+  byId("rpm-hz").textContent = valid ? rpm.pulse_hz.toFixed(2) : "--";
+  byId("rpm-sequence").textContent = fresh ? rpm.sequence : "--";
+  byId("rpm-state").textContent = !fresh ? "Stale / no data" : valid ? "Pulses detected"
+    : rpm.status ? rpm.status_text.toUpperCase() : "INVALID READING";
+  byId("rpm-state").className = valid ? "sensor-state" : "sensor-state sensor-fault";
+  byId("rpm-note").textContent = error || (fresh && rpm.status === 1
+    ? "Engine stopped or signal missing. Waiting for pulses on D5 / PB4."
+    : valid ? "Measured from the conditioned ignition signal."
+    : "The RPM number clears when pulses or telemetry stop.");
 }
 
 function updateCoolant(prefix, coolant, connected) {
@@ -65,6 +91,7 @@ async function poll() {
     setConnection("fault", "Dashboard backend unavailable");
     updateCoolant("", null, false);
     updateCoolant("post-", null, false);
+    updateRpm(null, false, "Dashboard backend unavailable");
   }
 }
 

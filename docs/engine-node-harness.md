@@ -238,11 +238,11 @@ by the owner. Follow molded cavity numbers, not apparent left/right position.
 This fills all twelve cavities. High-pressure fuel acquisition is deferred; its
 existing gauge stays connected and its former A2/PA4 input is now unallocated.
 RPM uses C2.4 for the conditioned 5V CoilX pulse and C2.9 for its data-system
-ground. The level shifter stays inside the module: C2.4 → B1, A1 → future
-Nucleo timer GPIO. Never route raw coil negative into these logic/sensor pads.
+ground. The level shifter stays inside the module: C2.4 → B1, A1 → Nucleo
+D5/PB4 (TIM3_CH1). Never route raw coil negative into these logic/sensor pads.
 CoilX also needs a separate regulated 5V feed; this two-wire pair does not
 provide it. The extra connector/power-feed layout awaits enclosure photos,
-and the timer GPIO and RPM firmware remain pending. The pressure gauges retain their
+while translated A1 now goes to D5/PB4 (TIM3_CH1) for RPM capture. The pressure gauges retain their
 existing sender supplies; these pressure pairs carry signal and confirmed
 signal reference only. No 5V supply cavity is allocated in this paired layout.
 

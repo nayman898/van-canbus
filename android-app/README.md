@@ -13,8 +13,9 @@ without a USB-host connection to the phone, use the separate
 
 - Direct GS_USB/candleLight connection to the U2C at **500 kbit/s**.
 - Decodes engine heartbeat `0x100`, pre-radiator coolant `0x110`, and
-  post-radiator coolant `0x111` (both TX3 sensors), and fuel level `0x120`.
-- Shows independent temperature and fuel cards in a saved, customizable layout.
+  post-radiator coolant `0x111` (both TX3 sensors), fuel level `0x120`, and
+  CoilX RPM `0x130` (app 0.4.0).
+- Shows independent temperature, fuel and RPM cards in a saved, customizable layout.
   Cards stack on phones and fill two columns in wide landscape, in priority order.
   Fault and stale status remain independent for each sensor.
 - Shows a fuel card with raw resistance/voltage/count and a smoothed, explicitly
@@ -77,7 +78,7 @@ app/build/outputs/apk/debug/app-debug.apk
 5. Launch **Van CAN** and grant the Android USB permission prompt.
 6. Power the Nucleo setup. The status should progress from `U2C ONLINE · WAITING
    FOR CAN` to `CAN ONLINE · 500 KBIT/S` and the raw-frame list should show
-   `100`, `110`, `111`, and `120` with current firmware. Fuel hardware
+   `100`, `110`, `111`, `120`, and `130` with current firmware. Fuel hardware
    must be connected separately; a floating A5 is not a valid sender reading.
 
 Both channels were confirmed operating in the October 5–6, 2026 bench session;
@@ -99,7 +100,7 @@ the Android USB host for this arrangement.
 4. Tap **Done** to hide the editing controls. Changes save as you make them;
    rotation and app restarts keep your selection and order.
 
-Pre-radiator coolant, post-radiator coolant, fuel level, engine status and raw
+Pre-radiator coolant, post-radiator coolant, fuel level, RPM, engine status and raw
 CAN frames can all be managed independently. **Reset layout** restores their
 original order and visibility. You may remove every card; the empty dashboard
 keeps an **Add card** button so you can recover it. Sensor faults or missing CAN
@@ -109,7 +110,9 @@ The [ESP32 Wi-Fi dashboard](../docs/esp32-logger.md#customize-the-wi-fi-dashboar
 also supports card layouts after its firmware update; its browser layout saves
 separately from the Android app.
 
-These controls select supported readings; arbitrary CAN IDs, pressure and RPM
+On an upgrade to **0.4.0**, an existing saved layout stays unchanged. Use
+**Edit layout → Add card → Engine RPM** to add RPM, then move it up.
+These controls select supported readings; arbitrary CAN IDs and pressure
 decoding are not added by creating a dashboard card.
 
 ## Logging
@@ -119,8 +122,8 @@ Press **STOP LOG** to finish it. **EXPORT** opens Android's document picker and
 copies the latest log to a location you choose. Export also safely stops an
 active log first.
 
-Both coolant IDs and fuel ID `0x120` are included automatically in the raw-frame CSV; no separate
-logging channel needs to be enabled for either additional sensor.
+Both coolant IDs, fuel `0x120` and RPM `0x130` are included automatically in
+the raw-frame CSV; no separate logging channel needs to be enabled.
 
 ## Reading the dashboard
 
@@ -128,6 +131,9 @@ logging channel needs to be enabled for either additional sensor.
 | --- | --- |
 | Pre-radiator / `0x110` | Sensor 1, engine outlet, A0/PA0 |
 | Post-radiator / `0x111` | Sensor 2, radiator outlet, A1/PA1 |
+| Engine RPM / `0x130` | CoilX → level converter → D5/PB4; four pulses per revolution |
+| RPM NO PULSES | Engine stopped or signal missing for 500 ms; number hidden |
+| RPM STALE / NO CAN DATA | USB disconnected or no RPM frame for 500 ms; other sensors do not refresh it |
 | Fuel level / `0x120` | Isolated FG72A sender on A5/PB12; original dash gauge disconnected |
 | Fuel % EST. | Five-second damping of a provisional 10–75-ohm interpolation; not calibrated tank volume |
 | Fuel Ω / ADC / V | Resistance from firmware; unsmoothed ADC and nominal 3.3V voltage estimate |
@@ -139,10 +145,10 @@ logging channel needs to be enabled for either additional sensor.
 | ADC ERROR / CALC ERROR | Acquisition or conversion failed; temperature is hidden |
 | STALE / NO DATA | No fresh message for this sensor, or USB is disconnected |
 | Engine node | Heartbeat status, node uptime, frame count/rate, heartbeat sequence |
-| Raw CAN | Recent frames, including `100`, `110`, `111`, and `120` |
+| Raw CAN | Recent frames, including `100`, `110`, `111`, `120`, and `130` |
 
 The header reports overall traffic; one healthy sensor does not establish that
-the other is fresh. With current firmware, expect roughly twelve received frames/second.
+the other is fresh. With current firmware, expect roughly 22 received frames/second.
 The controls are **Connect/Disconnect**, **Start/Stop log**, **Export**, and
 **Edit layout**. Connection and layout controls are above the cards; scroll to
 reach lower-priority cards on shorter screens. No fan or
@@ -214,3 +220,10 @@ Wire/contact resistance, sender nonlinearity and the custom tank shape still
 need calibration before treating the displayed percent as remaining volume.
 The [ESP32 Wi-Fi gateway](../docs/esp32-logger.md) also has a fuel card after
 updating its firmware. The laptop dashboard retains fuel frames as raw CAN.
+
+## CoilX RPM acceptance (app 0.4.0)
+
+Follow the [RPM test sequence](../docs/rpm-input.md#android-acceptance-sequence)
+for D5/PB4 wiring, 100/200/400 Hz simulation, signal-loss checks and idle
+comparison. Firmware must also include RPM capture; an APK update alone
+cannot make older Nucleo firmware send `0x130`.

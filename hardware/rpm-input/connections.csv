@@ -7,4 +7,4 @@ CoilX logic-side black via C2 cavity 4,Adafruit 757 B1,Conditioned 5V signal; re
 Protected regulated 5V,Adafruit 757 HV,Same 5V supply as CoilX
 STM32 3V3,Adafruit 757 LV,Low-side reference supply
 STM32 GND,Adafruit 757 GND pins,Common logic reference
-Adafruit 757 A1,STM32 timer capture GPIO TBD,3.3V RPM pulse; firmware and pin assignment pending
+Adafruit 757 A1,Nucleo D5/PB4 (CN9 pin 6),3.3V RPM pulse into TIM3_CH1; not Arduino A1

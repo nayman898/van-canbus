@@ -13,6 +13,34 @@ import can
 HEARTBEAT_ID = 0x100
 COOLANT_1_ID = 0x110
 COOLANT_2_ID = 0x111
+RPM_ID = 0x130
+
+RPM_STATUS = {0: "ok", 1: "no signal", 2: "acquiring",
+              4: "out of range", 8: "capture overrun"}
+
+
+def parse_rpm(data: bytearray) -> dict[str, Any]:
+    if len(data) != 8:
+        raise ValueError(f"invalid RPM length={len(data)}")
+    period = int.from_bytes(data[4:6], "little")
+    rpm = int.from_bytes(data[6:8], "little")
+    valid = (data[0] == 1 and data[1] == 1 and data[2] == 0
+             and 150 <= period < 50000 and 30 <= rpm <= 10000
+             and rpm == (1500000 + period // 2) // period)
+    return {"protocol": data[0], "node": data[1], "status": data[2],
+            "status_text": RPM_STATUS.get(data[2], f"unknown 0x{data[2]:02X}"),
+            "sequence": data[3], "valid": valid, "rpm": rpm if valid else None,
+            "period_ticks": period, "pulse_hz": 100000 / period if valid else None}
+
+
+def decode_rpm(data: bytearray) -> str:
+    try:
+        reading = parse_rpm(data)
+    except ValueError as exc:
+        return f"{exc} data={data.hex(' ')}"
+    value = (f"{reading['rpm']} RPM / {reading['pulse_hz']:.2f} Hz" if reading["valid"]
+             else reading["status_text"] if reading["status"] else "invalid reading")
+    return f"engine RPM: {value} sequence={reading['sequence']} period={reading['period_ticks']} x 10 us"
 
 SENSOR_STATUS = {
     0x00: "ok",
@@ -131,6 +159,8 @@ def main() -> int:
                     continue
                 if not message.is_extended_id and message.arbitration_id == HEARTBEAT_ID:
                     print(f"{message.timestamp:.6f}  {decode_heartbeat(message.data)}")
+                elif not message.is_extended_id and message.arbitration_id == RPM_ID:
+                    print(f"{message.timestamp:.6f}  {decode_rpm(message.data)}")
                 elif not message.is_extended_id and message.arbitration_id in (COOLANT_1_ID, COOLANT_2_ID):
                     sensor_id = 1 if message.arbitration_id == COOLANT_1_ID else 2
                     print(f"{message.timestamp:.6f}  {decode_coolant_temperature(message.data, sensor_id)}")

@@ -121,8 +121,10 @@ default for the laptop bench setup.
 
 ## Live monitoring and recording
 
-The dashboard stores only its latest readings and session counters in memory.
-It does **not** save a CSV, raw CAN log, or replayable recording. The terminal
+In CAN mode, the dashboard stores only its latest readings and session counters
+in memory; it does **not** save a CSV, raw CAN log, or replayable recording.
+(Direct Nucleo USB RPM mode via `--serial` or `start_rpm_dashboard.bat` records
+RPM samples to a new CSV under `.cache/rpm-logs`; see below.) The terminal
 monitor likewise prints to the console without creating a file.
 
 For a basic text transcript, PowerShell can capture the terminal output:
@@ -169,3 +171,22 @@ From the repository root:
 
 The tests decode fixed payloads without opening the USB adapter. They still
 require the installed Python dependencies because they import the monitor.
+
+## CoilX RPM terminal diagnostics
+
+`monitor_can.py` decodes `0x130` as RPM, pulse Hz, sequence, period and
+RPM-specific faults. The browser dashboard also has an RPM card for CAN mode.
+For a Nucleo-only bench, run `start_rpm_dashboard.bat` or:
+
+```powershell
+.\.venv\Scripts\python.exe tools\can_dashboard.py --serial auto
+```
+
+This uses the ST-Link USB virtual COM port at 115200 baud, opens the dashboard,
+and records a new CSV under `.cache/rpm-logs`. No CAN receiver is required.
+Use `--serial COM7` to select a port explicitly and `--log path.csv` to choose
+a new log filename. Existing files are never overwritten. The page labels the
+source **Nucleo USB**, hides unavailable coolant cards and reports serial
+errors. RPM expires after 500 ms without its own sample, independent of other
+traffic. Quit with Ctrl+C to close the port; closing the browser tab is not enough.
+See the [CoilX acceptance guide](../docs/rpm-input.md) for pin and pulse checks.

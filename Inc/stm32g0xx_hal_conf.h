@@ -14,6 +14,7 @@ extern "C" {
 #define HAL_GPIO_MODULE_ENABLED
 #define HAL_PWR_MODULE_ENABLED
 #define HAL_RCC_MODULE_ENABLED
+#define HAL_UART_MODULE_ENABLED
 
 #define USE_HAL_FDCAN_REGISTER_CALLBACKS 0U
 
@@ -59,6 +60,7 @@ extern "C" {
 #include "stm32g0xx_hal_flash.h"
 #include "stm32g0xx_hal_fdcan.h"
 #include "stm32g0xx_hal_pwr.h"
+#include "stm32g0xx_hal_uart.h"
 
 #ifdef USE_FULL_ASSERT
 void assert_failed(uint8_t *file, uint32_t line);

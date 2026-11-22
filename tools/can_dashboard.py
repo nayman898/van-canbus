@@ -8,6 +8,7 @@ import json
 import threading
 import time
 import webbrowser
+from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -18,9 +19,11 @@ from monitor_can import (
     COOLANT_1_ID,
     COOLANT_2_ID,
     HEARTBEAT_ID,
+    RPM_ID,
     configure_usb_backend,
     parse_coolant_temperature,
     parse_heartbeat,
+    parse_rpm,
 )
 
 
@@ -33,7 +36,7 @@ CONTENT_TYPES = {
 
 
 class DashboardState:
-    def __init__(self, bitrate: int, adapter_index: int) -> None:
+    def __init__(self, bitrate: int, adapter_index: int, serial_port: str | None = None) -> None:
         self._lock = threading.Lock()
         self._started = time.monotonic()
         self._last_frame: float | None = None
@@ -47,6 +50,9 @@ class DashboardState:
             "heartbeat": None,
             "coolant": None,
             "coolant_post": None,
+            "rpm": None,
+            "transport": "serial" if serial_port else "can",
+            "serial_port": serial_port,
         }
 
     def set_connection(self, connected: bool, error: str | None = None) -> None:
@@ -63,6 +69,9 @@ class DashboardState:
                 sensor_id = 1 if arbitration_id == COOLANT_1_ID else 2
                 key = "coolant" if sensor_id == 1 else "coolant_post"
                 reading = parse_coolant_temperature(data, sensor_id)
+            elif arbitration_id == RPM_ID:
+                key = "rpm"
+                reading = parse_rpm(data)
             else:
                 key = ""
                 reading = None
@@ -78,11 +87,20 @@ class DashboardState:
                 self._state[key] = reading
                 self._received[key] = now
 
+    def receive_serial_rpm(self, reading: dict[str, Any], port: str) -> None:
+        now = time.monotonic()
+        with self._lock:
+            self._state["rpm"] = dict(reading)
+            self._state["serial_port"] = port
+            self._state["frames_received"] += 1
+            self._received["rpm"] = now
+            self._last_frame = now
+
     def snapshot(self) -> dict[str, Any]:
         now = time.monotonic()
         with self._lock:
             result = dict(self._state)
-            for key in ("heartbeat", "coolant", "coolant_post"):
+            for key in ("heartbeat", "coolant", "coolant_post", "rpm"):
                 if result[key] is not None:
                     result[key] = dict(result[key])
                     result[key]["age_ms"] = int((now - self._received[key]) * 1000)
@@ -172,10 +190,19 @@ def main() -> int:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--no-browser", action="store_true")
+    parser.add_argument("--serial", metavar="PORT", help="Nucleo USB serial, e.g. COM7 or auto; no CAN adapter needed")
+    parser.add_argument("--log", type=Path, help="New CSV file for direct USB RPM samples")
     args = parser.parse_args()
 
-    state = DashboardState(args.bitrate, args.index)
-    reader = CanReader(state, args.bitrate, args.index)
+    state = DashboardState(args.bitrate, args.index, args.serial)
+    if args.serial:
+        from rpm_serial import SerialRpmReader
+        log_path = args.log or Path(__file__).resolve().parents[1] / ".cache" / "rpm-logs" / (
+            "rpm-" + datetime.now().strftime("%Y%m%d-%H%M%S-%f") + ".csv")
+        reader = SerialRpmReader(state, args.serial, log_path)
+        print(f"Direct Nucleo USB RPM, 115200 baud. Recording CSV: {log_path}")
+    else:
+        reader = CanReader(state, args.bitrate, args.index)
     server = ThreadingHTTPServer((args.host, args.port), make_handler(state))
     url = f"http://{args.host}:{args.port}"
 

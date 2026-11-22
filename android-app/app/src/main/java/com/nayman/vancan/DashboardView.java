@@ -216,6 +216,7 @@ public final class DashboardView extends LinearLayout {
                             drawPhoneCoolant(canvas, bounds, state.coolantPost, "POST-RADIATOR", "0x111");
                             break;
                         case FUEL: drawFuel(canvas, bounds); break;
+                        case RPM: drawRpm(canvas, bounds); break;
                         case ENGINE: drawSystem(canvas, bounds); break;
                         case RAW: drawRawFrames(canvas, bounds); break;
                     }
@@ -340,6 +341,27 @@ public final class DashboardView extends LinearLayout {
                 : String.format(Locale.US, "ADC %d  ·  %.3f V  ·  SEQ %d",
                 reading.adcRaw, reading.voltage, reading.sequence);
         textClipped(canvas, details, left, bounds.bottom - dp(21), right, dp(12), MUTED, mono);
+    }
+
+    private void drawRpm(Canvas canvas, RectF bounds) {
+        float left = bounds.left + dp(20);
+        float right = bounds.right - dp(20);
+        VanCanDecoder.RpmReading reading = state.rpm;
+        boolean fresh = reading != null && reading.fresh(state.usbConnected, SystemClock.elapsedRealtime());
+        boolean valid = fresh && reading.valid;
+        text(canvas, "ENGINE RPM", left, bounds.top + dp(26), dp(14), MUTED, sansMedium);
+        textClipped(canvas, "COILX · V8 · 4 PULSES / REV", left, bounds.top + dp(45), right,
+                dp(11), MUTED, sansMedium);
+        text(canvas, valid ? Integer.toString(reading.rpm) : "--", left,
+                bounds.top + dp(100), dp(48), valid ? PRIMARY : MUTED, sansMedium);
+        String status = !fresh ? "STALE / NO CAN DATA" : !reading.valid && reading.status == 0
+                ? "INVALID READING" : VanCanDecoder.rpmStatusText(reading.status);
+        textClipped(canvas, status, left, bounds.top + dp(137), right, dp(13),
+                valid ? ACCENT : AMBER, sansMedium);
+        String details = valid ? String.format(Locale.US, "%.2f Hz  ·  SEQ %d", reading.pulseHz(), reading.sequence)
+                : fresh && reading.status == 1 ? "Engine stopped or signal missing"
+                : "Waiting for RPM pulses · CAN 0x130";
+        textClipped(canvas, details, left, bounds.top + dp(173), right, dp(12), MUTED, mono);
     }
 
     private void drawFuel(Canvas canvas, RectF bounds) {

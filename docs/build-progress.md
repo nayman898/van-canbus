@@ -269,3 +269,37 @@ low fuel pressure 5/8, and fuel level 6/7. The local interactive RPM guide and
 connection list reflect C2.4 to B1 and C2.9 to logic ground. CoilX is still
 shipping; its separate regulated 5V feed and any new enclosure connector await
 photos/layout planning. RPM GPIO/firmware and pressure firmware remain pending.
+
+
+## November 10, 2026 — CoilX RPM prepared; direct USB bench active
+
+The owner reports CoilX wired and the MCU lead still disconnected. Assigned the
+translated 3.3V output to **D5/PB4 (CN9 pin 6), TIM3_CH1**. Added rising-edge
+capture, four-pulse/revolution conversion, timeout/acquiring/range/overcapture
+status and CAN `0x130` every 100 ms. Existing coolant, fuel and CAN pins remain.
+
+The CAN network is installed in the van and unavailable on this bench. Added
+USART2 TX/PA2 telemetry through onboard ST-Link USB, with its own sequence
+independent of CAN queue success. The laptop dashboard now has an RPM card,
+direct USB mode, automatic ST-Link port detection, reconnect and CSV recording.
+`start_rpm_dashboard.bat` starts this mode without a CAN receiver.
+
+Backed up the Nucleo's full 512 KiB flash, programmed the final USB/RPM image,
+verified flash readback and reset. The known NUCLEO-G0B1RE was detected at 3.25V.
+Live **COM7 / 115200** samples arrive every 100 ms and correctly report no signal
+with no pulse source. The browser was checked at desktop/mobile widths against
+that live stream; CSV output contains the same samples. Local build artifacts,
+hashes, original backup reference and test evidence are under
+`.cache/rpm-test-2026-11-10` and `.cache/rpm-build`.
+
+Android **0.4.0** adds an Engine RPM card, frequency diagnostics and independent
+500 ms freshness. Saved layouts remain intact; add the new card through Edit
+layout → Add card. Built the APK and passed Android lint and plain-JDK decoder/
+layout checks. Android device installation/visual acceptance remains pending;
+the local emulator could not run because its system image is absent.
+
+Native capture/encoder checks, 30 Python tests, JavaScript dashboard checks and
+Python lint passed. Windows Python tests used UTF-8 mode for documentation
+fixtures. Physical input pulses, converter pulse shape, ignition comparison and
+end-to-end CAN/Android acceptance remain pending; USB telemetry does not prove
+CAN operation. Follow the staged [RPM acceptance guide](rpm-input.md).

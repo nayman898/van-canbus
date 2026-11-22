@@ -32,6 +32,9 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/files.cmake)
 target_sources(${PROJECT_NAME} PRIVATE
   Src/can_protocol.c
   Src/fuel_sensor.c
+  Src/rpm_sensor.c
+  Src/rpm_input.c
+  Src/debug_serial.c
   Src/tx3_sensor.c
   Src/stm32g0xx_hal_msp.c
   Src/stm32g0xx_it.c
@@ -51,6 +54,8 @@ target_sources(${PROJECT_NAME} PRIVATE
   third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_pwr_ex.c
   third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rcc.c
   third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rcc_ex.c
+  third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_uart.c
+  third_party/STM32CubeG0/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_uart_ex.c
 )
 
 # Add include directories

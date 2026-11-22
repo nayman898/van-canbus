@@ -46,7 +46,37 @@ public final class VanCanDecoderTest {
             check(VanCanDecoder.decodeCoolant(special) == null, "reject extended/RTR/error");
         }
         checkFuel();
+        checkRpm();
         System.out.println("Android CAN decoder and fuel display checks passed");
+    }
+
+    private static void checkRpm() {
+        VanCanDecoder.RpmReading rpm = VanCanDecoder.decodeRpm(frame(0x130, 1, 1, 0, 7, 0xe8, 3, 0xdc, 5));
+        check(rpm != null && rpm.valid && rpm.rpm == 1500 && rpm.pulseHz() == 100, "100 Hz = 1500 RPM");
+        check(rpm.sequence == 7 && rpm.periodTicks == 1000, "RPM diagnostics");
+        check(rpm.fresh(true, 1499) && !rpm.fresh(true, 1500), "RPM stale at 500 ms");
+        check(!rpm.fresh(false, 1000) && !rpm.fresh(true, 999), "disconnect and negative age");
+        for (int[] values : new int[][] {{0xf4, 1, 0xb8, 0x0b}, {0xfa, 0, 0x70, 0x17}}) {
+            rpm = VanCanDecoder.decodeRpm(frame(0x130, 1, 1, 0, 255, values[0], values[1], values[2], values[3]));
+            check(rpm.valid && (rpm.rpm == 3000 || rpm.rpm == 6000), "200/400 Hz vectors");
+        }
+        for (int status : new int[] {1, 2, 4, 8, 16, 255}) {
+            rpm = VanCanDecoder.decodeRpm(frame(0x130, 1, 1, status, 0, 0, 0, 255, 255));
+            check(!rpm.valid && Double.isNaN(rpm.pulseHz()), "RPM fault suppresses frequency");
+        }
+        for (int[] bytes : new int[][] {
+                {2, 1, 0, 0, 0xe8, 3, 0xdc, 5}, {1, 2, 0, 0, 0xe8, 3, 0xdc, 5},
+                {1, 1, 0, 0, 0, 0, 0xdc, 5}, {1, 1, 0, 0, 0xe8, 3, 255, 255},
+                {1, 1, 0, 0, 0xe8, 3, 0xb8, 0x0b}, {1, 1, 0, 0, 149, 0, 0xdc, 5}}) {
+            check(!VanCanDecoder.decodeRpm(frame(0x130, bytes)).valid, "reject inconsistent RPM payload");
+        }
+        check(VanCanDecoder.decodeRpm(frame(0x130, 1, 1)) == null, "truncated RPM");
+        check(VanCanDecoder.decodeRpm(frame(0x131, 1, 1, 0, 7, 0xe8, 3, 0xdc, 5)) == null, "wrong RPM ID");
+        for (int flag = 0; flag < 3; flag++) {
+            check(VanCanDecoder.decodeRpm(new CanFrame(1000, 0x130, flag == 0, flag == 1, flag == 2,
+                    new byte[] {1, 1, 0, 7, (byte)0xe8, 3, (byte)0xdc, 5})) == null, "RPM special frame");
+        }
+        check(VanCanDecoder.rpmStatusText(1).equals("NO PULSES"), "no pulses distinct from stale CAN");
     }
 
     private static void checkFuel() {

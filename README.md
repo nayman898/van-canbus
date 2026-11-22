@@ -22,10 +22,11 @@ A BTT U2C V2.1 connects the bus to either the Android app or laptop. This is a
 custom telemetry network, not an OBD-II scanner or decoder for a factory
 vehicle network.
 
-The current bench firmware transmits a Classical CAN heartbeat and two TX3
-coolant-temperature inputs (pre- and post-radiator), plus a fuel-level bench
-input on A5/PB12, at 500 kbit/s. Fuel hardware acceptance and tank calibration
-are pending; Android labels its percentage as an uncalibrated estimate.
+The current bench firmware transmits a Classical CAN heartbeat, two TX3
+coolant-temperature inputs (pre- and post-radiator), a fuel-level bench input
+on A5/PB12, and CoilX RPM (`0x130`) on D5/PB4 at 500 kbit/s. Fuel and RPM
+pulse/vehicle acceptance and tank calibration are pending; Android labels fuel
+percentage as an uncalibrated estimate.
 
 The provisional vehicle wiring and connector allocation are documented in
 [the engine-node harness plan](docs/engine-node-harness.md).
@@ -66,7 +67,7 @@ are connected.
 | Coolant channel 2 | Two-channel firmware flashed/verified; phone operation confirmed and both readings received on PC |
 | Fuel level | [Isolated FG72A bench input](docs/fuel-level.md), resistance telemetry and Android estimate implemented; hardware test/calibration pending |
 | Pressure inputs | Three-channel prototype schematic and parts cart prepared; assembly, calibration and firmware pending |
-| RPM input | CoilX ordered; level converter, input-pin assignment and firmware pending |
+| RPM input | CoilX wired; D5/PB4 capture, CAN 0x130 and Android 0.4.0 prepared; pulse/vehicle acceptance pending |
 | Recording | Raw-frame CSV recording and export in the Android app |
 | ESP32 gateway | Fuel card added in current source/build; updated flash and fuel acceptance pending. [Live web monitor](docs/esp32-logger.md) flashed and boot-verified; assembled board photographed; CAN/vehicle acceptance tests pending; SD optional |
 | Printed cases | [ESP32 compact V3 and U2C case](docs/printing.md); fit checks and assembly instructions included |
@@ -118,6 +119,7 @@ end. With all USB cables unplugged, CAN-H to CAN-L should measure about 60 ohms.
 - TX3 pull-up: nominal 2.47 kohm to 3.3 V
 - Fuel level: `0x120` every 500 ms, A5 / PB12 / ADC1_IN16, isolated 1k pull-up
 - Fuel conversion: raw ADC + resistance; Android percent is an uncalibrated estimate
+- Engine RPM: `0x130` every 100 ms, D5 / PB4 / TIM3_CH1 rising-edge capture at 100 kHz, 4 pulses/revolution (mirrored over USART2 TX/PA2 ST-Link USB at 115200 baud for bench diagnostics)
 
 | Byte | Meaning |
 | ---: | --- |
@@ -178,14 +180,17 @@ For a graphical dashboard, run:
 ```
 
 The dashboard opens at `http://127.0.0.1:8765` and displays live coolant
-temperature, ADC voltage, sensor faults, node uptime, and CAN connection state.
-It automatically retries if the USB CAN adapter is temporarily disconnected.
-On Windows, `start_dashboard.bat` provides a one-click launcher after the Python
-environment has been installed.
+temperature, ADC voltage, RPM, sensor faults, node uptime, and CAN connection
+state. It automatically retries if the USB CAN adapter is temporarily
+disconnected. On Windows, `start_dashboard.bat` provides a one-click launcher
+after the Python environment has been installed. For a Nucleo-only RPM bench
+test without a CAN receiver, run `start_rpm_dashboard.bat` (or pass
+`--serial auto`), which reads ST-Link USB telemetry and records CSV logs under
+`.cache/rpm-logs`.
 
-The dashboard displays live readings and retains the latest values in memory;
-it does not save recordings. See the [tools guide](tools/README.md) for options,
-troubleshooting, and a way to capture a basic terminal transcript.
+The CAN-mode dashboard displays live readings and retains the latest values in
+memory; it does not save recordings. See the [tools guide](tools/README.md) for
+options, troubleshooting, and a way to capture a basic terminal transcript.
 
 Run the host-side protocol decoder tests with:
 

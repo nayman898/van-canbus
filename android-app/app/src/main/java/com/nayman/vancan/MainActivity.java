@@ -258,6 +258,8 @@ public final class MainActivity extends Activity implements DashboardView.Action
             else state.coolantPost = coolant;
         }
         state.fuel.accept(VanCanDecoder.decodeFuel(frame));
+        VanCanDecoder.RpmReading rpm = VanCanDecoder.decodeRpm(frame);
+        if (rpm != null) state.rpm = rpm;
         refresh();
     }
 
@@ -298,6 +300,7 @@ public final class MainActivity extends Activity implements DashboardView.Action
         state.coolant = null;
         state.coolantPost = null;
         state.fuel.clear();
+        state.rpm = null;
         state.heartbeat = null;
         frameTimes.clear();
         adapter.start(device);

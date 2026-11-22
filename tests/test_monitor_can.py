@@ -93,5 +93,24 @@ class CoolantDecoderTests(unittest.TestCase):
         self.assertIsNone(reading["temperature_c"])
 
 
+class RpmDecoderTests(unittest.TestCase):
+    def test_frequency_vectors(self):
+        for period, rpm in ((1000, 1500), (500, 3000), (250, 6000)):
+            data = bytearray([1, 1, 0, 7]) + period.to_bytes(2, "little") + rpm.to_bytes(2, "little")
+            reading = MONITOR.parse_rpm(data)
+            self.assertTrue(reading["valid"])
+            self.assertEqual(reading["rpm"], rpm)
+            self.assertEqual(reading["pulse_hz"], rpm / 15)
+            self.assertIn(f"{rpm} RPM", MONITOR.decode_rpm(data))
+
+    def test_missing_signal_and_bad_payloads(self):
+        self.assertIn("no signal", MONITOR.decode_rpm(bytearray([1, 1, 1, 0, 0, 0, 255, 255])))
+        for data in ([2, 1, 0, 0, 232, 3, 220, 5], [1, 2, 0, 0, 232, 3, 220, 5],
+                     [1, 1, 0, 0, 0, 0, 220, 5], [1, 1, 0, 0, 232, 3, 255, 255],
+                     [1, 1, 0, 0, 232, 3, 0, 0], [1, 1, 8, 0, 232, 3, 220, 5]):
+            self.assertIsNone(MONITOR.parse_rpm(bytearray(data))["rpm"])
+        self.assertIn("invalid RPM length", MONITOR.decode_rpm(bytearray([1, 1])))
+
+
 if __name__ == "__main__":
     unittest.main()
